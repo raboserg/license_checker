@@ -1,12 +1,10 @@
-﻿// license_checker.cpp: определяет точку входа для приложения.
-//
+﻿// application.cpp
 
-#include "license_checker.h"
+#include "application.h"
 
 using namespace std;
 
-int main()
-{
-	cout << "Hello CMake." << endl;
-	return 0;
+int main() {
+  cout << "Hello CMake." << endl;
+  return 0;
 }
