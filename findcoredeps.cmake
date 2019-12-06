@@ -1,14 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_CXX_STANDARD 14)
+#set(CMAKE_CXX_STANDARD 14)
 
 #cmake_policy(SET CMP0079 NEW)
 
 set(CORE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
-
-
-set(DEP_DIR ${CORE_DIR}/../deps CACHE PATH "Dependencies")
-option(USE_MBEDTLS "Use mbed TLS instead of OpenSSL")
 
 if (DEFINED ENV{DEP_DIR})
     message(WARNING "Overriding DEP_DIR setting with environment variable")
@@ -17,13 +13,13 @@ endif ()
 
 # Include our DEP_DIR in path used to find libraries
 
-if (APPLE)
-    set(OPENVPN_PLAT osx)
-elseif (WIN32)
-    set(OPENVPN_PLAT amd64)
-else ()
-    set(OPENVPN_PLAT linux)
-endif ()
+#if (APPLE)
+#    set(OPENVPN_PLAT osx)
+#elseif (WIN32)
+#    set(OPENVPN_PLAT amd64)
+#else ()
+#    set(OPENVPN_PLAT linux)
+#endif ()
 
 function(add_core_dependencies target)
     set(PLAT ${OPENVPN_PLAT})
