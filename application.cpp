@@ -10,7 +10,7 @@ namespace po = boost::program_options;
 
 // static http::server::server *the_server = nullptr; // GLOBAL
 
-int run_server(const int argc, const char *argv[]) {
+int run_server(const int argc, const char **argv) {
   try {
     // Check command line arguments.
     if (argc != 4) {
@@ -28,6 +28,13 @@ int run_server(const int argc, const char *argv[]) {
     std::cerr << "exception: " << e.what() << "\n";
   }
   return 0;
+}
+
+string input_handle() {
+  std::string cmd;
+  cout << "Input <Enter> for close" << endl;
+  getline(std::cin, cmd);
+  return cmd;
 }
 
 int main(int argc, const char *argv[]) {
@@ -69,9 +76,6 @@ int main(int argc, const char *argv[]) {
       new std::thread([argc, argv]() { run_server(argc, argv); }));
   the_thread->detach();
 
-  std::string cmd;
-  getline(std::cin, cmd);
-
-  std::cout << cmd;
+  std::cout << input_handle();
   return 0;
 }

@@ -22,27 +22,38 @@ if(CMAKE_HOST_WIN32)
 endif()
 
 if(Boost_FOUND)
-	add_definitions(-D_WIN32_WINNT=0X0601)
+        #???add_definitions(-D_WIN32_WINNT=0X0601)
 	add_executable(${PROJECT_NAME} application.cpp application.h)
 	#vc140-mt
-	target_link_libraries(${PROJECT_NAME} PUBLIC client license server 
-		boost_system-vc140-mt 
-		boost_filesystem-vc140-mt 
-		boost_program_options-vc140-mt)
+        if(CMAKE_HOST_WIN32)
+            #???add_definitions(-D_WIN32_WINNT=0X0601)
+            target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
+            target_link_libraries(${PROJECT_NAME} PUBLIC client license server
+                boost_system-vc140-mt
+                boost_filesystem-vc140-mt
+                boost_program_options-vc140-mt)
+        elseif(CMAKE_HOST_UNIX)
+            target_link_libraries(${PROJECT_NAME} PUBLIC client license server
+                pthread
+                boost_system
+                boost_filesystem
+                boost_program_options)
+        endif()
 	#????add_library(${PROJECT_NAME} STATIC license boost_system-vc140-mt boost_filesystem-vc140-mt boost_program_options-vc140-mt)
 	target_include_directories(${PROJECT_NAME} PUBLIC client license server ${Boost_INCLUDE_DIRS})
 	add_subdirectory ("client")
 	add_subdirectory ("license")
 	add_subdirectory("server")
-	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 	if(CMAKE_HOST_WIN32)
 		#vc142-mt-x64-1_71.dll
 		set(DEPENDENCIES ${BOOST_ROOT}bin/boost_system-vc142-mt-x64-1_71.dll
 				${BOOST_ROOT}bin/boost_filesystem-vc142-mt-x64-1_71.dll
 				${BOOST_ROOT}bin/boost_program_options-vc142-mt-x64-1_71.dll)
 		foreach(DEPENDENCY ${DEPENDENCIES})
-			file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-			#???install(PROGRAMS "${DEPENDENCY}" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+                    file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+                    #???install(PROGRAMS "${DEPENDENCY}" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 		endforeach()
 	elseif(CMAKE_HOST_UNIX)
 		message("CMAKE_HOST_UNIX")
