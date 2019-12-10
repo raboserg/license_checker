@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 
 #set(CMAKE_CXX_STANDARD 14)
-
 #cmake_policy(SET CMP0079 NEW)
 
-set(CORE_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
+set(BOOST_DIR ${CMAKE_CURRENT_LIST_DIR}/..)
+
+set(BOOST_INCLUDEDIR "")
+set(BOOST_LIBRARYDIR "")
 
 if (DEFINED ENV{DEP_DIR})
     message(WARNING "Overriding DEP_DIR setting with environment variable")
@@ -38,11 +40,10 @@ function(add_core_dependencies target)
     if (WIN32)
         list(APPEND CORE_DEFINES
                 -D_WIN32_WINNT=0x0600
-                -DTAP_WIN_COMPONENT_ID=tap0901
                 -D_CRT_SECURE_NO_WARNINGS
                 )
-        set(EXTRA_LIBS fwpuclnt.lib Iphlpapi.lib lz4::lz4 wininet.lib Wtsapi32.lib setupapi.lib rpcrt4.lib)
-        target_compile_options(${target} PRIVATE "/bigobj")
+        #set(EXTRA_LIBS fwpuclnt.lib Iphlpapi.lib lz4::lz4 wininet.lib Wtsapi32.lib setupapi.lib rpcrt4.lib)
+        #target_compile_options(${target} PRIVATE "/bigobj")
 
         find_package(lz4 CONFIG REQUIRED)
         list(APPEND CORE_INCLUDES ${ASIO_INCLUDE_DIR})
@@ -60,31 +61,6 @@ function(add_core_dependencies target)
 
         find_package(LZ4 REQUIRED)
     endif ()
-
-
-    if (${USE_MBEDTLS})
-        find_package(mbedTLS REQUIRED)
-
-        set(SSL_LIBRARY ${MBEDTLS_LIBRARIES})
-
-        list(APPEND CORE_DEFINES -DUSE_MBEDTLS)
-
-        # The findmbedTLS does not set these automatically :(
-        list(APPEND CORE_INCLUDES ${MBEDTLS_INCLUDE_DIR})
-
-    else ()
-        find_package(OpenSSL REQUIRED)
-        SET(SSL_LIBRARY OpenSSL::SSL)
-        list(APPEND CORE_DEFINES -DUSE_OPENSSL)
-    endif ()
-
-    if (APPLE)
-        find_library(coreFoundation CoreFoundation)
-        find_library(iokit IOKit)
-        find_library(coreServices CoreServices)
-        find_library(systemConfiguration SystemConfiguration)
-        target_link_libraries(${target} ${coreFoundation} ${iokit} ${coreServices} ${systemConfiguration} ${lz4} ${SSL_LIBRARY})
-    endif()
 
     if(UNIX)
         target_link_libraries(${target} pthread)

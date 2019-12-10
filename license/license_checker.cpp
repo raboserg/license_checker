@@ -34,7 +34,7 @@ LisenceChecker::LisenceChecker(const string &file_name)
     buffer[0] = 255;
     while (file.good() && buffer[0] > 127)
       file.read((char *)buffer, 1);
-    int pos = file.tellg();
+    std::streamoff pos = file.tellg();
     if (pos > 0)
       file.seekg(pos - 1);
     pt::read_ini(file, root_);

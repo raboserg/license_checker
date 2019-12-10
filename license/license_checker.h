@@ -3,7 +3,7 @@
 #ifndef LICENSE_CHECKER_H
 #define LICENSE_CHECKER_H
 
-#if defined(_MSC_VER)
+#if defined(_WINDOWS)
 #pragma once
 #endif
 

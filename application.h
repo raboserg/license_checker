@@ -6,11 +6,10 @@
 #pragma once
 #endif
 
+#include "platform.hpp"
 #include "client_license.h"
 #include "license_checker.h"
 #include <iostream>
-
-#include <boost/process.hpp>
 #include <boost/program_options.hpp>
 
 namespace itvpn {
