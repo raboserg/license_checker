@@ -26,8 +26,8 @@ if(Boost_FOUND)
 	add_executable(${PROJECT_NAME} application.cpp application.h)
 	#vc140-mt
         if(CMAKE_HOST_WIN32)
-            #???add_definitions(-D_WIN32_WINNT=0X0601)
-            target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
+            add_definitions(-D_WIN32_WINNT=0X0601)
+            #???target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
             target_link_libraries(${PROJECT_NAME} PUBLIC client license server
                 boost_system-vc140-mt
                 boost_filesystem-vc140-mt
@@ -44,8 +44,9 @@ if(Boost_FOUND)
 	add_subdirectory ("client")
 	add_subdirectory ("license")
 	add_subdirectory("server")
+	add_subdirectory("cpprest")
 
-        file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 	if(CMAKE_HOST_WIN32)
 		#vc142-mt-x64-1_71.dll
 		set(DEPENDENCIES ${BOOST_ROOT}bin/boost_system-vc142-mt-x64-1_71.dll

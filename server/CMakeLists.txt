@@ -1,25 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 
-set(SOURCES connection.cpp
-    connection_manager.cpp
-    main.cpp
-    mime_types.cpp
-    reply.cpp
-    request_handler.cpp
-    request_parser.cpp
-    server.cpp
-#    connection.hpp
-#    connection_manager.hpp
-#    header.hpp
-#    mime_types.hpp
-#    reply.hpp
-#    request.hpp
-#    request_handler.hpp
-#    request_parser.hpp
-#    server.hpp
-)
-
-set(INCLUDES connection.hpp
+set(HAEDERS connection.hpp
     connection_manager.hpp
     header.hpp
     mime_types.hpp
@@ -28,6 +9,18 @@ set(INCLUDES connection.hpp
     request_handler.hpp
     request_parser.hpp
     server.hpp)
+
+set(SOURCES connection.cpp
+    connection_manager.cpp
+    main.cpp
+    mime_types.cpp
+    reply.cpp
+    request_handler.cpp
+    request_parser.cpp
+    server.cpp
+	${HAEDERS})
+
+
 #set(Boost_USE_STATIC_LIBS        ON) # only find static libs
 #set(Boost_USE_MULTITHREADED      ON)
 #set(Boost_USE_STATIC_RUNTIME    ON)
@@ -45,10 +38,10 @@ set(INCLUDES connection.hpp
 #find_package(Boost REQUIRED)
 #??target_compile_definitions(server PUBLIC _WIN32_WINNT)
 if(CMAKE_HOST_WIN32)
-    #add_definitions(-D_WIN32_WINNT=0X0601)
-    target_compile_definitions(server PUBLIC -D_WIN32_WINNT=0X0601)
+    add_definitions(-D_WIN32_WINNT=0X0601)
+    #???target_compile_definitions(server PUBLIC -D_WIN32_WINNT=0X0601)
 endif()
 add_library(server STATIC ${SOURCES})
 
 #target_link_libraries(server PUBLIC debug client license boost_system-vc140-mt boost_filesystem-vc140-mt boost_program_options-vc140-mt)
-target_include_directories(server PUBLIC    ${Boost_INCLUDE_DIRS} ${INCLUDES})
+target_include_directories(server PUBLIC ${Boost_INCLUDE_DIRS})

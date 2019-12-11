@@ -9,3 +9,4 @@ CTestTestfile.cmake
 CMakeLists.txt.user
 CMakeLists.txt.autosave
 .vs
+deps

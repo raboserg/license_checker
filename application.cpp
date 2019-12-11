@@ -8,7 +8,7 @@ using namespace std;
 using namespace boost;
 namespace po = boost::program_options;
 
-// static http::server::server *the_server = nullptr; // GLOBAL
+//static http::server::server *the_server = nullptr; // GLOBAL
 
 int run_server(const int argc, const char **argv) {
   try {
@@ -28,6 +28,11 @@ int run_server(const int argc, const char **argv) {
     std::cerr << "exception: " << e.what() << "\n";
   }
   return 0;
+}
+
+void shutdown_server() {
+  //the_server->close().wait();
+  return;
 }
 
 string input_handle() {
