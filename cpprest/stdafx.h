@@ -14,12 +14,10 @@
 
 #pragma once
 
-#include "cpprest/asyncrt_utils.h"
 #include "cpprest/http_listener.h"
 #include "cpprest/json.h"
 #include "cpprest/asyncrt_utils.h"
 
-//#define _TURN_OFF_PLATFORM_STRING
 #include "cpprest/uri.h"
 #include <algorithm>
 #include <fstream>
@@ -28,6 +26,9 @@
 #include <sstream>
 #include <string>
 #include <vector>
+
+//#include "http_listener_tests.h"
+//#include "cpprest/tests/http_test_utilities.h"
 
 #ifdef _WIN32
 #include <Windows.h>

@@ -44,7 +44,7 @@ if(Boost_FOUND)
 	add_subdirectory ("client")
 	add_subdirectory ("license")
 	add_subdirectory("server")
-        add_subdirectory("cpprest")
+	add_subdirectory("cpprest")
 
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 	if(CMAKE_HOST_WIN32)
