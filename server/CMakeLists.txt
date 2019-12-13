@@ -44,4 +44,5 @@ endif()
 add_library(server STATIC ${SOURCES})
 
 #target_link_libraries(server PUBLIC debug client license boost_system-vc140-mt boost_filesystem-vc140-mt boost_program_options-vc140-mt)
+#target_link_libraries(server PUBLIC boost_regex)
 target_include_directories(server PUBLIC ${Boost_INCLUDE_DIRS})

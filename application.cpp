@@ -8,11 +8,12 @@ using namespace std;
 using namespace boost;
 namespace po = boost::program_options;
 
-//static http::server::server *the_server = nullptr; // GLOBAL
+// static http::server::server *the_server = nullptr; // GLOBAL
 
 int run_server(const int argc, const char **argv) {
   try {
     // Check command line arguments.
+    cout << argc << endl;
     if (argc != 4) {
       std::cerr << "Usage: http_server <address> <port> <doc_root>\n";
       std::cerr << "  For IPv4, try:\n";
@@ -31,7 +32,7 @@ int run_server(const int argc, const char **argv) {
 }
 
 void shutdown_server() {
-  //the_server->close().wait();
+  // the_server->close().wait();
   return;
 }
 
