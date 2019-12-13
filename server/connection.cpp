@@ -27,18 +27,13 @@ void connection::do_read() {
       [this, self](boost::system::error_code ec,
                    std::size_t bytes_transferred) {
         if (!ec) {
-          request_parser::result_type result;
-
-          //          std::shared_ptr<char> params1;
-          //          auto ptr1 = std::make_shared<char>();
-
           std::string post_parameters;
+		  request_parser::result_type result;
           std::tie(result, post_parameters) = request_parser_.parse(
               request_, buffer_.data(), buffer_.data() + bytes_transferred);
-          //???if(request_.method == "POST")
-          if (!post_parameters.empty())
-            request_parser_.parse_paremeters(request_, post_parameters);
           if (result == request_parser::good) {
+			if (request_.method == "POST")
+				request_parser_.parse_paremeters(request_, post_parameters);
             request_handler_.handle_request(request_, reply_);
             do_write();
           } else if (result == request_parser::bad) {

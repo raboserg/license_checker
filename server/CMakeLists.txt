@@ -39,7 +39,6 @@ set(SOURCES connection.cpp
 #??target_compile_definitions(server PUBLIC _WIN32_WINNT)
 if(CMAKE_HOST_WIN32)
     add_definitions(-D_WIN32_WINNT=0X0601)
-    #???target_compile_definitions(server PUBLIC -D_WIN32_WINNT=0X0601)
 endif()
 add_library(server STATIC ${SOURCES})
 

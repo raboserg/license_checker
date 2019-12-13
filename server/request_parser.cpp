@@ -190,30 +190,33 @@ request_parser::result_type request_parser::consume(request &req, char input) {
   }
 }
 
-template <class Container>
-void split(const std::string &str, Container &cont,
-           const std::string &delims = " ") {
-  boost::split(cont, str, boost::is_any_of(delims));
+int content_length(const request &request) {
+  int length = 0;
+  const std::string name = "Content-Length";
+  const std::vector<header>::const_iterator item =
+      std::find_if(request.headers.begin(), request.headers.end(),
+                   [&](const auto &header_) { return header_.name == name; });
+  if (item != request.headers.end())
+    length = std::atoi(item->value.c_str());
+  return length;
 }
 
-void request_parser::parse_paremeters(request &req,
-                                      const std::string &raw_params) const {
-  const std::vector<header>::const_iterator iter = std::find_if(
-      req.headers.begin(), req.headers.end(),
-      [&](const auto &header_) { return header_.name == "Content-Length"; });
-
-  if (iter != req.headers.end()) {
-    const int length = std::atoi(iter->value.c_str());
-    std::string params(std::begin(raw_params), std::begin(raw_params) + length);
-    std::vector<std::string> words;
-    split(params, words, "&");
-    for (auto word : words) {
-      // std::vector<std::string> words;
-      char words[2];
-      split(word, words, "=");
-      req.parameters.push_back(header());
-      req.parameters.back().name.push_back(words[0]);
-      req.parameters.back().value.push_back(words[1]);
+void request_parser::parse_paremeters(request &request,
+                                      const std::string &params) const {
+  if (!params.empty()) {
+    const int length = content_length(request);
+    if (length > 0) {
+      std::string post_parameters(std::begin(params),
+                                  std::begin(params) + length);
+      std::vector<std::string> pairs;
+      boost::split(pairs, post_parameters, boost::is_any_of("&"));
+      for (auto pair : pairs) {
+        std::vector<std::string> values;
+        boost::split(values, pair, boost::is_any_of("="));
+        request.parameters.push_back(header());
+        request.parameters.back().name = values[0];
+        request.parameters.back().value = values[1];
+      }
     }
   }
 }

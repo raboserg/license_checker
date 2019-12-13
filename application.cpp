@@ -4,6 +4,8 @@
 #include "server.hpp"
 #include <boost/program_options.hpp>
 
+#include <boost/beast/http.hpp>
+
 using namespace std;
 using namespace boost;
 namespace po = boost::program_options;
@@ -77,6 +79,15 @@ int main(int argc, const char *argv[]) {
 
   const LisenceChecker lisenceChecker("itvpn.ini");
   std::cout << lisenceChecker.get_value("CONFIG.ip_proxy") << endl;
+
+  char *ip = itvpn::ip_helper::get_ip();
+  if (ip != nullptr) {
+    argv[1] = ip;
+    cout << "local IP: " << ip << endl;
+  }
+
+
+  //fsfdsf();
 
   std::unique_ptr<std::thread> the_thread(
       new std::thread([argc, argv]() { run_server(argc, argv); }));
