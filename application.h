@@ -44,10 +44,10 @@ struct ip_helper {
   }
 
   static char *get_ip() {
+    char buf[128];
     char *ip_buffer = nullptr;
 #ifdef _WIN32
     WSAData wsaData;
-    char buf[128];
     const int WSVer = MAKEWORD(2, 2);
     if (WSAStartup(WSVer, &wsaData) == 0) {
 #endif

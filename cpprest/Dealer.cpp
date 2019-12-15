@@ -24,10 +24,10 @@ using namespace web::http::experimental::listener;
 map<utility::string_t, std::shared_ptr<BJTable>> s_tables;
 int nextId = 1;
 
-class BlackJackDealer {
+class http_server {
 public:
-  BlackJackDealer() {}
-  BlackJackDealer(utility::string_t url);
+  http_server() {}
+  http_server(utility::string_t url);
 
   pplx::task<void> open() { return m_listener.open(); }
   pplx::task<void> close() { return m_listener.close(); }
@@ -41,14 +41,14 @@ private:
   http_listener m_listener;
 };
 
-BlackJackDealer::BlackJackDealer(utility::string_t url) : m_listener(url) {
-  m_listener.support(methods::GET, std::bind(&BlackJackDealer::handle_get, this,
+http_server::http_server(utility::string_t url) : m_listener(url) {
+  m_listener.support(methods::GET, std::bind(&http_server::handle_get, this,
                                              std::placeholders::_1));
-  m_listener.support(methods::PUT, std::bind(&BlackJackDealer::handle_put, this,
+  m_listener.support(methods::PUT, std::bind(&http_server::handle_put, this,
                                              std::placeholders::_1));
-  m_listener.support(methods::POST, std::bind(&BlackJackDealer::handle_post,
+  m_listener.support(methods::POST, std::bind(&http_server::handle_post,
                                               this, std::placeholders::_1));
-  m_listener.support(methods::DEL, std::bind(&BlackJackDealer::handle_delete,
+  m_listener.support(methods::DEL, std::bind(&http_server::handle_delete,
                                              this, std::placeholders::_1));
 
   std::shared_ptr<DealerTable> tbl =
@@ -60,7 +60,7 @@ BlackJackDealer::BlackJackDealer(utility::string_t url) : m_listener(url) {
 //
 // A GET of the dealer resource produces a list of existing tables.
 //
-void BlackJackDealer::handle_get(http_request message) {
+void http_server::handle_get(http_request message) {
   ucout << message.to_string() << endl;
 
   auto paths =
@@ -87,7 +87,7 @@ void BlackJackDealer::handle_get(http_request message) {
 // A POST of the dealer resource creates a new table and returns a resource for
 // that table.
 //
-void BlackJackDealer::handle_post(http_request message) {
+void http_server::handle_post(http_request message) {
   ucout << message.to_string() << endl;
 
   auto paths = uri::split_path(uri::decode(message.relative_uri().path()));
@@ -141,7 +141,7 @@ void BlackJackDealer::handle_post(http_request message) {
 //
 // A DELETE of the player resource leaves the table.
 //
-void BlackJackDealer::handle_delete(http_request message) {
+void http_server::handle_delete(http_request message) {
   ucout << message.to_string() << endl;
 
   auto paths = uri::split_path(uri::decode(message.relative_uri().path()));
@@ -183,7 +183,7 @@ void BlackJackDealer::handle_delete(http_request message) {
 //
 // A PUT to a table resource makes a card request (hit / stay).
 //
-void BlackJackDealer::handle_put(http_request message) {
+void http_server::handle_put(http_request message) {
   ucout << message.to_string() << endl;
 
   auto paths = uri::split_path(uri::decode(message.relative_uri().path()));

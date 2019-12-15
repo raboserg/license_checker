@@ -2,24 +2,57 @@
 
 project ("license_checker")
 
-set(Boost_USE_STATIC_LIBS        ON) # only find static libs
-set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME     ON)
-#$add_definitions(${Boost_LIB_DIAGNOSTIC_DEFINITIONS})
-#if(CMAKE_GENERATOR_PLATFORM=x64)	message("CMAKE_GENERATOR_PLATFORM=x64")
+set(Boost_USE_STATIC_LIBS    ON)
+set(Boost_USE_MULTITHREADED  ON)
+set(Boost_USE_STATIC_RUNTIME ON)
+#set(Boost_NO_SYSTEM_PATHS    ON)
 
-set(VCPKG_DIR "d:/library/vcpkg/installed/x64-windows/")
-set(BOOST_ROOT ${VCPKG_DIR})
+#if(CMAKE_HOST_WIN32)
+#    set(VCPKG_DIR "d:/library/vcpkg/installed/x64-windows")
+#elseif(CMAKE_HOST_UNIX)
+#    set(VCPKG_DIR "~/projects/vcpkg/installed/x64-linux")
+#endif()
 
-#???find_package(Boost COMPONENTS REQUIRED boost_system boost_filesystem boost_program_options)
+message("ENV{VCPKG_DIR} - $ENV{VCPKG_DIR}")
+message("CMAKE_PREFIX_PATH - ${CMAKE_PREFIX_PATH}")
+
+if(CMAKE_PREFIX_PATH)
+    set(VCPKG_DIR ${CMAKE_PREFIX_PATH})
+else()
+    if(CMAKE_HOST_WIN32)
+        set(VCPKG_DIR "d:/library/vcpkg/installed/x64-windows")
+    elseif(CMAKE_HOST_UNIX)
+        set(VCPKG_DIR "~/projects/vcpkg/installed/x64-linux")
+    endif()
+    set(BOOST_ROOT ${VCPKG_DIR})
+    set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
+    set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/lib")
+endif()
+
+message("VCPKG_DIR - ${VCPKG_DIR}")
+
+#if(Boost_NO_SYSTEM_PATHS)
+#  set(BOOST_ROOT ${VCPKG_DIR})
+#  set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
+#  set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/lib")
+#endif(Boost_NO_SYSTEM_PATHS)
 
 SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/lib")
 LINK_DIRECTORIES("${VCPKG_DIR}/lib")
-find_package(Boost REQUIRED)
+
+find_package(Boost REQUIRED )
+#find_package(Boost REQUIRED boost_system boost_filesystem boost_program_options)
 
 if(CMAKE_HOST_WIN32)
-	message("Boost_INCLUDE_DIRS - ${PROJECT_BINARY_DIR}")
+    message("Boost_INCLUDE_DIRS - ${PROJECT_BINARY_DIR}")
+    message("CMAKE_BINARY_DIR - ${CMAKE_BINARY_DIR}")
 endif()
+
+message("Boost_INCLUDE_DIRS - ${Boost_INCLUDE_DIRS}")
+message("PROJECT_BINARY_DIR - ${PROJECT_BINARY_DIR}")
+message("CMAKE_BINARY_DIR - ${CMAKE_BINARY_DIR}")
+message("Boost_LIBRARIES - ${Boost_LIBRARIES}")
+message("CMAKE_MODULE_PATH - ${CMAKE_MODULE_PATH}")
 
 if(Boost_FOUND)
         #???add_definitions(-D_WIN32_WINNT=0X0601)
@@ -40,8 +73,14 @@ if(Boost_FOUND)
                 boost_program_options)
         endif()
 	#????add_library(${PROJECT_NAME} STATIC license boost_system-vc140-mt boost_filesystem-vc140-mt boost_program_options-vc140-mt)
-	target_include_directories(${PROJECT_NAME} PUBLIC client license http_server server ${Boost_INCLUDE_DIRS})
-	add_subdirectory ("client")
+        #target_include_directories(${PROJECT_NAME} PUBLIC client license http_server server ${Boost_INCLUDE_DIRS})
+        target_include_directories(${PROJECT_NAME} PUBLIC
+            client
+            license
+            http_server
+            server
+            ${Boost_INCLUDE_DIRS})
+        add_subdirectory ("client")
 	add_subdirectory ("license")
 	add_subdirectory("server")
 	add_subdirectory("cpprest")

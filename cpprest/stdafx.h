@@ -14,9 +14,9 @@
 
 #pragma once
 
+#include "cpprest/asyncrt_utils.h"
 #include "cpprest/http_listener.h"
 #include "cpprest/json.h"
-#include "cpprest/asyncrt_utils.h"
 
 #include "cpprest/uri.h"
 #include <algorithm>
@@ -26,9 +26,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-//#include "http_listener_tests.h"
-//#include "cpprest/tests/http_test_utilities.h"
 
 #ifdef _WIN32
 #include <Windows.h>

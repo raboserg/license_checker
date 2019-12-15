@@ -28,12 +28,12 @@ void connection::do_read() {
                    std::size_t bytes_transferred) {
         if (!ec) {
           std::string post_parameters;
-		  request_parser::result_type result;
+          request_parser::result_type result;
           std::tie(result, post_parameters) = request_parser_.parse(
               request_, buffer_.data(), buffer_.data() + bytes_transferred);
           if (result == request_parser::good) {
-			if (request_.method == "POST")
-				request_parser_.parse_paremeters(request_, post_parameters);
+            if (request_.method == "POST")
+              request_parser_.parse_paremeters(request_, post_parameters);
             request_handler_.handle_request(request_, reply_);
             do_write();
           } else if (result == request_parser::bad) {

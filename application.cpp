@@ -86,9 +86,6 @@ int main(int argc, const char *argv[]) {
     cout << "local IP: " << ip << endl;
   }
 
-
-  //fsfdsf();
-
   std::unique_ptr<std::thread> the_thread(
       new std::thread([argc, argv]() { run_server(argc, argv); }));
   the_thread->detach();
