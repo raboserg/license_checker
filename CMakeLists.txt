@@ -34,6 +34,8 @@ LINK_DIRECTORIES("${VCPKG_DIR}/lib")
 message("VCPKG_DIR - ${VCPKG_DIR}")
 
 find_package(Boost REQUIRED)
+#???find_library(Boost NAMES Boost HINTS "${BOOST_ROOT}/lib")
+
 
 #find_package(Boost REQUIRED PATHS D:/library/vcpkg/packages/)
 #find_package(Boost REQUIRED boost_system boost_filesystem boost_program_options)
@@ -76,6 +78,7 @@ if(Boost_FOUND)
 	add_subdirectory("server")
 	add_subdirectory("cpprest")
 	add_subdirectory("http_server")
+  add_subdirectory("template")
 
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 	if(CMAKE_HOST_WIN32)

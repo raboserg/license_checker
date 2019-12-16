@@ -1,17 +1,10 @@
 #ifndef SESSION_H
 #define SESSION_H
 
-#include "mime_types.h"
-#include <boost/algorithm/string.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/beast.hpp>
-#include <boost/beast/core.hpp>
-#include <boost/beast/http.hpp>
 #include <fstream>
 #include <iostream>
-
-//#include "request_handler.h"
-//#include "send_lambda.h"
 
 namespace beast = boost::beast;   // from <boost/beast.hpp>
 namespace http = beast::http;     // from <boost/beast/http.hpp>
@@ -49,26 +42,10 @@ class session : public std::enable_shared_from_this<session> {
     }
   };
 
-  // Append an HTTP rel-path to a local filesystem path.
-  // The returned path is normalized for the platform.
-  std::string path_cat(beast::string_view base, beast::string_view path);
-
-  template <class Body, class Allocator, class Send>
-  void handle_request(beast::string_view doc_root,
-                      http::request<Body, http::basic_fields<Allocator>> &&req,
-                      Send &&send);
-
-  //  template <class Body, class Allocator, class Send>
-  //  void handle_request(beast::string_view doc_root, request &&req, Send
-  //  &&send);
-
   // Report a failure
   void fail(beast::error_code ec, char const *what) {
     std::cerr << what << ": " << ec.message() << "\n";
   }
-  
-  std::tuple<beast::error_code, std::string>
-  load_html(const std::string request_path);
 
   beast::tcp_stream stream_;
   beast::flat_buffer buffer_;

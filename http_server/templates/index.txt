@@ -1,0 +1,105 @@
+
+
+<!DOCTYPE html>
+<html lang="ru-RU">
+   <head>
+      <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+      <meta charset="utf-8">
+      <title>Форма ввода конфигуационных значений</title>
+      <!--link rel="stylesheet" id="ibrary-css" href="form_style.css" type="text/css" media="all"-->
+<style type="text/css">
+table.blueTable {
+  border: 1px solid #1C6EA4;
+  background-color: #EEEEEE;
+  width: 500px;
+  text-align: right;
+  border-collapse: collapse;
+}
+table.blueTable td, table.blueTable th {
+  border: 1px solid #AAAAAA;
+  padding: 5px 2px;
+}
+table.blueTable tbody td {
+  font-size: 13px;
+}
+table.blueTable tr:nth-child(even) {
+  background: #D0E4F5;
+}
+table.blueTable thead {
+  background: #1C6EA4;
+  background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  border-bottom: 2px solid #444444;
+}
+table.blueTable thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #D0E4F5;
+}
+table.blueTable thead th:first-child {
+  border-left: none;
+}
+
+table.blueTable tfoot {
+  font-size: 14px;
+  font-weight: bold;
+  color: #FFFFFF;
+  background: #D0E4F5;
+  background: -moz-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  background: -webkit-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  background: linear-gradient(to bottom, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  border-top: 2px solid #444444;
+}
+table.blueTable tfoot td {
+  font-size: 14px;
+}
+table.blueTable tfoot .links {
+  text-align: right;
+}
+table.blueTable tfoot .links a{
+  display: inline-block;
+  background: #1C6EA4;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
+}    }
+
+    .author {
+        color: gray;
+    }
+    </style>
+      <form accept-charset="UTF-8" action="/" autocomplete="off" method="POST">
+         <br /><label for="name">Конфигуационные значения</label><br /><br /><br />
+		 
+		 <table class="blueTable">
+            <tfoot>
+               <tr>
+                  <td colspan="4">
+					<button type="submit" value="Submit">Save</button></div>
+                  </td>
+               </tr>
+            </tfoot>
+            <tbody>
+               <tr>
+                  <td><label for="name">Name</label><br /></td>
+                  <td><input name="name1" type="text" value="Frank" /> <br /> </td>
+               </tr>
+               <tr>
+                  <td><label for="name">Name</label><br /></td>
+                  <td><input name="name2" type="text" value="Frank" /> <br /> </td>
+               </tr>
+               <tr>
+                  <td><label for="name">Name</label><br /></td>
+                  <td><input name="name3" type="text" value="Frank" /> <br /> </td>
+               </tr>
+               <tr>
+                  <td><label for="name">Name</label><br /></td>
+                  <td><input name="name4" type="text" value="Frank" /> <br /> </td>
+               </tr>
+            </tbody>
+         </table>
+      </form>
+</html>
+

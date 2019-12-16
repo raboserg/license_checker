@@ -1,4 +1,5 @@
 #include "http_server.h"
+#include "usr_interrupt_handler.hpp"
 
 static std::unique_ptr<http_server> g_http_server;
 
@@ -18,9 +19,9 @@ void on_shutdown() {
   return;
 }
 
-utility::string_t build_address(const int argc, const wchar_t *argv[]) {
+utility::string_t build_address(const int argc, char **argv) {
 
-  utility::string_t path = U(".");
+  utility::string_t path = U("/res");
   utility::string_t port = U("9090");
   utility::string_t addr = U("http://localhost");
 
@@ -30,7 +31,7 @@ utility::string_t build_address(const int argc, const wchar_t *argv[]) {
     path = argv[3];
   }
 
-  addr.append(utility::conversions::to_string_t(L":" + port));
+  addr.append(utility::conversions::to_string_t(U(":") + port));
   uri_builder uri(addr);
   uri.append_path(path);
 
@@ -45,13 +46,15 @@ int wmain(int argc, wchar_t *argv[])
 int main(int argc, char *argv[])
 #endif
 {
+  cfx::InterruptHandler::hookSIGINT();
 
   on_initialize(build_address(argc, argv));
-  std::cout << "Press ENTER to exit." << std::endl;
 
-  std::string line;
-  std::getline(std::cin, line);
-
+  std::cout << "Press Ctrl-C to exit." << std::endl;
+  cfx::InterruptHandler::waitForUserInterrupt();
+  //  std::cout << "Press ENTER to exit." << std::endl;
+  //  std::string line;
+  //  std::getline(std::cin, line);
   on_shutdown();
   return 0;
 }

@@ -13,7 +13,17 @@ http_server::http_server(const utility::string_t url) : m_listener(url) {
 
 void http_server::handle_get(http_request message) {
   ucout << message.to_string() << endl;
-  message.reply(status_codes::OK);
+  // auto path = requestPath(message);
+  const std::vector<std::string> path = {"service", "test"};
+  if (!path.empty()) {
+    if (path[0] == "service" && path[1] == "test") {
+      auto response = json::value::object();
+      response["version"] = json::value::string("0.1.1");
+      response["status"] = json::value::string("ready!");
+      message.reply(status_codes::OK, response);
+    }
+  }
+  message.reply(status_codes::NotFound);
 }
 
 void http_server::handle_post(http_request message) {
