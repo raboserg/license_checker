@@ -21,6 +21,20 @@ endif()
 #add_library(restserver http_server.cpp http_server.h Rest_Server.cpp stdafx.h)
 add_executable(restserver http_server.cpp http_server.h Rest_Server.cpp stdafx.h)
 #find_package(cpprestsdk CONFIG REQUIRED)
-target_link_libraries(restserver pthread boost_system crypto ssl pthread dl ${CPPREST_LIB_NAME})
+if(CMAKE_HOST_WIN32)
+	target_link_libraries(restserver ${CPPREST_LIB_NAME})
+elseif(CMAKE_HOST_UNIX)
+	target_link_libraries(restserver pthread boost_system crypto ssl pthread dl ${CPPREST_LIB_NAME})
+endif()
 #target_link_libraries(restserver pthread ${CPPREST_LIB_NAME})
 target_include_directories(restserver PUBLIC ${CPPREST_HEADER_DIR} ${Boost_INCLUDE_DIRS})
+
+# dll of dependencies
+#boost_date_time-vc142-mt-gd-x64-1_71.dll
+#brotlicommon.dll
+#brotlidec.dll
+#brotlienc.dll
+#cpprest_2_10d.dll
+#LIBEAY32.dll
+#SSLEAY32.dll
+#zlibd1.dll

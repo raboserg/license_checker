@@ -85,11 +85,34 @@ std::string session::path_cat(beast::string_view base,
   return result;
 }
 
+std::tuple<beast::error_code, std::string>
+session::load_html(const std::string request_path) {
+  // Determine the file extension.
+  std::size_t last_slash_pos = request_path.find_last_of("/");
+  std::size_t last_dot_pos = request_path.find_last_of(".");
+  std::string extension;
+  if (last_dot_pos != std::string::npos && last_dot_pos > last_slash_pos) {
+    extension = request_path.substr(last_dot_pos + 1);
+  }
+  beast::error_code error_code;
+  std::ifstream is_(request_path.c_str(), std::ios::in | std::ios::binary);
+  if (!is_) {
+    //???error_code.assign(beast::errc::no_such_file_or_directory,
+    //error_code.category);
+    return std::make_tuple(error_code, std::string());
+  }
+  // Fill out the reply to be sent to the client.
+  char buf[512];
+  std::string content = std::string();
+  while (is_.read(buf, sizeof(buf)).gcount() > 0)
+    content.append(buf, is_.gcount());
+  return std::make_tuple(error_code, content);
+}
+
 template <class Body, class Allocator, class Send>
-void session::handle_request(
+inline void session::handle_request(
     beast::string_view doc_root,
     http::request<Body, http::basic_fields<Allocator>> &&req, Send &&send) {
-
   // Returns a bad request response
   auto const bad_request = [&req](beast::string_view why) {
     http::response<http::string_body> res{http::status::bad_request,
@@ -172,10 +195,8 @@ void session::handle_request(
   // Respond to POST request
   if (req.method() == http::verb::post) {
     std::cout << req_.body() << std::endl;
-
     //???    std::cout << boost::beast::buffers_to_string(req_.body().data())
     //              << std::endl;
-
     std::vector<std::string> pairs;
     boost::split(pairs, req_.body(), boost::is_any_of("&"));
     std::map<std::string, std::string> parameters;
@@ -186,22 +207,27 @@ void session::handle_request(
           std::pair<std::string, std::string>(values[0], values[1]));
     }
 
-    http::string_body::value_type body;
+    // http::string_body::value_type body;
     std::for_each(
         parameters.begin(), parameters.end(),
         [](const std::map<std::string, std::string>::value_type &ite) {
           std::cout << ite.first << " " << ite.second << std::endl;
-          std::string fdsf{ite.first + "=" + ite.second};
-          //??? std::string::iterator it = fdsf.begin();
-          //??? body.insert(it, fdsf.begin(), fdsf.end());
-          //??? body .copy(std::move(fdsf), fdsf.size());
+          std::string pair_{ite.first + "=" + ite.second};
         });
 
+    std::string path = path_cat(doc_root, req.target());
+    if (req.target().back() == '/')
+      path.append("index.html");
+
+    std::string content;
+    beast::error_code error_code;
+    std::tie(error_code, content) = load_html(path);
     http::response<http::string_body> res{
-        std::piecewise_construct, std::make_tuple(std::move(body)),
+        std::piecewise_construct, std::make_tuple(std::move(content)),
         std::make_tuple(http::status::ok, req.version())};
     res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
-
+    req.method(beast::http::verb::get);
+    req.target("/");
     return send(std::move(res));
   }
 }

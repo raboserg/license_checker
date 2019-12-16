@@ -1,12 +1,11 @@
-rem setx /m OVPN3_HOME_DIR "D:/library/openvpn3"
+set VCPKG_DIR="D:/library/vcpkg/installed/x64-windows"
 rem rmdir /S /Q build
 rem mkdir build
 
 cd build
-cmake .. -DCMAKE_PREFIX_PATH=D:/library/vcpkg/installed/x64-windows \
-    -DCMAKE_TOOLCHAIN_FILE=D:/library/vcpkg/scripts/buildsystems/vcpkg.cmake \
-    -DBoost_ADDITIONAL_VERSIONS=1.70.0;1.71.0 \
-    -DCMAKE_BUILD_TYPE=Debug
+rem cmake .. -DCMAKE_PREFIX_PATH=D:/library/vcpkg/installed/x64-windows -DCMAKE_TOOLCHAIN_FILE=D:/library/vcpkg/scripts/buildsystems/vcpkg.cmake -DBoost_ADDITIONAL_VERSIONS=1.70.0;1.71.0 -DCMAKE_BUILD_TYPE=Debug
+cmake .. -A x64 -DCMAKE_TOOLCHAIN_FILE=D:/library/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug
+
 cmake --build .
 
 rem cmake -DCMAKE_TOOLCHAIN_FILE=D:\library\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_GENERATOR_PLATFORM=x64 ..

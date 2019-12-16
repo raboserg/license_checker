@@ -2,12 +2,13 @@
 #define SESSION_H
 
 #include "mime_types.h"
+#include <boost/algorithm/string.hpp>
 #include <boost/asio/strand.hpp>
 #include <boost/beast.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
+#include <fstream>
 #include <iostream>
-#include <boost/algorithm/string.hpp>
 
 //#include "request_handler.h"
 //#include "send_lambda.h"
@@ -65,8 +66,9 @@ class session : public std::enable_shared_from_this<session> {
   void fail(beast::error_code ec, char const *what) {
     std::cerr << what << ": " << ec.message() << "\n";
   }
-
-  void do_send_get();
+  
+  std::tuple<beast::error_code, std::string>
+  load_html(const std::string request_path);
 
   beast::tcp_stream stream_;
   beast::flat_buffer buffer_;

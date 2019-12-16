@@ -21,11 +21,6 @@ int main(int argc, char *argv[]) {
       /* ... */
   };
 
-  for (const auto &[species, count] : animal_population) {
-    std::cout << "There are " << count << " " << species
-              << " on this planet.\n";
-  }
-
   // Check command line arguments.
   if (argc != 5) {
     std::cerr
@@ -36,15 +31,14 @@ int main(int argc, char *argv[]) {
   }
   auto const address = net::ip::make_address(argv[1]);
   auto const port = static_cast<unsigned short>(std::atoi(argv[2]));
-  auto const doc_root = std::make_shared<std::string>(argv[3]);
+  auto const root = std::make_shared<std::string>(argv[3]);
   auto const threads = std::max<int>(1, std::atoi(argv[4]));
 
   // The io_context is required for all I/O
   net::io_context ioc{threads};
 
   // Create and launch a listening port
-  std::make_shared<listener>(ioc, tcp::endpoint{address, port}, doc_root)
-      ->run();
+  std::make_shared<listener>(ioc, tcp::endpoint{address, port}, root)->run();
 
   // Run the I/O service on the requested number of threads
   std::vector<std::thread> v;
