@@ -1,0 +1,31 @@
+{ include templates/testheader.txt }
+{ include templates/style.txt }
+<html>
+	<form accept-charset="UTF-8" action="/" autocomplete="off" method="POST">
+		<table class="blueTable">
+            <tfoot>
+               <tr>
+                  <td colspan="4">
+					<button type="submit" value="Submit">Save</button></div>
+                  </td>
+               </tr>
+            </tfoot>
+			<tbody>
+			{% block items %} 			
+					<tr>
+					<td>
+						{{ detail }}
+					</td>
+				</tr>
+				{% block detailblock %}
+				<tr>
+					<td><label for="name">{{ title }}</label><br /></td>
+					<td><input name={{ name }} type="text" value={{ value }} /> <br /> </td>
+				</tr>
+	            </tr>
+				{% endblock %}
+			{% endblock %}				
+            </tbody>
+		</table>
+	</form>
+</html>

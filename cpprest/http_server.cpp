@@ -18,8 +18,8 @@ void http_server::handle_get(http_request message) {
   if (!path.empty()) {
     if (path[0] == "service" && path[1] == "test") {
       auto response = json::value::object();
-      response["version"] = json::value::string("0.1.1");
-      response["status"] = json::value::string("ready!");
+      response[U("version")] =json::value::string(U("0.1.1"));
+      response[U("status")] = json::value::string(U("ready!"));
       message.reply(status_codes::OK, response);
     }
   }

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+   <head>
+      <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+      <meta charset="utf-8">
+      <title>Форма ввода конфигуационных значений</title>
+      <!--link rel="stylesheet" id="ibrary-css" href="form_style.css" type="text/css" media="all"-->
+
+<html><body>
+
+<h1>itvpn.ini</h1>
+
+<style type="text/css">
+input {
+    width: 100%;
+    margin: 0px;
+}
+table.blueTable {
+  border: 1px solid #1C6EA4;
+  background-color: #EEEEEE;
+  width: 500px;
+  text-align: right;
+  border-collapse: collapse;
+}
+table.blueTable td, table.blueTable th {
+  border: 1px solid #AAAAAA;
+}
+table.blueTable tbody td {
+  font-size: 13px;
+  /*padding: 5px;*/
+}
+table.blueTable tr:nth-child(even) {
+  background: #D0E4F5;
+}
+table.blueTable thead {
+  background: #1C6EA4;
+  background: -moz-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  background: -webkit-linear-gradient(top, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  background: linear-gradient(to bottom, #5592bb 0%, #327cad 66%, #1C6EA4 100%);
+  border-bottom: 2px solid #444444;
+}
+table.blueTable thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #D0E4F5;
+}
+table.blueTable thead th:first-child {
+  border-left: none;
+}
+
+table.blueTable tfoot {
+  font-size: 14px;
+  font-weight: bold;
+  color: #FFFFFF;
+  background: #D0E4F5;
+  background: -moz-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  background: -webkit-linear-gradient(top, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  background: linear-gradient(to bottom, #dcebf7 0%, #d4e6f6 66%, #D0E4F5 100%);
+  border-top: 2px solid #444444;
+}
+table.blueTable tfoot td {
+  font-size: 14px;
+}
+.author {
+	color: gray;
+}
+</style>
+
+<html>
+	<form accept-charset="UTF-8" action="/" autocomplete="off" method="POST">
+		<table class="blueTable">
+			<tbody>
+			 			
+					<tr>
+					<td>
+						CONFIG
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">fs</label><br /></td>
+					<td><input name=fs type="text" value=false /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">port_proxy</label><br /></td>
+					<td><input name=port_proxy type="text" value=3128 /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">manually_settings</label><br /></td>
+					<td><input name=manually_settings type="text" value=false /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">ip_proxy</label><br /></td>
+					<td><input name=ip_proxy type="text" value=127.0.0.1 /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">http_proxy</label><br /></td>
+					<td><input name=http_proxy type="text" value=True /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">socks_proxy</label><br /></td>
+					<td><input name=socks_proxy type="text" value=False /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">status_frm_show</label><br /></td>
+					<td><input name=status_frm_show type="text" value=True /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">hidemain</label><br /></td>
+					<td><input name=hidemain type="text" value=False /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">msg_show</label><br /></td>
+					<td><input name=msg_show type="text" value=True /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">av_start</label><br /></td>
+					<td><input name=av_start type="text" value=False /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">av_connect</label><br /></td>
+					<td><input name=av_connect type="text" value=False /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">ip_management</label><br /></td>
+					<td><input name=ip_management type="text" value=127.0.0.1 /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">port_management</label><br /></td>
+					<td><input name=port_management type="text" value=12347 /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">pattern_folder</label><br /></td>
+					<td><input name=pattern_folder type="text" value=res /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">chkupd</label><br /></td>
+					<td><input name=chkupd type="text" value=False /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">create_user</label><br /></td>
+					<td><input name=create_user type="text" value=false /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">as_service</label><br /></td>
+					<td><input name=as_service type="text" value=False /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">service</label><br /></td>
+					<td><input name=service type="text" value=OpenVpnService /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">avs_timeout</label><br /></td>
+					<td><input name=avs_timeout type="text" value=1000 /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">check_lic_online</label><br /></td>
+					<td><input name=check_lic_online type="text" value=false /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name"></label><br /></td>
+					<td><input name= type="text" value= /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						FILES
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">openvpn</label><br /></td>
+					<td><input name=openvpn type="text" value=D:\project\tmp\app\ItVPN\bin\openvpn.exe /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">logs</label><br /></td>
+					<td><input name=logs type="text" value=D:\project\tmp\app\ItVPN\log /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">configs</label><br /></td>
+					<td><input name=configs type="text" value=D:\project\tmp\app\ItVPN\config /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">cfgext</label><br /></td>
+					<td><input name=cfgext type="text" value=ovpn /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">upd_pattern</label><br /></td>
+					<td><input name=upd_pattern type="text" value=*.* /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">update</label><br /></td>
+					<td><input name=update type="text" value= /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">service_dir</label><br /></td>
+					<td><input name=service_dir type="text" value=D:\project\tmp\app\ItVPN\service /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">lastpath</label><br /></td>
+					<td><input name=lastpath type="text" value=D:\ /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">editor</label><br /></td>
+					<td><input name=editor type="text" value= /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name"></label><br /></td>
+					<td><input name= type="text" value= /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						FRMMAIN
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">l</label><br /></td>
+					<td><input name=l type="text" value=735 /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">t</label><br /></td>
+					<td><input name=t type="text" value=294 /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name"></label><br /></td>
+					<td><input name= type="text" value= /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						FS
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name">set_size</label><br /></td>
+					<td><input name=set_size type="text" value=524|310|949|599 /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name"></label><br /></td>
+					<td><input name= type="text" value= /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name"></label><br /></td>
+					<td><input name= type="text" value= /> <br /> </td>
+				</tr>
+	            </tr>
+				
+			 			
+					<tr>
+					<td>
+						
+					</td>
+				</tr>
+				
+				<tr>
+					<td><label for="name"></label><br /></td>
+					<td><input name= type="text" value= /> <br /> </td>
+				</tr>
+	            </tr>
+				
+							
+            </tbody>
+		</table>
+	</form>
+</html>

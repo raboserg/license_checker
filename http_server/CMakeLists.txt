@@ -10,7 +10,8 @@ add_executable(http-server-async
     mime_types.cpp mime_types.h handle_request.h)
 
 if(CMAKE_HOST_WIN32)
-        target_link_libraries(http-server-async template)
+        #target_link_libraries(http-server-async template)
+		target_link_libraries(http-server-async )
 elseif(CMAKE_HOST_UNIX)
         target_link_libraries(http-server-async template pthread)
 endif()

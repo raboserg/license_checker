@@ -3,7 +3,7 @@
 #ifndef HANDLE_REQUEST_H
 #define HANDLE_REQUEST_H
 
-#include "NLTemplate.h"
+//#include "NLTemplate.h"
 #include "mime_types.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/beast.hpp>
