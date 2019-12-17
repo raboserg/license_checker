@@ -1,12 +1,8 @@
 #include "http_server.h"
 
-// static const utility::string_t host = U("http://localhost");
-// static const utility::string_t port = U("9090");
-// static const utility::string_t path = U("/res");
-
-static const auto host = U("http://localhost");
 static const auto port = U("9090");
 static const auto path = U("/res");
+static const auto host = U("http://localhost");
 
 static std::unique_ptr<http_server> g_http_server;
 
