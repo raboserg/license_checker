@@ -5,7 +5,7 @@ set(SOURCE_LIB NLTemplate.cpp NLTemplate.h)
 if(CMAKE_HOST_WIN32)
     set(JINJA2CPP_DIR D:/library/vcpkg/packages/jinja2cpp_x64-windows)
 elseif(CMAKE_HOST_UNIX)
-    set(JINJA2CPP_DIR ~/projects/vcpkg/packages/jinja2cpp_x64-windows)
+    set(JINJA2CPP_DIR ~/projects/vcpkg/packages/jinja2cpp_x64-linux)
 endif()
 
 set(JINJA2CPP_LIB_NAME "jinja2cpp")
