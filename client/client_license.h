@@ -1,4 +1,4 @@
-﻿// license_checker.h
+﻿// client_license.h
 
 #ifndef CLIENT_LICENSE_H
 #define CLIENT_LICENSE_H
@@ -10,6 +10,11 @@
 #include <boost/config.hpp>
 #include <iostream>
 #include <string>
+
+#include <cpprest/filestream.h>
+#include <cpprest/http_client.h>
+#include <cpprest/json.h>
+#include <cpprest/uri.h>
 
 using namespace std;
 
@@ -24,5 +29,7 @@ class ClientLisence : public my_plugin_api {
 public:
   void echo() { std::cout << "ClientLisence" << std::endl; }
 };
+
+int main_run();
 
 #endif

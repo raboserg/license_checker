@@ -1,7 +1,7 @@
 #include <iostream>
+#include <jinja2cpp/reflected_value.h>
 #include <jinja2cpp/template.h>
 #include <jinja2cpp/template_env.h>
-#include <jinja2cpp/reflected_value.h>
 
 #include "parser_ini.h"
 
@@ -50,14 +50,12 @@ struct ItemDescriptor {
   std::vector<Item> items;
 };
 
-
-struct ToJsonIndentationTest{
+struct ToJsonIndentationTest {
   ValuesMap getObjectParam() const {
     const ValuesMap object{{"map", ValuesMap{{"array", ValuesList{1, 2, 3}}}}};
     return ValuesMap{{"obj", object}};
   }
 };
-
 
 int main(int, char *[]) {
   Parser parser(path_to_ini);
@@ -139,13 +137,12 @@ int main(int, char *[]) {
 
   // Template myTemplate(source);
 
-
   EnumDescriptor descr;
   descr.enumName = "Animals";
   descr.nsScope = "";
   descr.enumItems = {"Dog", "Cat", "Monkey", "Elephant"};
 
-  //ValuesMap params1 {
+  // ValuesMap params1 {
   //    {"enumName", descr.enumName},
   //    {"nsScope", descr.nsScope},
   //    {"items", {descr.enumItems}},
@@ -154,7 +151,7 @@ int main(int, char *[]) {
   Item item_;
   item_.name = "dsfdsfd";
   item_.value = "sfsfsdfs";
-  
+
   ItemDescriptor itemDescriptor;
   itemDescriptor.name = "sfsdfds";
   itemDescriptor.nsScope = "gfdgdfgfd";
@@ -163,8 +160,8 @@ int main(int, char *[]) {
   ValuesMap params{
       {"enumName", itemDescriptor.name},
       {"nsScope", itemDescriptor.nsScope},
-      {"items1", ValuesMap{{"name", "fdsf"},{"value","dsfdsf"}}},
-      {"items", Reflect(std::vector<Item>{item_, item_, item_})},
+      {"items1", ValuesMap{{"name", "fdsf"}, {"value", "dsfdsf"}}},
+      //{"items", Reflect(std::vector<Item>{item_, item_, item_})},
   };
 
   TemplateEnv env_;
@@ -178,10 +175,10 @@ int main(int, char *[]) {
 
   params["page_title"] = "mitsuhiko's benchmark";
 
-  //ValuesList dictEntry = {item_, item_, item_, item_, item_,
+  // ValuesList dictEntry = {item_, item_, item_, item_, item_,
   //                        item_, item_, item_, item_, item_};
 
-  //ValuesMap params{
+  // ValuesMap params{
   //    {"enumName", item_.name},
   //    {"nsScope", item_.title},
   //    {"items", {{item_}, {item_}}},

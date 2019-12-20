@@ -9,7 +9,7 @@
 #include "client_license.h"
 #include "license_checker.h"
 #include "platform.hpp"
-#include "server.hpp"
+//#include "server.hpp"
 #include <boost/program_options.hpp>
 #include <iostream>
 

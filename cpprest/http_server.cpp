@@ -18,7 +18,7 @@ void http_server::handle_get(http_request message) {
   if (!path.empty()) {
     if (path[0] == "service" && path[1] == "test") {
       auto response = json::value::object();
-      response[U("version")] =json::value::string(U("0.1.1"));
+      response[U("version")] = json::value::string(U("0.1.1"));
       response[U("status")] = json::value::string(U("ready!"));
       message.reply(status_codes::OK, response);
     }
@@ -28,7 +28,11 @@ void http_server::handle_get(http_request message) {
 
 void http_server::handle_post(http_request message) {
   ucout << message.to_string() << endl;
-  message.reply(status_codes::OK);
+  auto response = json::value::object();
+  response[U("first_name")] = web::json::value::string(U("Rabo"));
+  response[U("last_name")] = web::json::value::string(U("Serg"));
+  response[U("id")] = web::json::value::string(U("777"));
+  message.reply(status_codes::OK, response);
 }
 
 void http_server::handle_delete(http_request message) {
