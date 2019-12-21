@@ -157,12 +157,13 @@ int main(int, char *[]) {
   itemDescriptor.nsScope = "gfdgdfgfd";
   itemDescriptor.items = {item_, item_, item_, item_, item_};
 
-  ValuesMap params{
-      {"enumName", itemDescriptor.name},
-      {"nsScope", itemDescriptor.nsScope},
-      {"items1", ValuesMap{{"name", "fdsf"}, {"value", "dsfdsf"}}},
-      //{"items", Reflect(std::vector<Item>{item_, item_, item_})},
-  };
+  ValuesMap params;
+  //{
+  //    {"enumName", itemDescriptor.name},
+  //    {"nsScope", itemDescriptor.nsScope},
+  //    {"items1", ValuesMap{{"name", "fdsf"}, {"value", "dsfdsf"}}},
+  //    //{"items", Reflect(std::vector<Item>{item_, item_, item_})},
+  //};
 
   TemplateEnv env_;
   env_.GetSettings().lstripBlocks = false;

@@ -1,10 +1,9 @@
 ﻿// application.cpp
 
 #include "application.h"
-#include "client_license.h"
 
 using namespace std;
-namespace po = boost::program_options;
+//namespace po = boost::program_options;
 
 // static http::server::server *the_server = nullptr; // GLOBAL
 
@@ -42,7 +41,6 @@ string input_handle() {
 }
 
 int main(int argc, const char *argv[]) {
-
   main_run();
 
   // boost::shared_ptr<std::thread> thread(new
@@ -51,11 +49,12 @@ int main(int argc, const char *argv[]) {
   const LisenceChecker lisenceChecker("itvpn.ini");
   std::cout << lisenceChecker.get_value("CONFIG.ip_proxy") << endl;
 
-  char *ip = itvpn::ip_helper::get_ip();
-  if (ip != nullptr) {
-    argv[1] = ip;
-    cout << "local IP: " << ip << endl;
-  }
+  //std::unique_ptr<char *> ip = itvpn::ip_helper::get_ip();
+  ////char *ip = itvpn::ip_helper::get_ip();
+  //if (ip != nullptr) {
+  //  argv[1] = (*ip);
+  //  cout << "local IP: " << ip << endl;
+  //}
 
   //  std::unique_ptr<std::thread> the_thread(
   //      new std::thread([argc, argv]() { run_server(argc, argv); }));

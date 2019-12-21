@@ -25,6 +25,7 @@ Parser::Parser(const string &file_name) : file_name_(std::move(file_name)) {
   //  boost::iostreams::filtering_ostream out;
   //  out.push(skip_bom(file_name));
   if (file.is_open()) {
+	  //check else not open
     // skip BOM
     unsigned char buffer[8];
     buffer[0] = 255;

@@ -20,7 +20,7 @@ else()
     endif()
     set(BOOST_ROOT ${VCPKG_DIR})
     set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
-    set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/lib")
+    set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/Debug/lib")
 endif()
 
 #if(Boost_NO_SYSTEM_PATHS)
@@ -29,8 +29,8 @@ endif()
 #  set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/lib")
 #endif(Boost_NO_SYSTEM_PATHS)
 
-SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/lib")
-LINK_DIRECTORIES("${VCPKG_DIR}/lib")
+SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/Debug/lib")
+LINK_DIRECTORIES("${BOOST_LIBRARY_DIRS}")
 message("VCPKG_DIR - ${VCPKG_DIR}")
 
 find_package(Boost REQUIRED)
@@ -54,10 +54,10 @@ if(Boost_FOUND)
 			#set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
             add_definitions(-D_WIN32_WINNT=0X0601)
             #???target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
-            target_link_libraries(${PROJECT_NAME} PUBLIC client license server
-                boost_system-vc140-mt
-                boost_filesystem-vc140-mt
-                boost_program_options-vc140-mt)
+            target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest_2_10d eventsink
+                boost_system-vc140-mt-gd
+                boost_filesystem-vc140-mt-gd
+                boost_program_options-vc140-mt-gd)
         elseif(CMAKE_HOST_UNIX)
             target_link_libraries(${PROJECT_NAME} PUBLIC client license
                 pthread
@@ -68,12 +68,13 @@ if(Boost_FOUND)
         endif()
 	#????add_library(${PROJECT_NAME} STATIC license boost_system-vc140-mt boost_filesystem-vc140-mt boost_program_options-vc140-mt)
     #target_include_directories(${PROJECT_NAME} PUBLIC client license http_server server ${Boost_INCLUDE_DIRS})
-    target_include_directories(${PROJECT_NAME} PUBLIC client license ${Boost_INCLUDE_DIRS})
+    target_include_directories(${PROJECT_NAME} PUBLIC client license eventsink ${Boost_INCLUDE_DIRS})
 
     add_subdirectory("client")
     add_subdirectory("license")
-    #add_subdirectory("server")
+#    add_subdirectory("server")
     add_subdirectory("cpprest")
+	add_subdirectory("eventsink")
     #add_subdirectory("http_server")
     add_subdirectory("template")
     add_subdirectory("parser")
@@ -81,9 +82,9 @@ if(Boost_FOUND)
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 	if(CMAKE_HOST_WIN32)
 		#vc142-mt-x64-1_71.dll
-		set(DEPENDENCIES ${BOOST_ROOT}/bin/boost_system-vc142-mt-x64-1_71.dll
-				${BOOST_ROOT}/bin/boost_filesystem-vc142-mt-x64-1_71.dll
-				${BOOST_ROOT}/bin/boost_program_options-vc142-mt-x64-1_71.dll)
+		set(DEPENDENCIES ${BOOST_ROOT}/Debug/bin/boost_system-vc142-mt-gd-x64-1_71.dll
+				${BOOST_ROOT}/Debug/bin/boost_filesystem-vc142-mt-gd-x64-1_71.dll
+				${BOOST_ROOT}/Debug/bin/boost_program_options-vc142-mt-gd-x64-1_71.dll)
 		foreach(DEPENDENCY ${DEPENDENCIES})
                     file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
                     #???install(PROGRAMS "${DEPENDENCY}" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

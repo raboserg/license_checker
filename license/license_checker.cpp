@@ -1,7 +1,7 @@
 ﻿// license_checker.cpp
 
 #include "license_checker.h"
-#include <boost/iostreams/filtering_stream.hpp>
+//#include <boost/iostreams/filtering_stream.hpp>
 
 // struct skip_bom {
 //  pt::ptree get(const string &file_name) {

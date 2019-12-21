@@ -10,11 +10,16 @@
 #include "license_checker.h"
 #include "platform.hpp"
 //#include "server.hpp"
-#include <boost/program_options.hpp>
+//#include <boost/program_options.hpp>
+#include <cpprest/http_client.h>
+#include <cpprest/json.h>
+#include <cpprest/uri.h>
 #include <iostream>
+#include <thread>
 
 #ifdef _WIN32
 #include <winsock2.h>
+#include <exec_notificator.h>
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -43,9 +48,9 @@ struct ip_helper {
     return host_entry;
   }
 
-  static char *get_ip() {
+  static std::unique_ptr<char *> get_ip() {
     char buf[128];
-    char *ip_buffer = nullptr;
+    std::unique_ptr<char *> ip_buffer = nullptr;
 #ifdef _WIN32
     WSAData wsaData;
     const int WSVer = MAKEWORD(2, 2);
@@ -54,8 +59,8 @@ struct ip_helper {
       if (get_hostname(buf, sizeof(buf)) == 0) {
         const hostent *hosten = get_hostbyname(buf);
         if (hosten != nullptr) {
-          ip_buffer =
-              inet_ntoa(*(reinterpret_cast<in_addr *>(*(hosten->h_addr_list))));
+          ip_buffer = std::make_unique<char *>(inet_ntoa(
+              *(reinterpret_cast<in_addr *>(*(hosten->h_addr_list)))));
         }
       }
 #ifdef _WIN32

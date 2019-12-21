@@ -25,10 +25,6 @@ if(CMAKE_HOST_WIN32)
         target_link_libraries(client ${CPPREST_LIB_NAME})
 elseif(CMAKE_HOST_UNIX)
         target_link_libraries(client ${CPPREST_LIB_NAME} pthread boost_system crypto ssl pthread dl)
-        #target_link_libraries(client ${CPPREST_LIB_NAME})
 endif()
 #target_link_libraries(restserver pthread ${CPPREST_LIB_NAME})
-
-
-
 #target_include_directories(client PUBLIC ${Boost_INCLUDE_DIRS})

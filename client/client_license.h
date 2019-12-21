@@ -8,19 +8,15 @@
 #endif
 
 #include <boost/config.hpp>
+//#include <cpprest/http_client.h>
+//#include <cpprest/json.h>
+//#include <cpprest/uri.h>
 #include <iostream>
 #include <string>
 
-#include <cpprest/filestream.h>
-#include <cpprest/http_client.h>
-#include <cpprest/json.h>
-#include <cpprest/uri.h>
-
-using namespace std;
-
 class BOOST_SYMBOL_VISIBLE my_plugin_api {
 public:
-  virtual string name() const = 0;
+  virtual std::string name() const = 0;
   virtual float calculate(const float x, const float y) = 0;
   virtual ~my_plugin_api() {}
 };
