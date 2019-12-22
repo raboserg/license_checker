@@ -19,8 +19,8 @@ else()
         set(VCPKG_DIR "~/projects/vcpkg/installed/x64-linux")
     endif()
     set(BOOST_ROOT ${VCPKG_DIR})
-    set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
-    set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/Debug/lib")
+    #set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
+    #set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/debug/lib")
 endif()
 
 #if(Boost_NO_SYSTEM_PATHS)
@@ -29,13 +29,14 @@ endif()
 #  set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/lib")
 #endif(Boost_NO_SYSTEM_PATHS)
 
-SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/Debug/lib")
-LINK_DIRECTORIES("${BOOST_LIBRARY_DIRS}")
+SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/debug/lib")
+LINK_DIRECTORIES("${VCPKG_DIR}/debug/lib")
 message("VCPKG_DIR - ${VCPKG_DIR}")
 
 find_package(Boost REQUIRED)
 #???find_library(Boost NAMES Boost HINTS "${BOOST_ROOT}/lib")
 
+#find_package(GSL REQUIRED)   target_link_libraries(main PRIVATE GSL::gsl GSL::gslcblas)
 
 #find_package(Boost REQUIRED PATHS D:/library/vcpkg/packages/)
 #find_package(Boost REQUIRED boost_system boost_filesystem boost_program_options)
@@ -51,7 +52,8 @@ if(Boost_FOUND)
 	add_executable(${PROJECT_NAME} application.cpp application.h)
 	#vc140-mt
         if(CMAKE_HOST_WIN32)
-			#set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
+            #set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
+            add_subdirectory("eventsink")
             add_definitions(-D_WIN32_WINNT=0X0601)
             #???target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
             target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest_2_10d eventsink
@@ -59,7 +61,7 @@ if(Boost_FOUND)
                 boost_filesystem-vc140-mt-gd
                 boost_program_options-vc140-mt-gd)
         elseif(CMAKE_HOST_UNIX)
-            target_link_libraries(${PROJECT_NAME} PUBLIC client license
+            target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest
                 pthread
                 boost_system
                 boost_filesystem
@@ -72,9 +74,8 @@ if(Boost_FOUND)
 
     add_subdirectory("client")
     add_subdirectory("license")
-#    add_subdirectory("server")
+    #add_subdirectory("server")
     add_subdirectory("cpprest")
-	add_subdirectory("eventsink")
     #add_subdirectory("http_server")
     add_subdirectory("template")
     add_subdirectory("parser")
