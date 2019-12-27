@@ -22,7 +22,8 @@ public:
     if (this->bytes_to_send_ < 0) {
       ACE_OS::sprintf(this->output_buffer_, "Iteration %d\n",
                       ++this->iterations_);
-      this->bytes_to_send_ = ACE_OS::strlen(this->output_buffer_);
+      this->bytes_to_send_ =
+          static_cast<ssize_t>(ACE_OS::strlen(this->output_buffer_));
       this->bytes_sent_ = 0;
     }
     if (this->bytes_sent_ >= this->bytes_to_send_) {
@@ -85,11 +86,13 @@ int main(int argc, char *argv[])
   Client *client = new Client();
   ACE_INET_Addr addr("localhost", 9090);
   if (client->open(addr) == -1) {
-	  ACE_DEBUG((LM_DEBUG, "(%P|%t %d)"
-                         "error connecting to server\n", ACE_OS::last_error()));
+    ACE_DEBUG((LM_DEBUG,
+               "(%P|%t %d)"
+               "error connecting to server\n",
+               ACE_OS::last_error()));
     return -1;
   }
-  
+
   ACE_Reactor::instance()->register_handler(
       client, ACE_Event_Handler::READ_MASK | ACE_Event_Handler::WRITE_MASK);
 

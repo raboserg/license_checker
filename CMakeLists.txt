@@ -88,6 +88,7 @@ if(Boost_FOUND)
     #add_subdirectory("http_server")
     add_subdirectory("template")
     add_subdirectory("parser")
+    add_subdirectory("http_client/")
 
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 	if(CMAKE_HOST_WIN32)
