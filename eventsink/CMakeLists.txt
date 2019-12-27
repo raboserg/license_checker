@@ -3,8 +3,8 @@
 set(SOURCE_LIB 
 	eventsink.cpp
 	eventsink.h
-	exec_notificator.cpp
-	exec_notificator.h
+	notificator.cpp
+	notificator.h
 	main.cpp
 )
 add_library(eventsink STATIC ${SOURCE_LIB})

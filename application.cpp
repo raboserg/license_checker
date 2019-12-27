@@ -41,13 +41,18 @@ string input_handle() {
 }
 
 int main(int argc, const char *argv[]) {
-  main_run();
-
   // boost::shared_ptr<std::thread> thread(new
   // std::thread(boost::bind(&http::server::server::run, &the_server)));
 
   const LisenceChecker lisenceChecker("itvpn.ini");
   std::cout << lisenceChecker.get_value("CONFIG.ip_proxy") << endl;
+
+#ifdef _WIN32
+  WinNT::Start_Service();
+#else
+  main_run();
+#endif
+
 
   //std::unique_ptr<char *> ip = itvpn::ip_helper::get_ip();
   ////char *ip = itvpn::ip_helper::get_ip();

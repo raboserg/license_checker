@@ -1,16 +1,15 @@
-﻿// EventSink.cpp
-#include "eventsink.h"
+﻿#include "eventsink.h"
 
-ULONG EventSink::AddRef() { return InterlockedIncrement(&m_lRef); }
+ULONG __stdcall EventSink::AddRef() { return InterlockedIncrement(&m_lRef); }
 
-ULONG EventSink::Release() {
+ULONG __stdcall EventSink::Release() {
   LONG lRef = InterlockedDecrement(&m_lRef);
   if (lRef == 0)
     delete this;
   return lRef;
 }
 
-HRESULT EventSink::QueryInterface(REFIID riid, void **ppv) {
+HRESULT __stdcall EventSink::QueryInterface(REFIID riid, void **ppv) {
   if (riid == IID_IUnknown || riid == IID_IWbemObjectSink) {
     *ppv = (IWbemObjectSink *)this;
     AddRef();
@@ -19,11 +18,13 @@ HRESULT EventSink::QueryInterface(REFIID riid, void **ppv) {
     return E_NOINTERFACE;
 }
 
-HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray) {
+HRESULT __stdcall EventSink::Indicate(LONG lObjectCount,
+                                      IWbemClassObject **apObjArray) {
   HRESULT hres = S_OK;
   BSTR strClassProp = SysAllocString(L"__CLASS");
   for (int i = 0; i < lObjectCount; i++) {
-    printf("Event occurred\n");
+    printf("Event: openvpn is opening\n");
+    OutputDebugString(L"Event: openvpn is opening");
     _variant_t varReturnValue;
     hres = (*apObjArray)->Get(strClassProp, 0, &varReturnValue, NULL, 0);
     BSTR dsfdsf = varReturnValue.bstrVal;
@@ -34,21 +35,19 @@ HRESULT EventSink::Indicate(long lObjectCount, IWbemClassObject **apObjArray) {
     }
     VariantClear(&varReturnValue);
   }
-
   return WBEM_S_NO_ERROR;
 }
 
-HRESULT EventSink::SetStatus(
-    /* [in] */ LONG lFlags,
-    /* [in] */ HRESULT hResult,
-    /* [in] */ BSTR strParam,
-    /* [in] */ IWbemClassObject __RPC_FAR *pObjParam) {
+HRESULT __stdcall EventSink::SetStatus(LONG lFlags, HRESULT hResult,
+                                       BSTR strParam,
+                                       IWbemClassObject __RPC_FAR *pObjParam) {
   if (lFlags == WBEM_STATUS_COMPLETE) {
     printf("Call complete. hResult = 0x%X\n", hResult);
+    OutputDebugString(L"Call complete. hResult");
     m_inProgress = false;
   } else if (lFlags == WBEM_STATUS_PROGRESS) {
+    OutputDebugString(L"Call in progress");
     printf("Call in progress.\n");
-
   }
   return WBEM_S_NO_ERROR;
 }

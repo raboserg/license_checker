@@ -6,15 +6,16 @@
 #include <cpprest/json.h>
 #include <cpprest/uri.h>
 
-// /rest/host/get-host-licenses
-// requestDTO
 /*
+requestDTO
 {
   "file": "string",
   "mac": "string",
   "unp": "string"
 }
 */
+const web::http::uri address = U("http://localhost:9090");
+const utility::string_t path = U("/rest/host/get-host-licenses");
 
 int main_run() {
   // web::http::client::http_client sdfdsf("udfsds");
@@ -25,18 +26,17 @@ int main_run() {
       pplx::create_task([]() {
         web::json::value request;
 
-        web::http::client::http_client_config config;
+		web::http::client::http_client_config config;
         config.set_timeout(utility::seconds(30));
 
         request[U("file")] = web::json::value::string(U("file"));
         request[U("mac")] = web::json::value::string(U("mac"));
         request[U("unp")] = web::json::value::string(U("unp"));
-        web::http::uri address = U("http://localhost:9090");
+
         return web::http::client::http_client(address, config)
-            .request(
-                web::http::methods::POST,
-                web::http::uri_builder().append_path(U("/res")).to_string(),
-                request.serialize(), U("application/json"));
+            .request(web::http::methods::POST,
+                     web::http::uri_builder().append_path(path).to_string(),
+                     request.serialize(), U("application/json"));
       })
           .then([](web::http::http_response response) { // Get the response.
             // Check the status code.

@@ -1,95 +1,96 @@
-#include "exec_notificator.h"
+#include "notificator.h"
 
-exec_notificator::exec_notificator(const _bstr_t name) : app_name(name) {
-  _bstr_t wql_query = "SELECT * "
-                      "FROM __InstanceCreationEvent WITHIN 1 "
-                      "WHERE TargetInstance ISA 'Win32_Process' and "
-                      "TargetInstance.Name = "
-                      "'" +
-                      name + "'";
-  cout << wql_query_ << endl;
-};
-
-exec_notificator ::~exec_notificator() { release(); };
-
-void exec_notificator::operator()(const HANDLE event) {
-  cencel_event = event;
-  start_notification_wait();
+WinNT::Notificator::Notificator(const _bstr_t name)
+    : app_name(name), is_cencel(false) {
 }
 
-void exec_notificator::start_notification_wait() {
-  bool result;
-  CComPtr<IWbemServices> pSvc;
-  CComPtr<IWbemObjectSink> pStubSink;
-  std::tie(result, pSvc, pStubSink) = init();
+WinNT::Notificator ::~Notificator() { release(); };
+
+DWORD WinNT::Notificator::notification_wait(HANDLE hStopEvent) {
+  BOOL result;
+  WinNT::IWBSRVS pSvc;
+  WinNT::IWBOBJSINK pStubSink;
+  std::tie(result, pSvc, pStubSink) = init_context();
   if (result) {
     HRESULT hres = pSvc->ExecNotificationQueryAsync(
         _bstr_t("WQL"), wql_query_, WBEM_FLAG_SEND_STATUS, NULL, pStubSink);
     if (FAILED(hres)) {
-      printf("ExecNotificationQueryAsync failed with = 0x%X\n", hres);
-      return;
+      SvcDebugOut(TEXT("ExecNotificationQueryAsync failed with = 0x%X"), hres);
+      return 1;
     }
-    ::WaitForSingleObject(cencel_event, INFINITE);
-    cout << "reset event" << endl;
+    OutputDebugString(L"ExecNotificationQueryAsync started");
+    WaitForSingleObject(hStopEvent, INFINITE);
     pSvc->CancelAsyncCall(pStubSink);
+    OutputDebugString(L"ExecNotificationQueryAsync stoped");
+    Sleep(1000);
+    return 0;
   }
+  return 1;
 }
 
-std::tuple<bool, CComPtr<IWbemServices>, CComPtr<IWbemObjectSink>>
-exec_notificator::init() {
-
+std::tuple<BOOL, WinNT::IWBSRVS, WinNT::IWBOBJSINK>
+WinNT::Notificator::init_context() {
   HRESULT hres = CoInitializeEx(0, COINIT_MULTITHREADED);
   if (FAILED(hres)) {
-    cout << "Failed to initialize COM library. Error code = 0x" << hex << hres
-         << endl;
+    SvcDebugOut(TEXT("Failed to initialize COM library. Error code = = 0x%X"),
+                hres);
     return std::make_tuple(false, nullptr, nullptr);
   }
   hres =
       CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
                            RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
   if (FAILED(hres)) {
-    cout << "Failed to initialize security. Error code = 0x" << hex << hres
-         << endl;
+    SvcDebugOut(TEXT("Failed to initialize security. Error code = 0x%X"), hres);
     return std::make_tuple(false, nullptr, nullptr);
   }
 
   CComPtr<IWbemLocator> pLoc;
-  CComPtr<IWbemServices> pSvc;
   hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER,
                           IID_IWbemLocator, (LPVOID *)&pLoc);
   if (FAILED(hres)) {
-    cout << "Failed to create IWbemLocator object. "
-         << "Err code = 0x" << hex << hres << endl;
+    SvcDebugOut(TEXT("Failed to create IWbemLocator object. Error code = 0x%X"),
+                hres);
     return std::make_tuple(false, nullptr, nullptr);
   }
 
+  CComPtr<IWbemServices> pSvc;
   hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0,
                              &pSvc);
   if (FAILED(hres)) {
-    cout << "Could not connect. Error code = 0x" << hex << hres << endl;
+    SvcDebugOut(TEXT("Could not connect. Error code = 0x%X"), hres);
     return std::make_tuple(false, nullptr, nullptr);
   }
-  cout << "Connected to ROOT\\CIMV2 WMI namespace" << endl;
+  SvcDebugOut(L"Connected to ROOT\\CIMV2 WMI namespace", 0);
   hres = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL,
                            RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE,
                            NULL, EOAC_NONE);
   if (FAILED(hres)) {
-    cout << "Could not set proxy blanket. Error code = 0x" << hex << hres
-         << endl;
+    SvcDebugOut(TEXT("Could not set proxy blanket. Error code = 0x%X"), hres);
     return std::make_tuple(false, nullptr, nullptr);
   }
   CComPtr<IUnsecuredApartment> pUnsecApp;
   hres = CoCreateInstance(CLSID_UnsecuredApartment, NULL, CLSCTX_LOCAL_SERVER,
                           IID_IUnsecuredApartment, (void **)&pUnsecApp);
+
   CComPtr<IUnknown> pStubUnk;
-  CComPtr<IWbemObjectSink> pStubSink;
   CComPtr<IWbemObjectSink> pSink(new EventSink);
   pUnsecApp->CreateObjectStub(pSink, &pStubUnk);
+
+  CComPtr<IWbemObjectSink> pStubSink;
   pStubUnk->QueryInterface(IID_IWbemObjectSink, (void **)&pStubSink);
   return std::make_tuple(true, pSvc, pStubSink);
 }
 
-void exec_notificator::release() {
+void WinNT::Notificator::set_cencel(const bool flag) { this->is_cencel = flag; }
+
+void WinNT::Notificator::release() {
   cout << "release" << endl;
   CoUninitialize();
+}
+
+void WinNT::SvcDebugOut(LPCWSTR message, DWORD status) {
+  const size_t cchDest = 100;
+  TCHAR pszDest[cchDest];
+  ::StringCchPrintf(pszDest, cchDest, message, status);
+  OutputDebugString(pszDest);
 }

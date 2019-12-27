@@ -21,18 +21,16 @@ public:
   ~EventSink() { bDone = true; }
   bool m_inProgress;
 
-  virtual ULONG STDMETHODCALLTYPE AddRef();
-  virtual ULONG STDMETHODCALLTYPE Release();
-  virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppv);
+  virtual ULONG __stdcall AddRef();
+  virtual ULONG __stdcall Release();
+  virtual HRESULT __stdcall QueryInterface(REFIID riid, void **ppv);
 
-  virtual HRESULT STDMETHODCALLTYPE Indicate(
+  virtual HRESULT __stdcall Indicate(
       LONG lObjectCount, IWbemClassObject __RPC_FAR *__RPC_FAR *apObjArray);
 
-  virtual HRESULT STDMETHODCALLTYPE SetStatus(
-      /* [in] */ LONG lFlags,
-      /* [in] */ HRESULT hResult,
-      /* [in] */ BSTR strParam,
-      /* [in] */ IWbemClassObject __RPC_FAR *pObjParam);
+  virtual HRESULT __stdcall SetStatus(LONG lFlags, HRESULT hResult,
+                                      BSTR strParam,
+                                      IWbemClassObject __RPC_FAR *pObjParam);
 };
 
 #endif // end of EventSink.h

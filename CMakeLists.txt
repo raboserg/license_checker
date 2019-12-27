@@ -2,6 +2,15 @@
 
 project ("license_checker")
 
+#CMAKE_TOOLCHAIN_FILE=D:/library/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug
+
+if($ENV{TOOLCHAIN_FILE})
+	message("$ENV{TOOLCHAIN_FILE} - $ENV{TOOLCHAIN_FILE}")
+	set(CMAKE_TOOLCHAIN_FILE $ENV{TOOLCHAIN_FILE})
+else()
+	set(CMAKE_TOOLCHAIN_FILE "D:/library/vcpkg/scripts/buildsystems/vcpkg.cmake" )
+endif()
+
 set(Boost_USE_STATIC_LIBS    ON)
 set(Boost_USE_MULTITHREADED  ON)
 set(Boost_USE_STATIC_RUNTIME ON)
@@ -54,7 +63,7 @@ if(Boost_FOUND)
         if(CMAKE_HOST_WIN32)
             #set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
             add_subdirectory("eventsink")
-            add_definitions(-D_WIN32_WINNT=0X0601)
+            add_definitions(-D_WIN32_WINNT=0X0601 -D_UNICODE -DUNICODE)
             #???target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
             target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest_2_10d eventsink
                 boost_system-vc140-mt-gd
