@@ -7,10 +7,13 @@ class Client : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> {
 public:
   typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> super;
   enum { MAX_ITERATIONS = 7 };
+  
   Client() : super(), iterations_(0), bytes_sent_(-1), bytes_to_send_(-1) {}
 
   int open(const ACE_INET_Addr &addr) {
+
     ACE_SOCK_Connector connector;
+
     if (connector.connect(this->peer(), addr) == -1) {
       ACE_ERROR_RETURN((LM_ERROR, "%p\n", "connect"), -1);
     }
@@ -40,13 +43,13 @@ public:
     const char request_type[5] = "GET ";
     const char proto_type[17] = " HTTP/1.0\r\n\r\n";
     iovec iov[4];
-    iov[0].iov_base = (void *)request_type;
+    iov[0].iov_base = const_cast<char *>(request_type);
     iov[0].iov_len = strlen(request_type);
-    iov[1].iov_base = (void *)pathname;
+    iov[1].iov_base = const_cast<char *>(pathname);
     iov[1].iov_len = strlen(pathname);
-    iov[2].iov_base = (void *)proto_type;
+    iov[2].iov_base = const_cast<char *>(proto_type);
     iov[2].iov_len = strlen(proto_type);
-    iov[3].iov_base = static_cast<void *>(buf);
+    iov[3].iov_base = const_cast<char *>(buf);
     iov[3].iov_len = strlen(buf);
 
     // int bytes_sent = this->peer().send(buf, 1);
