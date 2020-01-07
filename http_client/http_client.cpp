@@ -2,18 +2,19 @@
 #include <ace/SOCK_Stream.h>
 #include <ace/Svc_Handler.h>
 
+#include <ace/ARGV.h>
+
+static ACE_CString URL = ACE_TEXT("http://www.cs.wustl.edu/index.html");
+
 class Client : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> {
 
 public:
   typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> super;
   enum { MAX_ITERATIONS = 7 };
-  
   Client() : super(), iterations_(0), bytes_sent_(-1), bytes_to_send_(-1) {}
 
   int open(const ACE_INET_Addr &addr) {
-
     ACE_SOCK_Connector connector;
-
     if (connector.connect(this->peer(), addr) == -1) {
       ACE_ERROR_RETURN((LM_ERROR, "%p\n", "connect"), -1);
     }
@@ -102,8 +103,15 @@ int wmain(int argc, wchar_t *argv[])
 int main(int argc, char *argv[])
 #endif
 {
+
+  ACE_ARGV argv_(argv);
+  char ddd = argv_.buf()[0];
+
   Client *client = new Client();
-  ACE_INET_Addr addr("localhost", 9090);
+  // ACE_INET_Addr addr("localhost", 9090);
+  ACE_INET_Addr addr;
+  addr.string_to_addr(URL.c_str());
+
   if (client->open(addr) == -1) {
     ACE_DEBUG((LM_DEBUG,
                "(%P|%t %d)"
