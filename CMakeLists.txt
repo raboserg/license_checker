@@ -26,7 +26,16 @@ else()
         set(VCPKG_DIR "d:/library/vcpkg/installed/x64-windows")
     elseif(CMAKE_HOST_UNIX)
         set(VCPKG_DIR "~/projects/vcpkg/installed/x64-linux")
+
+#        set(ACE_ROOT ${VCPKG_DIR})
+#        set(ACE_INCLUDE_DIR "${ACE_ROOT}/include")
+#        set(ACE_LIBRARY_DIR "${ACE_ROOT}/lib")
+
+#        find_library(ACE_LIBRARY
+#                NAMES ACE
+#                HINTS ${ACE_LIBRARY_DIR})
     endif()
+
     set(BOOST_ROOT ${VCPKG_DIR})
     #set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
     #set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/debug/lib")
@@ -71,16 +80,16 @@ if(Boost_FOUND)
                 boost_system-vc140-mt-gd
                 boost_filesystem-vc140-mt-gd
                 boost_program_options-vc140-mt-gd)
-			target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_win ${Boost_INCLUDE_DIRS})
+                target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_win ${Boost_INCLUDE_DIRS})
         elseif(CMAKE_HOST_UNIX)
-			add_subdirectory("event_sink_linux")
-            target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest
+            add_subdirectory("event_sink_linux")
+            target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest eventsink
                 pthread
                 boost_system
                 boost_filesystem
                 boost_program_options
                 ssl crypto dl)
-			target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_linux ${Boost_INCLUDE_DIRS})
+            target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_linux ${Boost_INCLUDE_DIRS})
         endif()
 	#????add_library(${PROJECT_NAME} STATIC license boost_system-vc140-mt boost_filesystem-vc140-mt boost_program_options-vc140-mt)
     #target_include_directories(${PROJECT_NAME} PUBLIC client license http_server server ${Boost_INCLUDE_DIRS})
@@ -93,7 +102,7 @@ if(Boost_FOUND)
     #add_subdirectory("http_server")
     add_subdirectory("template")
     add_subdirectory("parser")
-    add_subdirectory("http_client/")
+    #add_subdirectory("http_client")
 
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 	if(CMAKE_HOST_WIN32)

@@ -14,7 +14,7 @@
 
 #include <sys/fanotify.h>
 
-#include "ace/Thread_Manager.h"
+//#include "ace/Thread_Manager.h"
 
 /* Size of buffer to use when reading fanotify events */
 #define FANOTIFY_BUFFER_SIZE 8192
@@ -56,7 +56,8 @@ public:
   virtual ~linux_noficitator();
   int run_notify(int argc, const char **argv);
   void shutdown_fanotify(const int numbers, const int fanotify_fd);
-  static ACE_THR_FUNC_RETURN srv_run(void *argc);
+  // static ACE_THR_FUNC_RETURN srv_run(void *argc);
+  static void srv_run(void *argc);
 };
 
 static linux_noficitator theInstance;

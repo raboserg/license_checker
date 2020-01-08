@@ -145,7 +145,7 @@ linux_noficitator::~linux_noficitator() {
   printf("Exiting fanotify example...\n");
 }
 
-ACE_THR_FUNC_RETURN linux_noficitator::srv_run(void *argc) {
-  theInstance.run_notify(2, nullptr);
-  return nullptr;
-}
+// ACE_THR_FUNC_RETURN linux_noficitator::srv_run(void *argc) {
+//  theInstance.run_notify(2, nullptr);
+//  return nullptr;
+//}
