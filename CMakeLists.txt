@@ -62,24 +62,28 @@ if(Boost_FOUND)
 	#vc140-mt
         if(CMAKE_HOST_WIN32)
             #set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
-            add_subdirectory("eventsink")
-            add_definitions(-D_WIN32_WINNT=0X0601 -D_UNICODE -DUNICODE)
+            add_subdirectory("event_sink_win")
+            add_definitions(-D_UNICODE -DUNICODE)
+			#add_definitions(-D_WIN32_WINNT=0X0601 -D_UNICODE -DUNICODE)
             #???target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
             target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest_2_10d eventsink
                 boost_system-vc140-mt-gd
                 boost_filesystem-vc140-mt-gd
                 boost_program_options-vc140-mt-gd)
+			target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_win ${Boost_INCLUDE_DIRS})
         elseif(CMAKE_HOST_UNIX)
+			add_subdirectory("event_sink_linux")
             target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest
                 pthread
                 boost_system
                 boost_filesystem
                 boost_program_options
                 ssl crypto dl)
+				target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_linux ${Boost_INCLUDE_DIRS})
         endif()
 	#????add_library(${PROJECT_NAME} STATIC license boost_system-vc140-mt boost_filesystem-vc140-mt boost_program_options-vc140-mt)
     #target_include_directories(${PROJECT_NAME} PUBLIC client license http_server server ${Boost_INCLUDE_DIRS})
-    target_include_directories(${PROJECT_NAME} PUBLIC client license eventsink ${Boost_INCLUDE_DIRS})
+    #target_include_directories(${PROJECT_NAME} PUBLIC client license eventsink ${Boost_INCLUDE_DIRS})
 
     add_subdirectory("client")
     add_subdirectory("license")

@@ -1,4 +1,4 @@
-#include "server-poll.h"
+#include "notificator_linux.h"
 
 char *linux_noficitator::get_program_name_from_pid(const int pid, char *buffer,
                                                    const size_t buffer_size) {

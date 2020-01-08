@@ -1,0 +1,5 @@
+﻿cmake_minimum_required (VERSION 3.8)
+set(SOURCES_LIST notificator_linux.cpp notificator_linux.h)
+add_library(eventsink STATIC ${SOURCES_LIST})
+target_link_libraries(eventsink client)
+#target_include_directories(license PUBLIC ${Boost_INCLUDE_DIRS})

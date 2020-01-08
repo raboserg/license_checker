@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 3.8)
 
+
+set(SOURCES_LIST http_server.cpp http_server.h Rest_Server.cpp stdafx.h usr_interrupt_handler.hpp)
+
 if (UNIX)
   add_definitions(-Wno-sign-compare -Wno-enum-compare)
 endif()
@@ -19,7 +22,7 @@ elseif(CMAKE_HOST_UNIX)
 endif()
 
 #add_library(restserver http_server.cpp http_server.h Rest_Server.cpp stdafx.h)
-add_executable(restserver http_server.cpp http_server.h Rest_Server.cpp stdafx.h usr_interrupt_handler.hpp)
+add_executable(restserver ${SOURCES_LIST})
 #find_package(cpprestsdk CONFIG REQUIRED)
 if(CMAKE_HOST_WIN32)
 	target_link_libraries(restserver ${CPPREST_LIB_NAME})

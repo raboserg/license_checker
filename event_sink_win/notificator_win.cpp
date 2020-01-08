@@ -1,4 +1,4 @@
-#include "notificator.h"
+#include "notificator_win.h"
 
 WinNT::Notificator::Notificator(const _bstr_t name)
     : app_name(name), is_cencel(false) {

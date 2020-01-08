@@ -1,7 +1,6 @@
 #pragma once
-
-#define _WIN32_WINNT 0x0600
-#include "notificator.h"
+//#define _WIN32_WINNT 0x0600
+#include "notificator_win.h"
 #include <stdio.h>
 #include <tchar.h>
 #include <windows.h>

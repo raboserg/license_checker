@@ -1,11 +1,8 @@
 ﻿// client_license.h
+#pragma once
 
 #ifndef CLIENT_LICENSE_H
 #define CLIENT_LICENSE_H
-
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
 #include <boost/config.hpp>
 //#include <cpprest/http_client.h>

@@ -1,6 +1,6 @@
-#include "notificator.h"
-#include <thread>
+#include "notificator_win.h"
 #include "windows.h"
+
 
 void Work_Proc(void *arg) {
   HANDLE cencel_event = (HANDLE)arg;

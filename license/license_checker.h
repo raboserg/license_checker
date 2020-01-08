@@ -1,11 +1,7 @@
 ﻿// license_checker.h
-
+#pragma once
 #ifndef LICENSE_CHECKER_H
 #define LICENSE_CHECKER_H
-
-#if defined(_WINDOWS)
-#pragma once
-#endif
 
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>

@@ -1,10 +1,7 @@
 // applicaton.h
+#pragma once
 #ifndef APPLICATION_H
 #define APPLICATION_H
-
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
 #include "client_license.h"
 #include "license_checker.h"
@@ -18,16 +15,14 @@
 #include <thread>
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <notificator.h>
 #include "service.h"
 #else
+#include "notificator_linux.h"
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #endif
-#include <sys/types.h>
 
 namespace itvpn {
 
