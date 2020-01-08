@@ -1,6 +1,5 @@
 cmake_minimum_required (VERSION 3.8)
 
-
 set(SOURCES_LIST http_server.cpp http_server.h Rest_Server.cpp stdafx.h usr_interrupt_handler.hpp)
 
 if (UNIX)
@@ -27,7 +26,7 @@ add_executable(restserver ${SOURCES_LIST})
 if(CMAKE_HOST_WIN32)
 	target_link_libraries(restserver ${CPPREST_LIB_NAME})
 elseif(CMAKE_HOST_UNIX)
-        target_link_libraries(restserver  ${CPPREST_LIB_NAME} pthread boost_system crypto ssl pthread dl)
+    target_link_libraries(restserver  ${CPPREST_LIB_NAME} pthread boost_system crypto ssl pthread dl)
 endif()
 #target_link_libraries(restserver pthread ${CPPREST_LIB_NAME})
 target_include_directories(restserver PUBLIC ${CPPREST_HEADER_DIR} ${Boost_INCLUDE_DIRS})

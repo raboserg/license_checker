@@ -1,128 +1,76 @@
-﻿#include <ace/SOCK_Connector.h>
-#include <ace/SOCK_Stream.h>
-#include <ace/Svc_Handler.h>
+#include "http_client.h"
+//#include "ace/OS_NS_errno.h"
+//#include "ace/OS_NS_stdio.h"
+//#include "ace/OS_NS_string.h"
+//#include "ace/OS_NS_sys_time.h"
 
-#include <ace/ARGV.h>
+// Listing 2 code/ch07
+int Client::open(void *p) {
+  ACE_Time_Value iter_delay(2); // Two seconds
+  if (super::open(p) == -1)
+    return -1;
+  this->notifier_.reactor(this->reactor());
+  this->msg_queue()->notification_strategy(&this->notifier_);
+  this->iterations_ = 0;
+  return this->reactor()->schedule_timer(this, 0, ACE_Time_Value::zero,
+                                         iter_delay);
+}
+// Listing 2
 
-static ACE_CString URL = ACE_TEXT("http://www.cs.wustl.edu/index.html");
-
-class Client : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> {
-
-public:
-  typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> super;
-  enum { MAX_ITERATIONS = 7 };
-  Client() : super(), iterations_(0), bytes_sent_(-1), bytes_to_send_(-1) {}
-
-  int open(const ACE_INET_Addr &addr) {
-    ACE_SOCK_Connector connector;
-    if (connector.connect(this->peer(), addr) == -1) {
-      ACE_ERROR_RETURN((LM_ERROR, "%p\n", "connect"), -1);
-    }
+// Listing 3 code/ch07
+int Client::handle_input(ACE_HANDLE) {
+  char buf[64];
+  ssize_t recv_cnt = this->peer().recv(buf, sizeof(buf) - 1);
+  if (recv_cnt > 0) {
+    ACE_DEBUG((LM_DEBUG, ACE_TEXT("%.*C"), static_cast<int>(recv_cnt), buf));
     return 0;
   }
 
-  int handle_output(ACE_HANDLE) {
-    ACE_DEBUG((LM_INFO, "Client handle_output\n"));
-    if (this->bytes_to_send_ < 0) {
-      ACE_OS::sprintf(this->output_buffer_, "Iteration %d\n",
-                      ++this->iterations_);
-      this->bytes_to_send_ =
-          static_cast<ssize_t>(ACE_OS::strlen(this->output_buffer_));
-      this->bytes_sent_ = 0;
-    }
-    if (this->bytes_sent_ >= this->bytes_to_send_) {
-      this->bytes_to_send_ = -1;
-      this->bytes_sent_ = -1;
-      this->reactor()->remove_handler(this, ACE_Event_Handler::WRITE_MASK |
-                                                ACE_Event_Handler::DONT_CALL);
-      return 0;
-    }
-
-    char *buf = this->output_buffer_ + this->bytes_sent_;
-
-    const char *pathname = "/res";
-    const char request_type[5] = "GET ";
-    const char proto_type[17] = " HTTP/1.0\r\n\r\n";
-    iovec iov[4];
-    iov[0].iov_base = const_cast<char *>(request_type);
-    iov[0].iov_len = strlen(request_type);
-    iov[1].iov_base = const_cast<char *>(pathname);
-    iov[1].iov_len = strlen(pathname);
-    iov[2].iov_base = const_cast<char *>(proto_type);
-    iov[2].iov_len = strlen(proto_type);
-    iov[3].iov_base = const_cast<char *>(buf);
-    iov[3].iov_len = strlen(buf);
-
-    // int bytes_sent = this->peer().send(buf, 1);
-    int bytes_sent = this->peer().send_n(iov, 4);
-    if (bytes_sent < 0) {
-      this->bytes_sent_ = this->bytes_to_send_;
-      ACE_ERROR_RETURN((LM_ERROR, "%p\n", "send"), 0);
-    }
-    this->bytes_sent_ += bytes_sent;
-    return 0;
-  }
-
-  int handle_input(ACE_HANDLE) {
-    char buf[64];
-    int bytesReceived;
-    if ((bytesReceived = this->peer_.recv(buf, sizeof(buf) - 1)) < 1) {
-      ACE_DEBUG((LM_INFO,
-                 "Client handle_input: "
-                 "Received %d bytes. Leaving.\n",
-                 bytesReceived));
-      return -1;
-    }
-    buf[bytesReceived] = 0;
-    ACE_DEBUG((LM_INFO, "Client handle_input: %d: %s\n", bytesReceived, buf));
-    // Re-enable handle_output in three seconds.
-    ACE_Time_Value one_shot(3);
-    this->reactor()->schedule_timer(this, 0, one_shot);
-    return 0;
-  }
-
-  int handle_timeout(const ACE_Time_Value &, const void *) {
-    if (this->iterations_ >= MAX_ITERATIONS) {
-      this->reactor()->end_event_loop();
-    } else {
-      this->reactor()->register_handler(this, ACE_Event_Handler::WRITE_MASK);
-    }
-    return 0;
-  }
-
-private:
-  int iterations_;
-  int bytes_sent_;
-  ssize_t bytes_to_send_;
-  char output_buffer_[1024];
-};
-
-#ifdef _WIN32
-int wmain(int argc, wchar_t *argv[])
-#else
-int main(int argc, char *argv[])
-#endif
-{
-
-  ACE_ARGV argv_(argv);
-  char ddd = argv_.buf()[0];
-
-  Client *client = new Client();
-  // ACE_INET_Addr addr("localhost", 9090);
-  ACE_INET_Addr addr;
-  addr.string_to_addr(URL.c_str());
-
-  if (client->open(addr) == -1) {
-    ACE_DEBUG((LM_DEBUG,
-               "(%P|%t %d)"
-               "error connecting to server\n",
-               ACE_OS::last_error()));
+  if (recv_cnt == 0 || ACE_OS::last_error() != EWOULDBLOCK) {
+    this->reactor()->end_reactor_event_loop();
     return -1;
   }
+  return 0;
+}
+// Listing 3
 
-  ACE_Reactor::instance()->register_handler(
-      client, ACE_Event_Handler::READ_MASK | ACE_Event_Handler::WRITE_MASK);
+// Listing 4 code/ch07
+int Client::handle_timeout(const ACE_Time_Value &, const void *) {
+  if (++this->iterations_ >= ITERATIONS) {
+    this->peer().close_writer();
+    return 0;
+  }
 
-  ACE_Reactor::instance()->run_reactor_event_loop();
+  ACE_Message_Block *mb = 0;
+  ACE_NEW_RETURN(mb, ACE_Message_Block(128), -1);
+  int nbytes =
+      ACE_OS::sprintf(mb->wr_ptr(), "Iteration %d\n", this->iterations_);
+  ACE_ASSERT(nbytes > 0);
+  mb->wr_ptr(static_cast<size_t>(nbytes));
+  this->putq(mb);
+  return 0;
+}
+// Listing 4
+
+// Listing 5 code/ch07
+int Client::handle_output(ACE_HANDLE) {
+  ACE_Message_Block *mb = 0;
+  ACE_Time_Value nowait(ACE_OS::gettimeofday());
+  while (-1 != this->getq(mb, &nowait)) {
+    ssize_t send_cnt = this->peer().send(mb->rd_ptr(), mb->length());
+    if (send_cnt == -1)
+      ACE_ERROR((LM_ERROR, ACE_TEXT("(%P|%t) %p\n"), ACE_TEXT("send")));
+    else
+      mb->rd_ptr(static_cast<size_t>(send_cnt));
+    if (mb->length() > 0) {
+      this->ungetq(mb);
+      break;
+    }
+    mb->release();
+  }
+  if (this->msg_queue()->is_empty())
+    this->reactor()->cancel_wakeup(this, ACE_Event_Handler::WRITE_MASK);
+  else
+    this->reactor()->schedule_wakeup(this, ACE_Event_Handler::WRITE_MASK);
   return 0;
 }

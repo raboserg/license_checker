@@ -40,6 +40,7 @@ endif()
 
 SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/debug/lib")
 LINK_DIRECTORIES("${VCPKG_DIR}/debug/lib")
+#LINK_DIRECTORIES("${VCPKG_DIR}/debug/lib" "d:/library/vcpkg/installed/x64-windows-static/debug/lib")
 message("VCPKG_DIR - ${VCPKG_DIR}")
 
 find_package(Boost REQUIRED)
@@ -79,7 +80,7 @@ if(Boost_FOUND)
                 boost_filesystem
                 boost_program_options
                 ssl crypto dl)
-				target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_linux ${Boost_INCLUDE_DIRS})
+			target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_linux ${Boost_INCLUDE_DIRS})
         endif()
 	#????add_library(${PROJECT_NAME} STATIC license boost_system-vc140-mt boost_filesystem-vc140-mt boost_program_options-vc140-mt)
     #target_include_directories(${PROJECT_NAME} PUBLIC client license http_server server ${Boost_INCLUDE_DIRS})
