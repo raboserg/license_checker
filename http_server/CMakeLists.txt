@@ -19,3 +19,5 @@ endif()
 
 #set_property(TARGET http-server-async PROPERTY FOLDER "example-http-server")
 target_include_directories(http-server-async PUBLIC ../template ${Boost_INCLUDE_DIRS})
+
+set_target_properties(http-server-async PROPERTIES EXCLUDE_FROM_ALL "TRUE")

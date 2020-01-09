@@ -52,8 +52,7 @@ int main(int argc, const char *argv[]) {
 #else
   main_run();
 #endif
-
-
+  
   //std::unique_ptr<char *> ip = itvpn::ip_helper::get_ip();
   ////char *ip = itvpn::ip_helper::get_ip();
   //if (ip != nullptr) {

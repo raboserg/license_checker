@@ -25,7 +25,7 @@
 
 LisenceChecker::LisenceChecker(const string &file_name)
     : file_name_(std::move(file_name)) {
-  	std::ifstream file(file_name, std::ios::in);
+  std::ifstream file(file_name, std::ios::in);
   //  boost::iostreams::filtering_ostream out;
   //  out.push(skip_bom(file_name));
   if (file.is_open()) {

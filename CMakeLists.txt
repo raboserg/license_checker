@@ -2,45 +2,19 @@
 
 project ("license_checker")
 
-#CMAKE_TOOLCHAIN_FILE=D:/library/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug
+set(LINK "STATIC")
+set(VARIANT "DEBUG")
 
-if($ENV{TOOLCHAIN_FILE})
-	message("$ENV{TOOLCHAIN_FILE} - $ENV{TOOLCHAIN_FILE}")
-	set(CMAKE_TOOLCHAIN_FILE $ENV{TOOLCHAIN_FILE})
-else()
-	set(CMAKE_TOOLCHAIN_FILE "D:/library/vcpkg/scripts/buildsystems/vcpkg.cmake" )
-endif()
+include(build.cmake)
 
+set(BOOST_ROOT ${VCPKG_DIR})
 set(Boost_USE_STATIC_LIBS    ON)
 set(Boost_USE_MULTITHREADED  ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 #set(Boost_NO_SYSTEM_PATHS    ON)
 
-message("ENV{VCPKG_DIR} - $ENV{VCPKG_DIR}")
-message("CMAKE_PREFIX_PATH - ${CMAKE_PREFIX_PATH}")
-
-if($ENV{VCPKG_DIR})
-    set(VCPKG_DIR $ENV{VCPKG_DIR})
-else()
-    if(CMAKE_HOST_WIN32)
-        set(VCPKG_DIR "d:/library/vcpkg/installed/x64-windows")
-    elseif(CMAKE_HOST_UNIX)
-        set(VCPKG_DIR "~/projects/vcpkg/installed/x64-linux")
-
-#        set(ACE_ROOT ${VCPKG_DIR})
-#        set(ACE_INCLUDE_DIR "${ACE_ROOT}/include")
-#        set(ACE_LIBRARY_DIR "${ACE_ROOT}/lib")
-
-#        find_library(ACE_LIBRARY
-#                NAMES ACE
-#                HINTS ${ACE_LIBRARY_DIR})
-    endif()
-
-    set(BOOST_ROOT ${VCPKG_DIR})
-    #set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
-    #set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/debug/lib")
-endif()
-
+#set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
+#set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/debug/lib")
 #if(Boost_NO_SYSTEM_PATHS)
 #  set(BOOST_ROOT ${VCPKG_DIR})
 #  set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
@@ -50,40 +24,43 @@ endif()
 SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/debug/lib")
 LINK_DIRECTORIES("${VCPKG_DIR}/debug/lib")
 #LINK_DIRECTORIES("${VCPKG_DIR}/debug/lib" "d:/library/vcpkg/installed/x64-windows-static/debug/lib")
-message("VCPKG_DIR - ${VCPKG_DIR}")
+message(STATUS "VCPKG_DIR - ${VCPKG_DIR}")
 
 find_package(Boost REQUIRED)
-#???find_library(Boost NAMES Boost HINTS "${BOOST_ROOT}/lib")
 
-#find_package(GSL REQUIRED)   target_link_libraries(main PRIVATE GSL::gsl GSL::gslcblas)
+message(STATUS "Boost_INCLUDE_DIRS - ${Boost_INCLUDE_DIRS}")
+message(STATUS "PROJECT_BINARY_DIR - ${PROJECT_BINARY_DIR}")
+message(STATUS "CMAKE_BINARY_DIR - ${CMAKE_BINARY_DIR}")
+message(STATUS "Boost_LIBRARIES - ${Boost_LIBRARIES}")
+message(STATUS "CMAKE_MODULE_PATH - ${CMAKE_MODULE_PATH}")
+message(STATUS "RUNTIME - ${RUNTIME}")
 
-#find_package(Boost REQUIRED PATHS D:/library/vcpkg/packages/)
-#find_package(Boost REQUIRED boost_system boost_filesystem boost_program_options)
 
-message("Boost_INCLUDE_DIRS - ${Boost_INCLUDE_DIRS}")
-message("PROJECT_BINARY_DIR - ${PROJECT_BINARY_DIR}")
-message("CMAKE_BINARY_DIR - ${CMAKE_BINARY_DIR}")
-message("Boost_LIBRARIES - ${Boost_LIBRARIES}")
-message("CMAKE_MODULE_PATH - ${CMAKE_MODULE_PATH}")
-
-if(Boost_FOUND)
+if(Boost_FOUND) #???
         #???add_definitions(-D_WIN32_WINNT=0X0601)
 	add_executable(${PROJECT_NAME} application.cpp application.h)
 	#vc140-mt
         if(CMAKE_HOST_WIN32)
-            #set(Boost_INCLUDE_DIRS "${BOOST_ROOT}/include")
             add_subdirectory("event_sink_win")
             add_definitions(-D_UNICODE -DUNICODE)
 			#add_definitions(-D_WIN32_WINNT=0X0601 -D_UNICODE -DUNICODE)
             #???target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
-            target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest_2_10d eventsink
+            target_link_libraries(${PROJECT_NAME} PUBLIC 
+				client 
+				license 
+				cpprest_2_10d 
+				eventsink
                 boost_system-vc140-mt-gd
                 boost_filesystem-vc140-mt-gd
                 boost_program_options-vc140-mt-gd)
                 target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_win ${Boost_INCLUDE_DIRS})
         elseif(CMAKE_HOST_UNIX)
             add_subdirectory("event_sink_linux")
-            target_link_libraries(${PROJECT_NAME} PUBLIC client license cpprest eventsink
+            target_link_libraries(${PROJECT_NAME} PUBLIC 
+				client 
+				license 
+				cpprest 
+				eventsink
                 pthread
                 boost_system
                 boost_filesystem
@@ -91,10 +68,7 @@ if(Boost_FOUND)
                 ssl crypto dl)
             target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_linux ${Boost_INCLUDE_DIRS})
         endif()
-	#????add_library(${PROJECT_NAME} STATIC license boost_system-vc140-mt boost_filesystem-vc140-mt boost_program_options-vc140-mt)
-    #target_include_directories(${PROJECT_NAME} PUBLIC client license http_server server ${Boost_INCLUDE_DIRS})
-    #target_include_directories(${PROJECT_NAME} PUBLIC client license eventsink ${Boost_INCLUDE_DIRS})
-
+	
     add_subdirectory("client")
     add_subdirectory("license")
     #add_subdirectory("server")
@@ -115,7 +89,7 @@ if(Boost_FOUND)
                     #???install(PROGRAMS "${DEPENDENCY}" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 		endforeach()
 	elseif(CMAKE_HOST_UNIX)
-		message("CMAKE_HOST_UNIX")
+		message(STATUS  "IT'S FOR CMAKE_HOST_UNIX")
 	endif()
 
 endif()

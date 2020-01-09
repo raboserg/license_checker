@@ -1,7 +1,7 @@
 #ifndef __PARSER_INI_H__
 #define __PARSER_INI_H__
 
-#include <boost/iostreams/filtering_stream.hpp>
+//#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <iostream>

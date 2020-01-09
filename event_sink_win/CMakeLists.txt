@@ -7,7 +7,6 @@ set(SOURCES_LIST
 		notificator_win.h
 		main.cpp)
 
-add_definitions(-D_UNICODE -DUNICODE)
+
 add_library(eventsink STATIC ${SOURCES_LIST})
 target_link_libraries(eventsink client)
-#target_include_directories(license PUBLIC ${Boost_INCLUDE_DIRS})
