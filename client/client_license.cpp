@@ -26,7 +26,7 @@ int main_run() {
       pplx::create_task([]() {
         web::json::value request;
 
-		web::http::client::http_client_config config;
+        web::http::client::http_client_config config;
         config.set_timeout(utility::seconds(30));
 
         request[U("file")] = web::json::value::string(U("file"));

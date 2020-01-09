@@ -35,7 +35,6 @@ message(STATUS "Boost_LIBRARIES - ${Boost_LIBRARIES}")
 message(STATUS "CMAKE_MODULE_PATH - ${CMAKE_MODULE_PATH}")
 message(STATUS "RUNTIME - ${RUNTIME}")
 
-
 if(Boost_FOUND) #???
         #???add_definitions(-D_WIN32_WINNT=0X0601)
 	add_executable(${PROJECT_NAME} application.cpp application.h)
@@ -46,10 +45,10 @@ if(Boost_FOUND) #???
 			#add_definitions(-D_WIN32_WINNT=0X0601 -D_UNICODE -DUNICODE)
             #???target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
             target_link_libraries(${PROJECT_NAME} PUBLIC 
-				client 
-				license 
-				cpprest_2_10d 
-				eventsink
+                client
+                license
+                cpprest_2_10d
+                eventsink
                 boost_system-vc140-mt-gd
                 boost_filesystem-vc140-mt-gd
                 boost_program_options-vc140-mt-gd)
@@ -57,10 +56,10 @@ if(Boost_FOUND) #???
         elseif(CMAKE_HOST_UNIX)
             add_subdirectory("event_sink_linux")
             target_link_libraries(${PROJECT_NAME} PUBLIC 
-				client 
-				license 
-				cpprest 
-				eventsink
+                client
+                license
+                cpprest
+                eventsink
                 pthread
                 boost_system
                 boost_filesystem
