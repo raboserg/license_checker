@@ -1,7 +1,7 @@
 ﻿// license_checker.cpp
 
-#include <iostream>
 #include "license_checker.h"
+#include <iostream>
 
 LicenseChecker::LicenseChecker() {}
 

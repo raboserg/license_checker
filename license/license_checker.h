@@ -7,7 +7,6 @@
 #include <boost/process.hpp>
 
 using namespace std;
-namespace pt = boost::property_tree;
 namespace bp = boost::process;
 
 class LicenseChecker {

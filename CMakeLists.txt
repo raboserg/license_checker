@@ -2,25 +2,35 @@
 
 project ("license_checker")
 
-set(VCPKG_TARGET_TRIPLET "x64-windows")
+#set(VCPKG_TARGET_TRIPLET "x64-windows")
+set(VCPKG_TARGET_TRIPLET "x64-linux")
 set(LINK "STATIC")
 set(VARIANT "DEBUG")
 
 include(build.cmake)
-
-set(Boost_USE_STATIC_LIBS    ON)
-set(Boost_USE_MULTITHREADED  ON)
-set(Boost_USE_STATIC_RUNTIME ON)
-#set(Boost_NO_SYSTEM_PATHS    ON)
 
 message(STATUS "$$$$$ CMAKE_LIBRARY_PATH - ${CMAKE_LIBRARY_PATH}")
 message(STATUS "$$$$$ CMAKE_CROSSCOMPILING - ${CMAKE_CROSSCOMPILING}")
 message(STATUS "$$$$$ CMAKE_INCLUDE_PATH - ${CMAKE_INCLUDE_PATH}")
 message(STATUS "$$$$$ CMAKE_LIBRARY_PATH - ${CMAKE_LIBRARY_PATH}")
 
-find_package(Boost 1.71.0 COMPONENTS system filesystem REQUIRED )
-#???find_library(BOOST_LIBS Boost NAMES system filesystem ${VCPKG_DIR}/debug/lib)
-#???message(STATUS "&&&&&&& BOOST_LIBS - ${BOOST_LIBS}")
+#set(Boost_NO_SYSTEM_PATHS    ON)
+set(Boost_USE_STATIC_LIBS       OFF)  # only find static libs
+set(Boost_USE_DEBUG_LIBS         ON)
+set(Boost_USE_RELEASE_LIBS      OFF)  # only find release libs
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+
+if(CMAKE_HOST_UNIX)
+    #set(BOOST_ROOT ${VCPKG_DIR})
+    find_package(Boost 1.67 COMPONENTS system filesystem)
+else()
+    find_package(Boost 1.71.0 COMPONENTS system filesystem REQUIRED)
+endif()
+
+#find_library(BOOST_LIBS_1 NAMES boost_system  PATHS ${CMAKE_LIBRARY_PATH})
+#find_library(BOOST_LIBS_2 NAMES boost_filesystem PATHS ${CMAKE_LIBRARY_PATH})
+#message(STATUS "&&&&&&& BOOST_LIBS - ${BOOST_LIBS_1}")
 
 message(STATUS "Boost_INCLUDE_DIRS - ${Boost_INCLUDE_DIRS}")
 message(STATUS "PROJECT_BINARY_DIR - ${PROJECT_BINARY_DIR}")
@@ -45,27 +55,23 @@ if(Boost_FOUND) #???
             target_link_libraries(${PROJECT_NAME} PUBLIC 
                 client
                 license
-                cpprest
+                #cpprest
                 eventsink
                 pthread
-				${Boost_LIBRARIES} ssl crypto dl)
-                #boost_system
-                #boost_filesystem
-                #boost_program_options
-                #ssl crypto dl)
-            target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_linux ${Boost_INCLUDE_DIRS})
+                ${Boost_LIBRARIES} ssl crypto dl)
+            target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_linux /usr/include)
         endif()
 	
     add_subdirectory("client")
     add_subdirectory("license")
     #add_subdirectory("server")
-    add_subdirectory("cpprest")
+    #add_subdirectory("cpprest")
     #add_subdirectory("http_server")
     add_subdirectory("template")
     add_subdirectory("parser")
     #add_subdirectory("http_client")
 
-	set(BOOST_ROOT ${CMAKE_PREFIX_PATH})
+    set(BOOST_ROOT ${CMAKE_PREFIX_PATH})
 
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 	if(CMAKE_HOST_WIN32)
