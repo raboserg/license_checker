@@ -28,8 +28,9 @@ int Start_Service() {
       {(LPWSTR)SERVICE_NAME, (LPSERVICE_MAIN_FUNCTION)Service_Main},
       {NULL, NULL}};
   if (!StartServiceCtrlDispatcher(ste)) {
-    WinNT::SvcDebugOut(TEXT("Error code for StartServiceCtrlDispatcher(): %u.\n"),
-                GetLastError());
+    WinNT::SvcDebugOut(
+        TEXT("Error code for StartServiceCtrlDispatcher(): %u.\n"),
+        GetLastError());
   } else
     OutputDebugString(TEXT("StartServiceCtrlDispatcher() returned!\n"));
   return 0;

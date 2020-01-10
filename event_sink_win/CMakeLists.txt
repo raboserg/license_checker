@@ -7,6 +7,6 @@ set(SOURCES_LIST
 		notificator_win.h
 		main.cpp)
 
-
 add_library(eventsink STATIC ${SOURCES_LIST})
+target_compile_definitions(eventsink PRIVATE -D_WIN32_WINNT=0x0601)
 target_link_libraries(eventsink client)

@@ -2,31 +2,31 @@
 
 project ("license_checker")
 
+set(VCPKG_TARGET_TRIPLET "x64-windows")
 set(LINK "STATIC")
 set(VARIANT "DEBUG")
 
 include(build.cmake)
 
-set(BOOST_ROOT ${VCPKG_DIR})
+#set(BOOST_ROOT ${VCPKG_DIR})
+#set(BOOST_LIBRARYDIR ${BOOST_ROOT}/debug/lib)
 set(Boost_USE_STATIC_LIBS    ON)
 set(Boost_USE_MULTITHREADED  ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 #set(Boost_NO_SYSTEM_PATHS    ON)
 
-#set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
-#set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/debug/lib")
-#if(Boost_NO_SYSTEM_PATHS)
-#  set(BOOST_ROOT ${VCPKG_DIR})
-#  set(BOOST_INCLUDE_DIRS "${BOOST_ROOT}/include")
-#  set(BOOST_LIBRARY_DIRS "${BOOST_ROOT}/lib")
-#endif(Boost_NO_SYSTEM_PATHS)
+#SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/debug/lib")
+#LINK_DIRECTORIES("${VCPKG_DIR}/debug/lib")
+message(STATUS "$$$$$ CMAKE_LIBRARY_PATH - ${CMAKE_LIBRARY_PATH}")
+message(STATUS "$$$$$ CMAKE_CROSSCOMPILING - ${CMAKE_CROSSCOMPILING}")
 
-SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/debug/lib")
-LINK_DIRECTORIES("${VCPKG_DIR}/debug/lib")
-#LINK_DIRECTORIES("${VCPKG_DIR}/debug/lib" "d:/library/vcpkg/installed/x64-windows-static/debug/lib")
-message(STATUS "VCPKG_DIR - ${VCPKG_DIR}")
+message(STATUS "$$$$$ CMAKE_INCLUDE_PATH - ${CMAKE_INCLUDE_PATH}")
+message(STATUS "$$$$$ CMAKE_LIBRARY_PATH - ${CMAKE_LIBRARY_PATH}")
 
-find_package(Boost REQUIRED)
+find_package(Boost 1.71.0 COMPONENTS system filesystem REQUIRED )
+#???find_library(BOOST_LIBS Boost NAMES system filesystem ${VCPKG_DIR}/debug/lib)
+#???message(STATUS "&&&&&&& BOOST_LIBS - ${BOOST_LIBS}")
+
 
 message(STATUS "Boost_INCLUDE_DIRS - ${Boost_INCLUDE_DIRS}")
 message(STATUS "PROJECT_BINARY_DIR - ${PROJECT_BINARY_DIR}")
@@ -36,22 +36,16 @@ message(STATUS "CMAKE_MODULE_PATH - ${CMAKE_MODULE_PATH}")
 message(STATUS "RUNTIME - ${RUNTIME}")
 
 if(Boost_FOUND) #???
-        #???add_definitions(-D_WIN32_WINNT=0X0601)
-	add_executable(${PROJECT_NAME} application.cpp application.h)
+	add_executable(${PROJECT_NAME} application.cpp application.h stdafx.h tools.h)
 	#vc140-mt
         if(CMAKE_HOST_WIN32)
             add_subdirectory("event_sink_win")
-            add_definitions(-D_UNICODE -DUNICODE)
-			#add_definitions(-D_WIN32_WINNT=0X0601 -D_UNICODE -DUNICODE)
-            #???target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0X0601)
             target_link_libraries(${PROJECT_NAME} PUBLIC 
                 client
                 license
-                cpprest_2_10d
+                #cpprest_2_10d
                 eventsink
-                boost_system-vc140-mt-gd
-                boost_filesystem-vc140-mt-gd
-                boost_program_options-vc140-mt-gd)
+                ${Boost_LIBRARIES})
                 target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_win ${Boost_INCLUDE_DIRS})
         elseif(CMAKE_HOST_UNIX)
             add_subdirectory("event_sink_linux")
@@ -61,10 +55,11 @@ if(Boost_FOUND) #???
                 cpprest
                 eventsink
                 pthread
-                boost_system
-                boost_filesystem
-                boost_program_options
-                ssl crypto dl)
+				${Boost_LIBRARIES} ssl crypto dl)
+                #boost_system
+                #boost_filesystem
+                #boost_program_options
+                #ssl crypto dl)
             target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_linux ${Boost_INCLUDE_DIRS})
         endif()
 	
@@ -77,16 +72,15 @@ if(Boost_FOUND) #???
     add_subdirectory("parser")
     #add_subdirectory("http_client")
 
+	set(BOOST_ROOT ${CMAKE_PREFIX_PATH})
+
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpn.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 	if(CMAKE_HOST_WIN32)
 		#vc142-mt-x64-1_71.dll
-		set(DEPENDENCIES ${BOOST_ROOT}/Debug/bin/boost_system-vc142-mt-gd-x64-1_71.dll
-				${BOOST_ROOT}/Debug/bin/boost_filesystem-vc142-mt-gd-x64-1_71.dll
-				${BOOST_ROOT}/Debug/bin/boost_program_options-vc142-mt-gd-x64-1_71.dll)
-		foreach(DEPENDENCY ${DEPENDENCIES})
-                    file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+		#set(DEPENDENCIES ${BOOST_ROOT}/Debug/bin/boost_system-vc142-mt-gd-x64-1_71.dll				${BOOST_ROOT}/Debug/bin/boost_filesystem-vc142-mt-gd-x64-1_71.dll				${BOOST_ROOT}/Debug/bin/boost_program_options-vc142-mt-gd-x64-1_71.dll)
+		#foreach(DEPENDENCY ${DEPENDENCIES})                    file(COPY ${DEPENDENCY} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
                     #???install(PROGRAMS "${DEPENDENCY}" DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-		endforeach()
+		#endforeach()
 	elseif(CMAKE_HOST_UNIX)
 		message(STATUS  "IT'S FOR CMAKE_HOST_UNIX")
 	endif()

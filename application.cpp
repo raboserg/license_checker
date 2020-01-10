@@ -1,8 +1,8 @@
 ﻿// application.cpp
 
-#include "application.h"
+//#include "application.h"
+#include "stdafx.h"
 
-using namespace std;
 //namespace po = boost::program_options;
 
 // static http::server::server *the_server = nullptr; // GLOBAL
@@ -44,8 +44,9 @@ int main(int argc, const char *argv[]) {
   // boost::shared_ptr<std::thread> thread(new
   // std::thread(boost::bind(&http::server::server::run, &the_server)));
 
-  const LisenceChecker lisenceChecker("itvpn.ini");
-  std::cout << lisenceChecker.get_value("CONFIG.ip_proxy") << endl;
+  LicenseChecker licenseChecker("itvpn.ini");
+  std::cout << licenseChecker.get_value("CONFIG.ip_proxy") << endl;
+  licenseChecker.check_license("lic.exe -v --lic license.lic");
 
 #ifdef _WIN32
   WinNT::Start_Service();
