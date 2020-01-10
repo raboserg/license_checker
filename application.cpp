@@ -44,8 +44,11 @@ int main(int argc, const char *argv[]) {
   // boost::shared_ptr<std::thread> thread(new
   // std::thread(boost::bind(&http::server::server::run, &the_server)));
 
-  LicenseChecker licenseChecker("itvpn.ini");
-  std::cout << licenseChecker.get_value("CONFIG.ip_proxy") << endl;
+  
+  Parser parser_("itvpn.ini");
+  std::cout << parser_.get_value("CONFIG.ip_proxy") << endl;
+  
+  LicenseChecker licenseChecker;
   licenseChecker.check_license("lic.exe -v --lic license.lic");
 
 #ifdef _WIN32

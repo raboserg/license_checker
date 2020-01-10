@@ -8,25 +8,19 @@ set(VARIANT "DEBUG")
 
 include(build.cmake)
 
-#set(BOOST_ROOT ${VCPKG_DIR})
-#set(BOOST_LIBRARYDIR ${BOOST_ROOT}/debug/lib)
 set(Boost_USE_STATIC_LIBS    ON)
 set(Boost_USE_MULTITHREADED  ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 #set(Boost_NO_SYSTEM_PATHS    ON)
 
-#SET(CMAKE_LIBRARY_PATH "${VCPKG_DIR}/debug/lib")
-#LINK_DIRECTORIES("${VCPKG_DIR}/debug/lib")
 message(STATUS "$$$$$ CMAKE_LIBRARY_PATH - ${CMAKE_LIBRARY_PATH}")
 message(STATUS "$$$$$ CMAKE_CROSSCOMPILING - ${CMAKE_CROSSCOMPILING}")
-
 message(STATUS "$$$$$ CMAKE_INCLUDE_PATH - ${CMAKE_INCLUDE_PATH}")
 message(STATUS "$$$$$ CMAKE_LIBRARY_PATH - ${CMAKE_LIBRARY_PATH}")
 
 find_package(Boost 1.71.0 COMPONENTS system filesystem REQUIRED )
 #???find_library(BOOST_LIBS Boost NAMES system filesystem ${VCPKG_DIR}/debug/lib)
 #???message(STATUS "&&&&&&& BOOST_LIBS - ${BOOST_LIBS}")
-
 
 message(STATUS "Boost_INCLUDE_DIRS - ${Boost_INCLUDE_DIRS}")
 message(STATUS "PROJECT_BINARY_DIR - ${PROJECT_BINARY_DIR}")
@@ -43,7 +37,6 @@ if(Boost_FOUND) #???
             target_link_libraries(${PROJECT_NAME} PUBLIC 
                 client
                 license
-                #cpprest_2_10d
                 eventsink
                 ${Boost_LIBRARIES})
                 target_include_directories(${PROJECT_NAME} PUBLIC client license event_sink_win ${Boost_INCLUDE_DIRS})
