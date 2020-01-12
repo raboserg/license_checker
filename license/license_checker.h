@@ -10,9 +10,6 @@ using namespace std;
 namespace bp = boost::process;
 
 class LicenseChecker {
-  const string file_name_;
-  pt::ptree root_;
-
 public:
   LicenseChecker();
   int check_license(const std::string &command);

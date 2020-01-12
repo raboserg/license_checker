@@ -13,9 +13,11 @@ int LicenseChecker::check_license(const std::string &command) {
   std::string line;
   std::getline(is, line);
   if (!line.empty()) {
-
-    "ERROR: Code: ";
-    "SUCCESS";
+    if (line.compare("ERROR: Code: ")) {
+      result = -1;
+    } else if (line.compare("SUCCESS")) {
+      result = 0;
+    }
     std::cout << line << endl;
   } else {
     result = -1;

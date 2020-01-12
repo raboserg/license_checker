@@ -1,8 +1,16 @@
 #pragma once
 
-#include <string>
-#include <memory>
+#ifdef _WIN32
 #include <Windows.h>
+#else
+#include <arpa/inet.h>
+#include <memory>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <string>
+#include <sys/socket.h>
+#include <unistd.h>
+#endif
 
 namespace itvpn {
 

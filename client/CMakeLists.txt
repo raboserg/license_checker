@@ -2,17 +2,24 @@
 
 set(SOURCE_LIB client_license.cpp client_license.h)
 
+set(CPPREST_DIR ${VCPKG_DIR})
+
 if(CMAKE_HOST_WIN32)
     set(CPPREST_LIB_NAME "cpprest_2_10d")
 elseif(CMAKE_HOST_UNIX)
     set(CPPREST_LIB_NAME cpprest)
 endif()
 
+message("FFFFFFFFFFFFFFFFFF  = ${CMAKE_INCLUDE_PATH}")
+message("FFFFFFFFFFFFFFFFFF  = ${CMAKE_TOOLCHAIN_FILE}")
+
 #add_executable(client ${SOURCE_LIB})
 add_library (client STATIC ${SOURCE_LIB})
-find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME})
 
-target_include_directories(client PUBLIC ${CPPREST_DIR}/include ${Boost_INCLUDE_DIRS})
+find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS ${CMAKE_LIBRARY_PATH})
+
+target_include_directories(client PUBLIC ${CMAKE_INCLUDE_PATH} ${Boost_INCLUDE_DIRS})
+
 if(CMAKE_HOST_WIN32)
     target_link_libraries(client ${CPPREST_LIB}) 
 elseif(CMAKE_HOST_UNIX)

@@ -15,10 +15,6 @@
 #include "service.h"
 #else
 #include "notificator_linux.h"
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
 #endif
 
 #include "tools.h"
