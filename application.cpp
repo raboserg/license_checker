@@ -1,37 +1,10 @@
 ﻿// application.cpp
 
-//#include "application.h"
 #include "stdafx.h"
 
-//namespace po = boost::program_options;
-
-// static http::server::server *the_server = nullptr; // GLOBAL
-
-// int run_server(const int argc, const char **argv) {
-//  try {
-//    // Check command line arguments.
-//    cout << argc << endl;
-//    if (argc != 4) {
-//      std::cerr << "Usage: http_server <address> <port> <doc_root>\n";
-//      std::cerr << "  For IPv4, try:\n";
-//      std::cerr << "    receiver 0.0.0.0 80 .\n";
-//      std::cerr << "  For IPv6, try:\n";
-//      std::cerr << "    receiver 0::0 80 .\n";
-//      return 1;
-//    }
-//    // Initialise the server.
-//    http::server::server server_(argv[1], argv[2], argv[3]);
-//    server_.run();
-//  } catch (std::exception &e) {
-//    std::cerr << "exception: " << e.what() << "\n";
-//  }
-//  return 0;
-//}
-
-// void shutdown_server() {
-//  // the_server->close().wait();
-//  return;
-//}
+static const std::string process_ = "/lic -v --lic ";
+// use us singleton
+static Parser parser_("itvpn.ini");
 
 string input_handle() {
   std::string cmd;
@@ -40,26 +13,39 @@ string input_handle() {
   return cmd;
 }
 
+int worker(void *args) { return 0; }
+
 int main(int argc, const char *argv[]) {
   // boost::shared_ptr<std::thread> thread(new
   // std::thread(boost::bind(&http::server::server::run, &the_server)));
 
-  
-  Parser parser_("itvpn.ini");
-  std::cout << parser_.get_value("CONFIG.ip_proxy") << endl;
-  
-  LicenseChecker licenseChecker;
-  licenseChecker.check_license("lic.exe -v --lic license.lic");
+  std::string license_process_path = parser_.get_value("CONFIG.lic");
+  std::string license_file_name = parser_.get_value("FILES.lic_file_name");
+
+  if (!license_process_path.empty()) {
+    LicenseChecker licenseChecker_;
+    try {
+      bool result = licenseChecker_.check_license(
+          license_process_path.append(process_).append(license_file_name));
+      if (result) {
+        // create client
+      } else {
+      }
+    } catch (const char *msg) {
+      std::cout << msg << std::endl;
+    }
+  }
 
 #ifdef _WIN32
   WinNT::Start_Service();
 #else
-  main_run();
+  LinuxNoficitator linuxNoficitator_;
+  linuxNoficitator_.run_notify(argc, argv);
 #endif
-  
-  //std::unique_ptr<char *> ip = itvpn::ip_helper::get_ip();
+
+  // std::unique_ptr<char *> ip = itvpn::ip_helper::get_ip();
   ////char *ip = itvpn::ip_helper::get_ip();
-  //if (ip != nullptr) {
+  // if (ip != nullptr) {
   //  argv[1] = (*ip);
   //  cout << "local IP: " << ip << endl;
   //}

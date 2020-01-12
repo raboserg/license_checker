@@ -12,7 +12,7 @@ namespace bp = boost::process;
 class LicenseChecker {
 public:
   LicenseChecker();
-  int check_license(const std::string &command);
+  bool check_license(const std::string &command);
 };
 
 #endif

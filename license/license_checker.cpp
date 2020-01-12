@@ -5,22 +5,22 @@
 
 LicenseChecker::LicenseChecker() {}
 
-int LicenseChecker::check_license(const std::string &command) {
-  int result = 0;
+bool LicenseChecker::check_license(const std::string &command) {
+  bool result = false;
   bp::ipstream is;
-  bp::child c(command, bp::std_out > is);
-  c.wait();
+  bp::child process(command, bp::std_out > is);
+  process.wait();
   std::string line;
   std::getline(is, line);
-  if (!line.empty()) {
-    if (line.compare("ERROR: Code: ")) {
-      result = -1;
-    } else if (line.compare("SUCCESS")) {
-      result = 0;
+  if (line.empty())
+    throw "lic of output is empty.";
+  else {
+    const string code = line.substr(0, line.find_first_of(":"));
+    if (code == "ERROR") {
+      result = false;
+    } else if (code == "SUCCESS") {
+      result = true;
     }
-    std::cout << line << endl;
-  } else {
-    result = -1;
   }
   return result;
 }

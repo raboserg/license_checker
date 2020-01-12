@@ -10,8 +10,10 @@ using namespace std;
 namespace pt = boost::property_tree;
 
 class Parser {
-  const string file_name_;
   pt::ptree root_;
+  const string file_name_;
+
+  void create_root(const std::string &file_name);
 
 public:
   Parser(const string &file_name);

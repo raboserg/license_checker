@@ -1,7 +1,7 @@
 #include "notificator_linux.h"
 
-char *linux_noficitator::get_program_name_from_pid(const int pid, char *buffer,
-                                                   const size_t buffer_size) {
+char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
+                                                  const size_t buffer_size) {
   /* Try to get program name by PID */
   sprintf(buffer, "/proc/%d/cmdline", pid);
   const int fd = open(buffer, O_RDONLY);
@@ -21,8 +21,8 @@ char *linux_noficitator::get_program_name_from_pid(const int pid, char *buffer,
   return buffer;
 }
 
-char *linux_noficitator::get_file_path_from_fd(const int fd, char *buffer,
-                                               const size_t buffer_size) {
+char *LinuxNoficitator::get_file_path_from_fd(const int fd, char *buffer,
+                                              const size_t buffer_size) {
   if (fd <= 0)
     return nullptr;
   sprintf(buffer, "/proc/self/fd/%d", fd);
@@ -33,7 +33,7 @@ char *linux_noficitator::get_file_path_from_fd(const int fd, char *buffer,
   return buffer;
 }
 
-void linux_noficitator::event_process(
+void LinuxNoficitator::event_process(
     const struct fanotify_event_metadata *event) {
   char path[PATH_MAX];
   printf("Received event in path '%s'",
@@ -57,8 +57,8 @@ void linux_noficitator::event_process(
   close(event->fd);
 }
 
-void linux_noficitator::shutdown_fanotify(const int numbers,
-                                          const int fanotify_fd) {
+void LinuxNoficitator::shutdown_fanotify(const int numbers,
+                                         const int fanotify_fd) {
   for (int i = 0; i < numbers; ++i) {
     /* Remove the mark, using same event mask as when creating it */
     fanotify_mark(fanotify_fd, FAN_MARK_REMOVE, event_mask, AT_FDCWD,
@@ -69,8 +69,8 @@ void linux_noficitator::shutdown_fanotify(const int numbers,
   close(fanotify_fd);
 }
 
-int linux_noficitator::initialize_fanotify(unsigned int numbers,
-                                           const char **paths) {
+int LinuxNoficitator::initialize_fanotify(unsigned int numbers,
+                                          const char **paths) {
   const int fanotify_fd = fanotify_init(FAN_CLOEXEC, init_mask);
   /* Create new fanotify device */
   if (fanotify_fd < 0) {
@@ -95,7 +95,7 @@ int linux_noficitator::initialize_fanotify(unsigned int numbers,
   return fanotify_fd;
 }
 
-int linux_noficitator::run_notify(int argc, const char **argv) {
+int LinuxNoficitator::run_notify(int argc, const char **argv) {
   // int fanotify_fd;
   struct pollfd fds[FD_POLL_MAX];
   /* Input arguments... */
@@ -139,13 +139,8 @@ int linux_noficitator::run_notify(int argc, const char **argv) {
   return EXIT_SUCCESS;
 }
 
-linux_noficitator::~linux_noficitator() {
+LinuxNoficitator::~LinuxNoficitator() {
   // Clean exit
   shutdown_fanotify(static_cast<int>(numbers), fanotify_fd);
   printf("Exiting fanotify example...\n");
 }
-
-// ACE_THR_FUNC_RETURN linux_noficitator::srv_run(void *argc) {
-//  theInstance.run_notify(2, nullptr);
-//  return nullptr;
-//}

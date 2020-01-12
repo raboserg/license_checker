@@ -19,7 +19,7 @@
 /* Size of buffer to use when reading fanotify events */
 #define FANOTIFY_BUFFER_SIZE 8192
 
-class linux_noficitator {
+class LinuxNoficitator {
   /* Structure to keep track of monitored directories */
   typedef struct {
     /* Path of the directory */
@@ -53,12 +53,12 @@ class linux_noficitator {
   unsigned int numbers;
 
 public:
-  virtual ~linux_noficitator();
+  virtual ~LinuxNoficitator();
   int run_notify(int argc, const char **argv);
   void shutdown_fanotify(const int numbers, const int fanotify_fd);
   // static ACE_THR_FUNC_RETURN srv_run(void *argc);
   static void srv_run(void *argc);
 };
 
-static linux_noficitator theInstance;
+static LinuxNoficitator theInstance;
 #endif // LINUX_NOTIFICATOR_H
