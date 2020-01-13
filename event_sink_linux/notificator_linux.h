@@ -14,7 +14,14 @@
 
 #include <sys/fanotify.h>
 
-//#include "ace/Thread_Manager.h"
+#include <P7_Trace.h>
+
+#define LOGIN_CONNECT                                                          \
+  TM("/P7.Sink=Baical /P7.Pool=32768 /P7.PSize=65536 /P7.Addr=127.0.0.1 "      \
+     "/P7:Port=9010")
+
+static IP7_Trace *l_iTrace = nullptr;
+static IP7_Client *l_iClient = nullptr;
 
 /* Size of buffer to use when reading fanotify events */
 #define FANOTIFY_BUFFER_SIZE 8192

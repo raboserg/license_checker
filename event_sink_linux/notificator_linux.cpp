@@ -38,6 +38,16 @@ void LinuxNoficitator::event_process(
   char path[PATH_MAX];
   printf("Received event in path '%s'",
          get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
+
+  char buffer[512];
+  int cx = snprintf(
+      buffer, 512, "Received event in path '%s'",
+      get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
+
+  // printf(buffer);
+
+  l_iTrace->P7_TRACE(0, buffer, 0);
+
   printf(" pid=%d (%s): \n", event->pid,
          (get_program_name_from_pid(event->pid, path, PATH_MAX) ? path
                                                                 : "unknown"));
@@ -103,6 +113,10 @@ int LinuxNoficitator::run_notify(int argc, const char **argv) {
     fprintf(stderr, "Usage: %s directory1 [directory2 ...]\n", argv[0]);
     exit(EXIT_FAILURE);
   }
+
+  l_iClient = P7_Create_Client(LOGIN_CONNECT);
+  l_iTrace = P7_Create_Trace(l_iClient, TM("TraceChannel"));
+
   numbers = static_cast<unsigned int>(argc - 1);
   /* Initialize fanotify FD and the marks */
   fanotify_fd = initialize_fanotify(numbers, argv);

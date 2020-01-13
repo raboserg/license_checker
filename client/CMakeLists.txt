@@ -12,7 +12,7 @@ endif()
 
 #add_executable(client ${SOURCE_LIB})
 add_library (client STATIC ${SOURCE_LIB})
-
+message("CMAKE_LIBRARY_PATHCMAKE_LIBRARY_PATHCMAKE_LIBRARY_PATHCMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}")
 find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS ${CMAKE_LIBRARY_PATH})
 
 target_include_directories(client PUBLIC ${CMAKE_INCLUDE_PATH} ${Boost_INCLUDE_DIRS})

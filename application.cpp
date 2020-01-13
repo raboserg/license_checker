@@ -2,13 +2,14 @@
 
 #include "stdafx.h"
 
-#define LOGIN_CONNECT                                                                 \
+#define LOGIN_CONNECT                                                          \
   TM("/P7.Sink=Baical /P7.Pool=32768 /P7.PSize=65536 /P7.Addr=127.0.0.1 "      \
      "/P7:Port=9010")
+
 #ifdef _WIN32
-static const string LIC_INI_FILE = "lic_check_w.ini";
+static const std::string LIC_INI_FILE = "lic_check_w.ini";
 #else
-static const string LIC_INI_FILE = "lic_check_l.ini";
+static const std::string LIC_INI_FILE = "lic_check_l.ini";
 #endif
 
 enum {
@@ -19,18 +20,18 @@ static const std::string process_ = "/lic -v --lic ";
 // use us singleton
 static Parser parser_(LIC_INI_FILE);
 
-static IP7_Client *l_iClient = P7_Create_Client(LOGIN_CONNECT);
+// static IP7_Client *l_iClient = P7_Create_Client(LOGIN_CONNECT);
 
-string input_handle();
+std::string input_handle();
+
 int worker(void *args) { return 0; }
 
 int main(int argc, const char *argv[]) {
 
- 
-	for (int i = 0; i != 10; i++) {
-    IP7_Trace *l_iTrace = P7_Create_Trace(l_iClient, TM("TraceChannel"));
-    l_iTrace->P7_TRACE(0, TM("$$$$ %%%%% ^^^^^^^^Test trace message #%d"), 0);
-  }
+  //  IP7_Trace *l_iTrace = P7_Create_Trace(l_iClient, TM("TraceChannel"));
+  //  for (int i = 0; i != 10; i++) {
+  //    l_iTrace->P7_TRACE(0, TM("Test trace message"), 0);
+  //  }
 
   std::string license_process_path = parser_.get_value("CONFIG.lic");
   const std::string license_file_name =
@@ -48,7 +49,7 @@ int main(int argc, const char *argv[]) {
         // create client
       } else {
       }
-    } catch (system_error se) {
+    } catch (std::system_error se) {
       if (se.code().value() == error_create_lic) {
         std::cout << se.what() << std::endl;
         return -1;
@@ -69,9 +70,9 @@ int main(int argc, const char *argv[]) {
   return 0;
 }
 
-string input_handle() {
+std::string input_handle() {
   std::string cmd;
-  cout << "Input <Enter> for close" << endl;
+  std::cout << "Input <Enter> for close" << std::endl;
   getline(std::cin, cmd);
   return cmd;
 }

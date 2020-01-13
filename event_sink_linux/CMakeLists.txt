@@ -22,5 +22,5 @@ set(ACE_LIBRARY_DIR "${ACE_ROOT}/lib")
 #        HINTS ${ACE_LIBRARY_DIR})
 
 #target_link_libraries(${PROJECT_NAME} ${ACE_LIBRARY} pthread)
-target_include_directories(${PROJECT_NAME} PUBLIC ${ACE_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC ${ACE_INCLUDE_DIR} ${DEFAULT_UNIX_LIBP7_DIR}/Headers)
 

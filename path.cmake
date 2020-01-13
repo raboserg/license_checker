@@ -37,6 +37,7 @@ elseif(CMAKE_HOST_UNIX)
         set(CMAKE_INCLUDE_PATH  "${VCPKG_DIR}/include")
     #endif()
     set(DEFAULT_UNIX_BOOST_DIR "~/projects/library/boost_1_72_0")
+    set(DEFAULT_UNIX_LIBP7_DIR "~/projects/library/libP7Client")
 endif()
 
 #set(DEFAULT_WIN_LOCAL_DIRECTORY "d:/work/local/")
