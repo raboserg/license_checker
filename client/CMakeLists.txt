@@ -10,9 +10,6 @@ elseif(CMAKE_HOST_UNIX)
     set(CPPREST_LIB_NAME cpprest)
 endif()
 
-message("FFFFFFFFFFFFFFFFFF  = ${CMAKE_INCLUDE_PATH}")
-message("FFFFFFFFFFFFFFFFFF  = ${CMAKE_TOOLCHAIN_FILE}")
-
 #add_executable(client ${SOURCE_LIB})
 add_library (client STATIC ${SOURCE_LIB})
 

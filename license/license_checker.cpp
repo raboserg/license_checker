@@ -1,7 +1,4 @@
-﻿// license_checker.cpp
-
-#include "license_checker.h"
-#include <iostream>
+﻿#include "license_checker.h"
 
 LicenseChecker::LicenseChecker() {}
 
@@ -15,7 +12,7 @@ bool LicenseChecker::check_license(const std::string &command) {
   if (line.empty())
     throw "lic of output is empty.";
   else {
-    const string code = line.substr(0, line.find_first_of(":"));
+    const std::string code = line.substr(0, line.find_first_of(":"));
     if (code == "ERROR") {
       result = false;
     } else if (code == "SUCCESS") {

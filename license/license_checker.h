@@ -1,12 +1,10 @@
-﻿// license_checker.h
-#pragma once
+﻿#pragma once
 #ifndef LICENSE_CHECKER_H
 #define LICENSE_CHECKER_H
 
 #include "parser_ini.h"
 #include <boost/process.hpp>
 
-using namespace std;
 namespace bp = boost::process;
 
 class LicenseChecker {

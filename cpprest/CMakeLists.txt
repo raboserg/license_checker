@@ -5,8 +5,8 @@ set(SOURCES_LIST http_server.cpp http_server.h Rest_Server.cpp stdafx.h usr_inte
 if (UNIX)
   add_definitions(-Wno-sign-compare -Wno-enum-compare)
 endif()
-
-if(CMAKE_HOST_WIN32)
+ 
+if(CMAKE_HOST_WIN32) 
     set(CPPREST_DIR D:/library/vcpkg/packages/cpprestsdk_x64-windows)
     set(CPPREST_LIB_NAME "cpprest_2_10d")
     set(CPPREST_ROOT ${CPPREST_DIR})
@@ -16,7 +16,7 @@ elseif(CMAKE_HOST_UNIX)
     set(CPPREST_DIR ~/projects/vcpkg/packages/cpprestsdk_x64-linux)
     set(CPPREST_LIB_NAME cpprest)
     set(CPPREST_ROOT ${CPPREST_DIR})
-    set(CPPREST_HEADER_DIR ${CPPREST_ROOT}/include)
+    set(CPPREST_HEADER_DIR ${CPPREST_ROOT}/include) 
     LINK_DIRECTORIES("${CPPREST_ROOT}/build.debug/Release/libs")
 endif()
 

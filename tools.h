@@ -11,14 +11,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
-
-namespace itvpn {
-
-struct LogInfo {
-  LogInfo() {}
-  LogInfo(std::string str) : text(std::move(str)) {}
-  std::string text; // log output (usually but not always one line)
-};
+namespace license_checker {
 
 struct ip_helper {
 
@@ -54,4 +47,4 @@ struct ip_helper {
     return ip_buffer;
   }
 };
-} // namespace itvpn
+} // namespace license_checker

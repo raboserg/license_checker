@@ -26,6 +26,7 @@ void Parser::create_root(const std::string &file_name) {
   //  out.push(skip_bom(file_name));
   if (!file.is_open()) {
     //?? check else not open
+    std::cout << "INI file was not opened" << std::endl;
   } else {
     // skip BOM
     unsigned char buffer[8];
@@ -40,13 +41,13 @@ void Parser::create_root(const std::string &file_name) {
   }
 }
 
-Parser::Parser(const string &file_name) : file_name_(std::move(file_name)) {
-  create_root(file_name);
+Parser::Parser(const std::string &file_name) : file_name_(std::move(file_name)) {
+	create_root(file_name);
 }
 
-string Parser::get_value(const string &key) const {
-  string value;
+std::string Parser::get_value(const std::string &key) const {
+  std::string value;
   if (!root_.empty())
-    value = root_.get<string>(key);
+    value = root_.get<std::string>(key);
   return value;
 }
