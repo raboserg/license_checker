@@ -182,7 +182,7 @@ if(CMAKE_COMPILER_IS_CLANGXX)
     set(CMAKE_CXX_FLAGS_COVERAGE    "-O0 -g3 -coverage")
     set(CMAKE_CXX_FLAGS_ASAN        "-Werror -fsanitize=address -fno-common -O3")
     set(CMAKE_CXX_FLAGS_ASANDBG     "-Werror -fsanitize=address -fno-common -O1 -g3 -fno-omit-frame-pointer -fno-optimize-sibling-calls ")
-    set(CMAKE_CXX_FLAGS_CHECK       "-Werror -O1 -Wcast-qual")
+    set(CMAKE_CXX_FLAGS_CHECK       "-Werror -O1 -Wcast-qual -Wold-style-cast")
 endif(CMAKE_COMPILER_IS_CLANGXX)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")

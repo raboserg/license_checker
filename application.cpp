@@ -31,16 +31,18 @@ std::string input_handle();
 int worker(void *args) { return 0; }
 
 void posix_death_signal(int signum) {
-  P7_TRACE_ADD(l_iTrace, 0, P7_TRACE_LEVEL_CRITICAL, l_hModule, TM("ABORTED"));
-  
+  // P7_TRACE_ADD(l_iTrace, 0, P7_TRACE_LEVEL_CRITICAL, l_hModule,
+  // TM("ABORTED"));
+  l_iTrace->P7_CRITICAL(l_hModule, TM("ABORTED"), 0);
+
   if (l_iTrace) {
     l_iTrace->Release();
-    l_iTrace = NULL;
+    l_iTrace = nullptr;
   }
 
   if (l_iClient) {
     l_iClient->Release();
-    l_iClient = NULL;
+    l_iClient = nullptr;
   }
 
   signal(signum, SIG_DFL); // resend signal
@@ -71,7 +73,9 @@ int main(int argc, const char *argv[]) {
     // std::cout << "ERROR: Not found license of path." << std::endl;
     l_iTrace->P7_TRACE(l_hModule, TM("ERROR: Not found license of path."), 0);
 
-    P7_TRACE_ADD(l_iTrace, 0, P7_TRACE_LEVEL_ERROR, l_hModule, TM("Not found license of path"));
+    // P7_TRACE_ADD(l_iTrace, 0, P7_TRACE_LEVEL_ERROR, l_hModule, TM("Not found
+    // license of path"));
+    l_iTrace->P7_ERROR(l_hModule, TM("Not found license of path"), 0);
 
   } else if (!license_process_path.empty()) {
 
@@ -86,12 +90,13 @@ int main(int argc, const char *argv[]) {
     } catch (std::system_error se) {
       if (se.code().value() == error_create_lic) {
         std::cout << se.what() << std::endl;
-				
-				wchar_t WBuf[100];
-				mbstowcs(WBuf, se.what(), 99);
-				P7_TRACE_ADD(l_iTrace, 0, P7_TRACE_LEVEL_ERROR, l_hModule, WBuf);
-        
-				raise(SIGSEGV);
+
+        wchar_t WBuf[100];
+        mbstowcs(WBuf, se.what(), 99);
+        // P7_TRACE_ADD(l_iTrace, 0, P7_TRACE_LEVEL_ERROR, l_hModule, WBuf);
+        l_iTrace->P7_ERROR(l_hModule, se.what(), 0);
+
+        raise(SIGSEGV);
       }
     } catch (const char *msg) {
       std::cout << msg << std::endl;

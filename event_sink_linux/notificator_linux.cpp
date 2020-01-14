@@ -46,7 +46,7 @@ void LinuxNoficitator::event_process(
 
   // printf(buffer);
 
-  l_iTrace->P7_TRACE(0, buffer, 0);
+  // l_iTrace_->P7_TRACE(0, buffer, 0);
 
   printf(" pid=%d (%s): \n", event->pid,
          (get_program_name_from_pid(event->pid, path, PATH_MAX) ? path
@@ -114,8 +114,8 @@ int LinuxNoficitator::run_notify(int argc, const char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  l_iClient = P7_Create_Client(LOGIN_CONNECT);
-  l_iTrace = P7_Create_Trace(l_iClient, TM("TraceChannel"));
+  //  tracer_::l_iClient_ = P7_Create_Client(LOGIN_CONNECT);
+  //  tracer_::l_iTrace_ = P7_Create_Trace(l_iClient_, TM("TraceChannel"));
 
   numbers = static_cast<unsigned int>(argc - 1);
   /* Initialize fanotify FD and the marks */

@@ -53,12 +53,12 @@ struct ip_helper {
 
 };
 
-static wchar_t* char_to_wchar(const char* args) {
-	wchar_t dst[100];
-	size_t outSize;
-	mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
-	return dst;
-}
+//static wchar_t* char_to_wchar(const char* args) {
+//	wchar_t dst[100];
+//	size_t outSize;
+//	mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
+//	return dst;
+//}
 
 } // namespace license_checker
 #endif
