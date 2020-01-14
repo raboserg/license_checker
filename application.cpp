@@ -2,9 +2,11 @@
 
 #include "stdafx.h"
 
+#include <signal.h>
+
 #define LOGIN_CONNECT                                                          \
   TM("/P7.Sink=Baical /P7.Pool=32768 /P7.PSize=65536 /P7.Addr=127.0.0.1 "      \
-     "/P7:Port=9010")
+     "/P7:Port=9009")
 
 #ifdef _WIN32
 static const std::string LIC_INI_FILE = "lic_check_w.ini";
@@ -18,27 +20,59 @@ enum {
 
 static const std::string process_ = "/lic -v --lic ";
 // use us singleton
-static Parser parser_(LIC_INI_FILE);
+// static Parser parser_(LIC_INI_FILE);
 
-// static IP7_Client *l_iClient = P7_Create_Client(LOGIN_CONNECT);
+static IP7_Client *l_iClient = nullptr;
+static IP7_Trace *l_iTrace = nullptr;
+static IP7_Trace::hModule l_hModule = nullptr;
 
 std::string input_handle();
 
 int worker(void *args) { return 0; }
 
+void posix_death_signal(int signum) {
+  P7_TRACE_ADD(l_iTrace, 0, P7_TRACE_LEVEL_CRITICAL, l_hModule, TM("ABORTED"));
+  
+  if (l_iTrace) {
+    l_iTrace->Release();
+    l_iTrace = NULL;
+  }
+
+  if (l_iClient) {
+    l_iClient->Release();
+    l_iClient = NULL;
+  }
+
+  signal(signum, SIG_DFL); // resend signal
+  std::cout << input_handle();
+  exit(3);
+}
+
 int main(int argc, const char *argv[]) {
 
-  //  IP7_Trace *l_iTrace = P7_Create_Trace(l_iClient, TM("TraceChannel"));
-  //  for (int i = 0; i != 10; i++) {
-  //    l_iTrace->P7_TRACE(0, TM("Test trace message"), 0);
-  //  }
+  signal(SIGSEGV, posix_death_signal);
+
+  l_iClient = P7_Create_Client(LOGIN_CONNECT);
+  P7_Client_Share(l_iClient, TM("LICENSE_CHECKER_CLN_LOG"));
+
+  l_iTrace = P7_Create_Trace(l_iClient, TM("TraceChannel"));
+  l_iTrace->Register_Thread(TM("Application"), 0);
+  l_iTrace->Register_Module(TM("Main"), &l_hModule);
+  P7_Trace_Share(l_iTrace, TM("LICENSE_CHECKER_TRC_LOG"));
+
+  Parser parser_(LIC_INI_FILE);
+  // input_handle();
 
   std::string license_process_path = parser_.get_value("CONFIG.lic");
   const std::string license_file_name =
       parser_.get_value("FILES.lic_file_name");
 
   if (license_process_path.empty()) {
-    std::cout << "ERROR: Not found license of path." << std::endl;
+    // std::cout << "ERROR: Not found license of path." << std::endl;
+    l_iTrace->P7_TRACE(l_hModule, TM("ERROR: Not found license of path."), 0);
+
+    P7_TRACE_ADD(l_iTrace, 0, P7_TRACE_LEVEL_ERROR, l_hModule, TM("Not found license of path"));
+
   } else if (!license_process_path.empty()) {
 
     LicenseChecker licenseChecker_;
@@ -52,10 +86,16 @@ int main(int argc, const char *argv[]) {
     } catch (std::system_error se) {
       if (se.code().value() == error_create_lic) {
         std::cout << se.what() << std::endl;
-        return -1;
+				
+				wchar_t WBuf[100];
+				mbstowcs(WBuf, se.what(), 99);
+				P7_TRACE_ADD(l_iTrace, 0, P7_TRACE_LEVEL_ERROR, l_hModule, WBuf);
+        
+				raise(SIGSEGV);
       }
     } catch (const char *msg) {
       std::cout << msg << std::endl;
+      raise(SIGSEGV);
     }
   }
 

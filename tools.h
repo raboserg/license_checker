@@ -1,16 +1,20 @@
 #pragma once
+#ifndef TOOLS_H
+#define TOOLS_H
 
 #ifdef _WIN32
 #include <Windows.h>
 #else
 #include <arpa/inet.h>
-#include <memory>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
 #endif
+
+#include <memory>
+
 namespace license_checker {
 
 struct ip_helper {
@@ -46,5 +50,15 @@ struct ip_helper {
 #endif
     return ip_buffer;
   }
+
 };
+
+static wchar_t* char_to_wchar(const char* args) {
+	wchar_t dst[100];
+	size_t outSize;
+	mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
+	return dst;
+}
+
 } // namespace license_checker
+#endif

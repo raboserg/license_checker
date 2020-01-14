@@ -2,7 +2,6 @@
 #ifndef LICENSE_CHECKER_H
 #define LICENSE_CHECKER_H
 
-#include "parser_ini.h"
 #include <boost/process.hpp>
 
 namespace bp = boost::process;

@@ -1,4 +1,5 @@
 ﻿#include "license_checker.h"
+#include "parser_ini.h"
 
 LicenseChecker::LicenseChecker() {}
 
