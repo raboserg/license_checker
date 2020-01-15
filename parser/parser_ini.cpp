@@ -36,7 +36,7 @@ void Parser::create_root(const utility::string_t &file_name) {
     std::streamoff pos = file.tellg();
     if (pos > 0)
       file.seekg(pos - 1);
-    //pt::read_ini(file, root_);
+    pt::read_ini(file, root_);
     file.close();
   }
 }

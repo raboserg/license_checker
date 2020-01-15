@@ -2,10 +2,9 @@
 #define PARSER_INI_H
 
 #include <P7_Trace.h>
-#include <cpprest/details/basic_types.h>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <iostream>
+#include <cpprest/details/basic_types.h>
 #include <tools.h>
 #include <tracer.h>
 
