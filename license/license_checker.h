@@ -5,6 +5,8 @@
 #include <P7_Trace.h>
 #include <boost/process.hpp>
 #include <cpprest/details/basic_types.h>
+#include "parser_ini.h"
+#include <tracer.h>
 
 namespace bp = boost::process;
 

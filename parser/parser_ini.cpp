@@ -26,8 +26,7 @@ void Parser::create_root(const utility::string_t &file_name) {
   //  out.push(skip_bom(file_name));
   if (!file.is_open()) {
     //?? check else not open
-    l_iTrace->P7_ERROR(nullptr, TM("INI file was not opened"), 0);
-    // std::cout << "INI file was not opened" << std::endl;
+    l_iTrace->P7_ERROR(nullptr, TM("can't open ini file"), 0);
   } else { // skip BOM
     unsigned char buffer[8];
     buffer[0] = 255;
@@ -43,7 +42,9 @@ void Parser::create_root(const utility::string_t &file_name) {
 
 Parser::Parser(const utility::string_t &file_name)
     : file_name_(std::move(file_name)) {
-  l_iTrace = P7_Get_Shared_Trace(TM("LICENSE_CHECKER_TRC_LOG"));
+  
+	l_iTrace = P7_Get_Shared_Trace(TM("LICENSE_CHECKER_TRC_LOG"));
+
   create_root(file_name);
 }
 
@@ -57,7 +58,9 @@ utility::string_t Parser::get_value(const utility::string_t &key) const {
 }
 
 Parser::~Parser() {
-  if (l_iTrace) {
+	l_iTrace->P7_TRACE(0, TM("Parser::~Parser()"), 0);
+	Sleep(10000);
+	if (l_iTrace) {
     l_iTrace->Release();
     l_iTrace = nullptr;
   }

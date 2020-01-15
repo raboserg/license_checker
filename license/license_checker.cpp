@@ -4,6 +4,7 @@ LicenseChecker::LicenseChecker() {}
 
 utility::string_t LicenseChecker::run_proc(const utility::string_t &command) {
   bp_is is;
+	Tracer::error(command.c_str(), __LINE__, __FILE__, __FUNCTION__);
   bp::child process(command, bp::std_out > is);
   process.wait();
   utility::string_t line;
@@ -14,9 +15,10 @@ utility::string_t LicenseChecker::run_proc(const utility::string_t &command) {
 bool LicenseChecker::check_license(const utility::string_t &command) {
   bool result = false;
 	utility::string_t line = run_proc(command);
-  if (line.empty())
-    throw "lic of output is empty.";
-  else {
+	if (line.empty()) {
+		Tracer::debug(TM("lic of output is empty"), __LINE__, __FILE__, __FUNCTION__);
+		throw "lic of output is empty";
+	}	else {
     const utility::string_t code = line.substr(0, line.find_first_of(U(":")));
     if (code == U("ERROR")) {
       result = false;
