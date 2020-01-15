@@ -2,6 +2,7 @@
 #define PARSER_INI_H
 
 #include <P7_Trace.h>
+#include <cpprest/details/basic_types.h>
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <iostream>
@@ -10,18 +11,22 @@
 
 namespace pt = boost::property_tree;
 
+#ifdef _WIN32
+typedef pt::wptree prop_tree;
+#else
+typedef pt::ptree prop_tree;
+#endif
+
 class Parser {
-  pt::ptree root_;
-  const std::string file_name_;
-
+	prop_tree root_;
+  const utility::string_t file_name_;
   IP7_Trace *l_iTrace = nullptr;
-
-  void create_root(const std::string &file_name);
+  void create_root(const utility::string_t &file_name);
 
 public:
-  Parser(const std::string &file_name);
-  std::string get_value(const std::string &key) const;
-  pt::ptree get_tree() { return this->root_; }
+  Parser(const utility::string_t &file_name);
+	utility::string_t get_value(const utility::string_t &key) const;
+	prop_tree get_tree() { return this->root_; }
   virtual ~Parser();
 };
 #endif

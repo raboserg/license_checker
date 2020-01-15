@@ -54,7 +54,7 @@ message(STATUS "CMAKE_INCLUDE_PATH - ${CMAKE_INCLUDE_PATH}")
 message(STATUS "RUNTIME - ${RUNTIME}")
 
 if(CMAKE_HOST_WIN32)
-	set(SOURCE_LIST application.cpp application.h service.h stdafx.h tools.h)
+	set(SOURCE_LIST application.cpp application.h service.h stdafx.h)
 	set(LINK_LIBS client license eventsink ${Boost_LIBRARIES})
         set(INCLUDE_DIRS client license event_sink_win tools/ ${Boost_INCLUDE_DIRS} ${DEFAULT_LIBP7_INCLUDE_DIR})
 	add_executable(${PROJECT_NAME} ${SOURCE_LIST})

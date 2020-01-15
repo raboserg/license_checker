@@ -7,10 +7,18 @@
 
 namespace bp = boost::process;
 
+#ifdef _WIN32
+typedef bp::wipstream bp_is;
+#else
+typedef bp::ipstream bp_is;
+#endif
+
 class LicenseChecker {
+	utility::string_t run_proc(const utility::string_t &command);
 public:
   LicenseChecker();
-  bool check_license(const std::string &command);
+  bool check_license(const utility::string_t &command);
+	utility::string_t make_file_license(const utility::string_t &command);
 };
 
 #endif

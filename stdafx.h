@@ -2,7 +2,7 @@
 
 #include "client_license.h"
 #include "license_checker.h"
-#include "platform.hpp"
+
 //#include <cpprest/http_client.h>
 //#include <cpprest/json.h>
 //#include <cpprest/uri.h>
@@ -16,7 +16,7 @@
 #endif
 
 #include "tools.h"
-//#include "logger.h"
+#include <cpprest/details/basic_types.h>
 
 #include <P7_Telemetry.h>
 #include <P7_Trace.h>

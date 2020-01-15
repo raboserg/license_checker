@@ -50,15 +50,16 @@ struct ip_helper {
 #endif
     return ip_buffer;
   }
-
 };
 
-//static wchar_t* char_to_wchar(const char* args) {
-//	wchar_t dst[100];
-//	size_t outSize;
-//	mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
-//	return dst;
-//}
+#ifdef _WIN32
+static std::unique_ptr<const wchar_t *> char_to_wchar(const char *args) {
+  wchar_t dst[100];
+  size_t outSize;
+  mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
+  return std::make_unique<const wchar_t *>(dst);
+}
+#endif // _WIN32
 
 } // namespace license_checker
 #endif
