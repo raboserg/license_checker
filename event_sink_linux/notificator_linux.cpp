@@ -42,9 +42,7 @@ void LinuxNoficitator::event_process(
   int cx = snprintf(
       buffer, 512, "Received event in path '%s'",
       get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
-
-  LOGGER::getInstance()->debug(buffer, __FILE__, __LINE__, __FUNCTION__);
-
+  DEBUGS(0, buffer);
   printf(" pid=%d (%s): \n", event->pid,
          (get_program_name_from_pid(event->pid, path, PATH_MAX) ? path
                                                                 : "unknown"));
@@ -118,8 +116,7 @@ int LinuxNoficitator::run_notify(int argc, const char **argv) {
 
   if (fanotify_fd < 0) {
     fprintf(stderr, "Couldn't initialize fanotify\n");
-    LOGGER::getInstance()->debug(TM("Couldn't initialize fanotify"), __FILE__,
-                                 __LINE__, __FUNCTION__);
+    DEBUGS(0, TM("Couldn't initialize fanotify"));
     exit(EXIT_FAILURE);
   }
   fds[FD_POLL_FANOTIFY].fd = fanotify_fd;
@@ -130,7 +127,7 @@ int LinuxNoficitator::run_notify(int argc, const char **argv) {
     if (poll(fds, FD_POLL_MAX, -1) < 0) {
       char buffer[512];
       int cx = snprintf(buffer, 512, "Couldn't poll(): '%s'", strerror(errno));
-      LOGGER::getInstance()->debug(buffer, __FILE__, __LINE__, __FUNCTION__);
+      DEBUGS(0, buffer);
       fprintf(stderr, "Couldn't poll(): '%s'\n", strerror(errno));
       exit(EXIT_FAILURE);
     }

@@ -64,14 +64,16 @@ private:
   IP7_Trace::hModule module_;
 };
 
-extern P7_EXPORT tBOOL __cdecl Send(tUINT16 i_wTrace_ID, eP7Trace_Level i_dwLevel,
-	hP7_Trace_Module i_hModule, tUINT16 i_wLine,
-	const char *i_pFile, const char *i_pFunction,
-	const tXCHAR *i_pFormat);
+extern P7_EXPORT tBOOL __cdecl Send(tUINT16 i_wTrace_ID,
+                                    eP7Trace_Level i_dwLevel,
+                                    hP7_Trace_Module i_hModule, tUINT16 i_wLine,
+                                    const char *i_pFile,
+                                    const char *i_pFunction,
+                                    const tXCHAR *i_pFormat);
 ////////////////////////////////////////////////////////////////////////////////
 #define DELIVER(i_wID, i_eLevel, i_hModule, i_pFormat, ...)                    \
-  utils::Send(i_wID, i_eLevel, i_hModule, (tUINT16)__LINE__, __FILE__,        \
-               __FUNCTION__, i_pFormat)
+  utils::Send(i_wID, i_eLevel, i_hModule, (tUINT16)__LINE__, __FILE__,         \
+              __FUNCTION__, i_pFormat)
 ////////////////////////////////////////////////////////////////////////////////
 #define QTRACE(i_wID, i_hModule, i_pFormat)                                    \
   DELIVER(i_wID, EP7TRACE_LEVEL_TRACE, i_hModule, i_pFormat)
@@ -106,4 +108,5 @@ extern P7_EXPORT tBOOL __cdecl Send(tUINT16 i_wTrace_ID, eP7Trace_Level i_dwLeve
 } // namespace utils
 
 typedef utils::Singleton<utils::Logger> LOGGER;
+
 #endif

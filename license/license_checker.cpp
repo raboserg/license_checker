@@ -15,14 +15,14 @@ bool LicenseChecker::check_license(const utility::string_t &command) {
   bool result = false;
   utility::string_t line = run_proc(command);
   if (line.empty()) {
-		TRACE(0, TM("lic of output is empty"));
+    TRACE(0, TM("lic of output is empty"));
     throw "lic of output is empty";
   } else {
     const utility::string_t code = line.substr(0, line.find_first_of(U(":")));
     if (code == U("ERROR")) {
-      result = false;
-    } else if (code == U("SUCCESS")) {
       result = true;
+    } else if (code == U("SUCCESS")) {
+      TRACE(0, TM("License is SUCCESS"));
     }
   }
   return result;

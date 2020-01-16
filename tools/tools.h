@@ -52,24 +52,24 @@ struct ip_helper {
   }
 };
 
-static std::unique_ptr<const wchar_t *> char_to_wchar_(const char *args) {
-  wchar_t dst[100];
-  size_t outSize;
-  mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
-  return std::make_unique<const wchar_t *>(dst);
-}
+// static std::unique_ptr<const wchar_t *> char_to_wchar_(const char *args) {
+//  wchar_t dst[100];
+//  size_t outSize;
+//  mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
+//  return std::make_unique<const wchar_t *>(dst);
+//}
 
-static std::wstring char_to_wchar(const char *args) {
-#ifdef _WIN32
-	wchar_t dst[100];
-  size_t outSize;
-  mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
-  std::wstring fdsfds(dst);
-#else
-	std::string fdsfds(args);
-#endif // _WIN32
-  return fdsfds;
-}
+// static std::wstring char_to_wchar(const char *args) {
+//#ifdef _WIN32
+//  wchar_t dst[100];
+//  size_t outSize;
+//  mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
+//  std::wstring fdsfds(dst);
+//#else
+//  std::string fdsfds(args);
+//#endif // _WIN32
+//  return fdsfds;
+//}
 
 } // namespace license_checker
 #endif

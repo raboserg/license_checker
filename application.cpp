@@ -16,8 +16,6 @@ utility::string_t input_handle();
 // typedef utils::Singleton<Parser> PARSER;
 
 void posix_death_signal(int signum) {
-  // LOGGER::instance()->critical(TM("ABORTED"), __FILE__, __LINE__,
-  // __FUNCTION__);
   CRITICAL(0, TM("ABORTED"));
   signal(signum, SIG_DFL); // resend signal
   ucout << input_handle();
@@ -58,7 +56,7 @@ void check_lic() {
       // create client
       INFO(0, TM("Create client"));
     }
-  } catch (exception &ex) {
+  } catch (boost::exception &ex) {
     utility::string_t str_utf16 =
         utility::conversions::to_string_t(boost::diagnostic_information(ex));
     WARNING(0, str_utf16.c_str());
@@ -97,7 +95,8 @@ void make_file_lic() {
       .append(make_lic_cmd)
       .append(U(" "))
       .append(license_prod);
-	utility::string_t dsfdsf = licenseChecker_->make_file_license(license_process_path);
+  utility::string_t dsfdsf =
+      licenseChecker_->make_file_license(license_process_path);
   INFO(0, TM("Create client"));
 }
 
@@ -105,7 +104,7 @@ int main(int argc, const char *argv[]) {
 
   signal(SIGSEGV, posix_death_signal);
 
-	make_file_lic();
+  // make_file_lic();
   check_lic();
 
 #ifdef _WIN32
