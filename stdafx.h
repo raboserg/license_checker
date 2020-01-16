@@ -17,7 +17,7 @@
 
 #include "tools.h"
 #include <cpprest/details/basic_types.h>
-
-#include <P7_Telemetry.h>
-#include <P7_Trace.h>
+#include <cpprest/asyncrt_utils.h>
 #include <parser_ini.h>
+#include <tracer.h>
+#include <boost/exception/all.hpp>

@@ -4,8 +4,10 @@ void Parser::create_root(const utility::string_t &file_name) {
   utility::ifstream_t file(file_name, std::ios::in);
   if (!file.is_open()) {
     //?? check else not open
-    LOGGER::getInstance()->debug(TM("can't open ini file"), __FILE__, __LINE__,
-                                 __FUNCTION__);
+		//LOGGER::instance()->debug(file_name.c_str(), __FILE__, __LINE__,			__FUNCTION__);
+		DEBUGS(0, file_name.c_str());
+    //LOGGER::instance()->debug(TM("can't open ini file"), __FILE__, __LINE__,                                 __FUNCTION__);
+		DEBUGS(0, TM("can't open ini file"));
   } else { // skip BOM
     unsigned char buffer[8];
     buffer[0] = 255;
@@ -26,7 +28,8 @@ Parser::Parser(const utility::string_t &file_name)
 
 utility::string_t Parser::get_value(const utility::string_t &key) const {
   utility::string_t value;
-  LOGGER::getInstance()->debug(key.c_str(), __FILE__, __LINE__, __FUNCTION__);
+  //LOGGER::instance()->debug(key.c_str(), __FILE__, __LINE__, __FUNCTION__);
+	DEBUGS(0, key.c_str());
   if (!root_.empty()) {
     value = root_.get<utility::string_t>(key);
   }
@@ -34,6 +37,5 @@ utility::string_t Parser::get_value(const utility::string_t &key) const {
 }
 
 Parser::~Parser() {
-  LOGGER::getInstance()->debug(TM("Parser::~Parser()"), __FILE__, __LINE__,
-                               __FUNCTION__);
+	DEBUGS(0, TM("Parser::~Parser()"));
 }

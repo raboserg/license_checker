@@ -1,6 +1,4 @@
 cmake_minimum_required (VERSION 3.8)
-set(SOURCE_LIST tracer.h)
+set(SOURCE_LIST tracer.cpp tracer.h)
 add_library(tracer STATIC ${SOURCE_LIST})
-#add_executable(parser test.cpp ${SOURCE_LIST}) 
-#if(CMAKE_HOST_WIN32)
-target_include_directories(tracer PUBLIC ../tools ${Boost_INCLUDE_DIRS} ${DEFAULT_LIBP7_INCLUDE_DIR})
+target_include_directories(tracer PUBLIC ../tools ${DEFAULT_LIBP7_INCLUDE_DIR})

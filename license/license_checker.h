@@ -2,9 +2,9 @@
 #ifndef LICENSE_CHECKER_H
 #define LICENSE_CHECKER_H
 
-#include <P7_Trace.h>
 #include <boost/process.hpp>
 #include <cpprest/details/basic_types.h>
+#include <cpprest/asyncrt_utils.h>
 #include <parser_ini.h>
 #include <tracer.h>
 

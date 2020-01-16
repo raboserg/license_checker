@@ -19,12 +19,12 @@ private:
 public:
   virtual ~Singleton<T>() = default;
 
-  static T *getInstance() {
+  static T *instance() {
     std::call_once(m_once, []() { m_instance.reset(new T); });
     return m_instance.get();
   }
 
-  template <typename... Args> static T *getInstance2nd(Args &&... args) {
+  template <typename... Args> static T *instance2nd(Args &&... args) {
     std::call_once(m_once, [&]() {
       m_instance.reset(new T(std::forward<Args>(args)...));
     });

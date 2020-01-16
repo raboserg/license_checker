@@ -3,22 +3,19 @@
 LicenseChecker::LicenseChecker() {}
 
 utility::string_t LicenseChecker::run_proc(const utility::string_t &command) {
-  bp_is is;
-  LOGGER::getInstance()->trace(command.c_str(), __FILE__, __LINE__,
-                               __FUNCTION__);
+  bp::ipstream is;
   bp::child process(command, bp::std_out > is);
   process.wait();
-  utility::string_t line;
+  std::string line;
   std::getline(is, line);
-  return line;
+  return utility::conversions::to_string_t(line);
 }
 
 bool LicenseChecker::check_license(const utility::string_t &command) {
   bool result = false;
   utility::string_t line = run_proc(command);
   if (line.empty()) {
-    LOGGER::getInstance()->debug(TM("lic of output is empty"), __FILE__,
-                                 __LINE__, __FUNCTION__);
+		TRACE(0, TM("lic of output is empty"));
     throw "lic of output is empty";
   } else {
     const utility::string_t code = line.substr(0, line.find_first_of(U(":")));
@@ -33,12 +30,10 @@ bool LicenseChecker::check_license(const utility::string_t &command) {
 
 utility::string_t
 LicenseChecker::make_file_license(const utility::string_t &command) {
-  LOGGER::getInstance()->error(command.c_str(), __FILE__, __LINE__,
-                               __FUNCTION__);
+  TRACE(0, command.c_str());
   utility::string_t line = run_proc(command);
   if (line.empty()) {
-    LOGGER::getInstance()->error(TM("does not make file by lic"), __FILE__,
-                                 __LINE__, __FUNCTION__);
+    ERRORS(0, TM("does not make file by lic"));
     throw "does not make file by lic";
   }
   return line;
