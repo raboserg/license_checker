@@ -1,37 +1,16 @@
 #include "parser_ini.h"
 
-// struct skip_bom {
-//  pt::ptree get(const string &file_name) {
-//    pt::ptree root_;
-//    std::ifstream file(file_name, std::ios::in);
-//    if (file.is_open()) {
-//      // skip BOM
-//      unsigned char buffer[8];
-//      buffer[0] = 255;
-//      while (file.good() && buffer[0] > 127)
-//        file.read((char *)buffer, 1);
-//      int pos = file.tellg();
-//      if (pos > 0)
-//        file.seekg(pos - 1);
-//      pt::read_ini(file, root_);
-//      file.close();
-//    }
-//    return root_;
-//  }
-//};
-
 void Parser::create_root(const utility::string_t &file_name) {
   utility::ifstream_t file(file_name, std::ios::in);
-  //  boost::iostreams::filtering_ostream out;
-  //  out.push(skip_bom(file_name));
   if (!file.is_open()) {
     //?? check else not open
-    l_iTrace->P7_ERROR(nullptr, TM("can't open ini file"), 0);
+    LOGGER::getInstance()->debug(TM("can't open ini file"), __FILE__, __LINE__,
+                                 __FUNCTION__);
   } else { // skip BOM
     unsigned char buffer[8];
     buffer[0] = 255;
     while (file.good() && buffer[0] > 127)
-      file.read(reinterpret_cast<utf16char *>(buffer), 1);
+      file.read(reinterpret_cast<utility::char_t *>(buffer), 1);
     std::streamoff pos = file.tellg();
     if (pos > 0)
       file.seekg(pos - 1);
@@ -42,26 +21,19 @@ void Parser::create_root(const utility::string_t &file_name) {
 
 Parser::Parser(const utility::string_t &file_name)
     : file_name_(std::move(file_name)) {
-  
-	l_iTrace = P7_Get_Shared_Trace(TM("LICENSE_CHECKER_TRC_LOG"));
-
   create_root(file_name);
 }
 
 utility::string_t Parser::get_value(const utility::string_t &key) const {
   utility::string_t value;
-  l_iTrace->P7_TRACE(0, key.c_str(), 0);
+  LOGGER::getInstance()->debug(key.c_str(), __FILE__, __LINE__, __FUNCTION__);
   if (!root_.empty()) {
-		value = root_.get<utility::string_t>(key);
+    value = root_.get<utility::string_t>(key);
   }
   return value;
 }
 
 Parser::~Parser() {
-	l_iTrace->P7_TRACE(0, TM("Parser::~Parser()"), 0);
-	Sleep(10000);
-	if (l_iTrace) {
-    l_iTrace->Release();
-    l_iTrace = nullptr;
-  }
+  LOGGER::getInstance()->debug(TM("Parser::~Parser()"), __FILE__, __LINE__,
+                               __FUNCTION__);
 }

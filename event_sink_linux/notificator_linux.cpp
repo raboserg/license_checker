@@ -38,15 +38,12 @@ void LinuxNoficitator::event_process(
   char path[PATH_MAX];
   printf("Received event in path '%s'",
          get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
-
   char buffer[512];
   int cx = snprintf(
       buffer, 512, "Received event in path '%s'",
       get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
 
-  // printf(buffer);
-
-  // l_iTrace_->P7_TRACE(0, buffer, 0);
+  LOGGER::getInstance()->debug(buffer, __FILE__, __LINE__, __FUNCTION__);
 
   printf(" pid=%d (%s): \n", event->pid,
          (get_program_name_from_pid(event->pid, path, PATH_MAX) ? path
@@ -61,6 +58,7 @@ void LinuxNoficitator::event_process(
     printf("\tFAN_CLOSE_WRITE\n");
   if (event->mask & FAN_CLOSE_NOWRITE)
     printf("\tFAN_CLOSE_NOWRITE\n");
+
   if (event->mask & FAN_OPEN_EXEC)
     printf("\tFAN_OPEN_EXEC\n");
   fflush(stdout);
@@ -114,15 +112,14 @@ int LinuxNoficitator::run_notify(int argc, const char **argv) {
     exit(EXIT_FAILURE);
   }
 
-  //  tracer_::l_iClient_ = P7_Create_Client(LOGIN_CONNECT);
-  //  tracer_::l_iTrace_ = P7_Create_Trace(l_iClient_, TM("TraceChannel"));
-
   numbers = static_cast<unsigned int>(argc - 1);
   /* Initialize fanotify FD and the marks */
   fanotify_fd = initialize_fanotify(numbers, argv);
 
   if (fanotify_fd < 0) {
     fprintf(stderr, "Couldn't initialize fanotify\n");
+    LOGGER::getInstance()->debug(TM("Couldn't initialize fanotify"), __FILE__,
+                                 __LINE__, __FUNCTION__);
     exit(EXIT_FAILURE);
   }
   fds[FD_POLL_FANOTIFY].fd = fanotify_fd;
@@ -131,6 +128,9 @@ int LinuxNoficitator::run_notify(int argc, const char **argv) {
   for (;;) {
     /* Block until there is something to be read */
     if (poll(fds, FD_POLL_MAX, -1) < 0) {
+      char buffer[512];
+      int cx = snprintf(buffer, 512, "Couldn't poll(): '%s'", strerror(errno));
+      LOGGER::getInstance()->debug(buffer, __FILE__, __LINE__, __FUNCTION__);
       fprintf(stderr, "Couldn't poll(): '%s'\n", strerror(errno));
       exit(EXIT_FAILURE);
     }

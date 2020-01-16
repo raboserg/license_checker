@@ -8,24 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/fanotify.h>
 #include <sys/signalfd.h>
 #include <sys/stat.h>
+#include <tracer.h>
 #include <unistd.h>
-
-#include <sys/fanotify.h>
-
-#include <P7_Trace.h>
-
-#define LOGIN_CONNECT                                                          \
-  TM("/P7.Sink=Baical /P7.Pool=32768 /P7.PSize=65536 /P7.Addr=127.0.0.1 "      \
-     "/P7:Port=9010")
-
-struct Tracer1 {
-  IP7_Trace *l_iTrace_ = nullptr;
-  IP7_Client *l_iClient_ = nullptr;
-};
-
-static Tracer1 tracer_;
 
 /* Size of buffer to use when reading fanotify events */
 #define FANOTIFY_BUFFER_SIZE 8192
@@ -67,7 +54,6 @@ public:
   virtual ~LinuxNoficitator();
   int run_notify(int argc, const char **argv);
   void shutdown_fanotify(const int numbers, const int fanotify_fd);
-  // static ACE_THR_FUNC_RETURN srv_run(void *argc);
   static void srv_run(void *argc);
 };
 
