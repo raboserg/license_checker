@@ -15,7 +15,7 @@
 
 #include <memory>
 
-namespace license_checker {
+namespace utilities {
 
 struct ip_helper {
 
@@ -52,6 +52,24 @@ struct ip_helper {
   }
 };
 
+class os_utilities {
+public:
+  static void __cdecl sleep(unsigned long ms) {
+#ifdef WIN32
+    Sleep(ms);
+#else
+    usleep(ms * 1000);
+#endif
+  }
+};
+
+struct my_exception : public std::exception {
+	const std::string message;
+	my_exception(const std::string message) :message() {}
+	const char* what() noexcept {
+		return "my_exception::what()";
+	}
+};
 // static std::unique_ptr<const wchar_t *> char_to_wchar_(const char *args) {
 //  wchar_t dst[100];
 //  size_t outSize;
@@ -71,5 +89,5 @@ struct ip_helper {
 //  return fdsfds;
 //}
 
-} // namespace license_checker
+} // namespace utilities
 #endif

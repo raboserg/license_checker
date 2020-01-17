@@ -18,11 +18,11 @@ typedef bp::ipstream bp_is;
 
 class LicenseChecker {
   utility::string_t run_proc(const utility::string_t &command);
-
 public:
   LicenseChecker();
-  bool check_license(const utility::string_t &command);
-  utility::string_t make_file_license(const utility::string_t &command);
+  bool verify_license_file(const utility::string_t &command);
+  utility::string_t generate_machine_uid(const utility::string_t &command);
+	void save_license_to_file(const utility::string_t &command);
 };
 
 #endif

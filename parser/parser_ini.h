@@ -4,6 +4,7 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <cpprest/details/basic_types.h>
+#include <cpprest/asyncrt_utils.h>
 #include <tracer.h>
 
 namespace pt = boost::property_tree;
