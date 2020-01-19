@@ -16,10 +16,12 @@ utility::string_t input_handle();
 typedef utils::Singleton<Parser> PARSER;
 
 void posix_death_signal(int signum) {
+  //  const std::error_category fdsfsd = utility::details::linux_category();
+  //  std::cout << fdsfsd << std::endl;
   CRITICAL_LOG(TM("ABORTED"));
   signal(signum, SIG_DFL); // resend signal
   ucout << input_handle();
-  utilities::os_utilities::sleep(10000);
+  lic::os_utilities::sleep(1000);
   exit(3);
 }
 
@@ -75,64 +77,6 @@ utility::string_t create_generate_machine_uid_command() {
   return license_process_path;
 }
 
-// void verify_license_file() {
-//  try {
-//    const std::unique_ptr<LicenseChecker> licenseChecker_ =
-//        std::make_unique<LicenseChecker>();
-//
-//    const utility::string_t license_process_path =
-//        create_verify_license_command();
-//    if (licenseChecker_->verify_license_file(license_process_path)) {
-//      // create client
-//      INFO(0, TM("Need to create client here"));
-//    } else {
-//      INFO(0, TM("License is SUCCESS"));
-//      // end thread
-//    }
-//  } catch (boost::exception &ex) {
-//    utility::string_t str_utf16 =
-//        utility::conversions::to_string_t(boost::diagnostic_information(ex));
-//    ERRORS(0, str_utf16.c_str());
-//    raise(SIGSEGV);
-//  } catch (std::system_error se) {
-//    if (se.code().value() == error_create_lic) {
-//      utility::string_t str_utf16 =
-//          utility::conversions::to_string_t(se.what());
-//      ERRORS(0, str_utf16.c_str());
-//      raise(SIGSEGV);
-//    }
-//  } catch (const utf16char *msg) {
-//    ucout << msg << std::endl;
-//    raise(SIGSEGV);
-//  }
-//}
-
-// void generate_machine_uid() {
-//  try {
-//    const std::unique_ptr<LicenseChecker> licenseChecker_ =
-//        std::make_unique<LicenseChecker>();
-//
-//    licenseChecker_->generate_machine_uid(
-//        create_generate_machine_uid_command());
-//
-//  } catch (boost::exception &ex) {
-//    utility::string_t str_utf16 =
-//        utility::conversions::to_string_t(boost::diagnostic_information(ex));
-//    ERRORS(0, str_utf16.c_str());
-//    raise(SIGSEGV);
-//  } catch (std::system_error se) {
-//    if (se.code().value() == error_create_lic) {
-//      utility::string_t str_utf16 =
-//          utility::conversions::to_string_t(se.what());
-//      ERRORS(0, str_utf16.c_str());
-//      raise(SIGSEGV);
-//    }
-//  } catch (const utf16char *msg) {
-//    ERRORS(0, msg);
-//    raise(SIGSEGV);
-//  }
-//}
-
 void license_worker() {
   try {
     const std::unique_ptr<LicenseChecker> licenseChecker_ =
@@ -157,7 +101,7 @@ void license_worker() {
   } catch (boost::exception &ex) {
     utility::string_t str_utf16 =
         utility::conversions::to_string_t(boost::diagnostic_information(ex));
-    ERROR_LOG(0, str_utf16.c_str());
+    ERROR_LOG(str_utf16.c_str());
     raise(SIGSEGV);
   } catch (std::system_error se) {
     if (se.code().value() == error_create_lic) {
@@ -175,16 +119,23 @@ void license_worker() {
 
 int main(int argc, const char *argv[]) {
 
-	ERROR_LOG(TM("ACE_ERRORACE_ERRORACE_ERRORACE_ERRORACE_ERRORACE_ERRORACE_ERRORACE_ERROR"));
   signal(SIGSEGV, posix_death_signal);
 
-  license_worker();
+  // license_worker();
 
 #ifdef _WIN32
   WinNT::Start_Service();
 #else
-  LinuxNoficitator linuxNoficitator_;
-  linuxNoficitator_.run_notify(argc, argv);
+  try {
+    main_run();
+  } catch (lic::license_exception &ex) {
+    //    ERROR_LOG(utility::conversions::to_string_t(std::string(ex.what())));
+    std::cout << ex.what() << std::endl;
+  }
+
+  //  LinuxNoficitator linuxNoficitator_;
+  //  linuxNoficitator_.run_notify(argc, argv);
+
 #endif
   ucout << input_handle();
   return 0;

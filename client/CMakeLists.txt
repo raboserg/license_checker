@@ -12,13 +12,32 @@ endif()
 
 #add_executable(client ${SOURCE_LIB})
 add_library (client STATIC ${SOURCE_LIB})
-message("CMAKE_LIBRARY_PATHCMAKE_LIBRARY_PATHCMAKE_LIBRARY_PATHCMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}")
 find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS ${CMAKE_LIBRARY_PATH})
-message("CMAKE_INCLUDE_PATHCMAKE_INCLUDE_PATHCMAKE_INCLUDE_PATHCMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}")
-target_include_directories(client PUBLIC ${CMAKE_INCLUDE_PATH} ${Boost_INCLUDE_DIRS})
 
 if(CMAKE_HOST_WIN32)
     target_link_libraries(client ${CPPREST_LIB}) 
+    target_include_directories(client PUBLIC ${CMAKE_INCLUDE_PATH} ${Boost_INCLUDE_DIRS})
 elseif(CMAKE_HOST_UNIX)
-    target_link_libraries(client PUBLIC ${CPPREST_LIB} pthread boost_system crypto ssl pthread dl)
+
+    set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
+    set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
+    set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
+    set(CMAKE_INCLUDE_PATH ${DEFAULT_UNIX_BOOST_DIR})
+#    set(BOOST_INCLUDEDIR ${DEFAULT_UNIX_BOOST_DIR})
+#    set(BOOST_LIBRARYDIR ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
+    find_package(Boost COMPONENTS system)
+
+    set(OPENSSL_LIBRARY_PATH "/home/user/projects/library/openssl")
+    set(OPENSSL_INCLUDE_PATH "/home/user/projects/library/openssl/include")
+
+    find_library(SSL_LIB ssl ${OPENSSL_LIBRARY_PATH})
+    find_library(CRYPTO_LIB crypto ${OPENSSL_LIBRARY_PATH})
+
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH_})
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
+
+            message(STATUS "Boost_INCLUDE_DIRS - ${CMAKE_INCLUDE_PATH}")
+    target_include_directories(client PRIVATE "/home/user/projects/library/casablanca/Release/include" ${Boost_INCLUDE_DIRS} ${OPENSSL_INCLUDE_PATH})
+    target_link_libraries(client PUBLIC ${CPPREST_LIB} pthread ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} pthread dl)
+
 endif()

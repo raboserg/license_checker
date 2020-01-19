@@ -3,7 +3,7 @@
 
 #include <P7_Trace.h>
 #include <Singleton.h>
-#include <iostream>
+#include <functional>
 
 #define LOGIN_CONNECT                                                          \
   TM("/P7.Sink=Baical /P7.Pool=32768 /P7.PSize=65536 /P7.Addr=127.0.0.1 "      \

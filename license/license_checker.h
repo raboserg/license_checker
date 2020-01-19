@@ -3,9 +3,10 @@
 #define LICENSE_CHECKER_H
 
 #include <boost/process.hpp>
-#include <cpprest/details/basic_types.h>
 #include <cpprest/asyncrt_utils.h>
+#include <cpprest/details/basic_types.h>
 #include <parser_ini.h>
+#include <tools.h>
 #include <tracer.h>
 
 namespace bp = boost::process;
@@ -18,11 +19,12 @@ typedef bp::ipstream bp_is;
 
 class LicenseChecker {
   utility::string_t run_proc(const utility::string_t &command);
+
 public:
   LicenseChecker();
   bool verify_license_file(const utility::string_t &command);
   utility::string_t generate_machine_uid(const utility::string_t &command);
-	void save_license_to_file(const utility::string_t &command);
+  void save_license_to_file(const utility::string_t &command);
 };
 
 #endif

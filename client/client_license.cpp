@@ -5,6 +5,7 @@
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
 #include <cpprest/uri.h>
+#include <pplx/threadpool.h>
 
 /*
 requestDTO
@@ -14,12 +15,18 @@ requestDTO
   "unp": "string"
 }
 */
-const web::http::uri address = U("http://localhost:9090");
-const utility::string_t path = U("/rest/host/get-host-licenses");
+// const web::http::uri address = U("https://jsonplaceholder.typicode.com/");
+// const utility::string_t path = U("/posts");
+
+const web::http::uri address = U("https://reqbin.com");
+const utility::string_t path = U("/echo/post/json");
+
+//{"login":"login","password":"password"}
 
 int main_run() {
   // web::http::client::http_client sdfdsf("udfsds");
   // sdfdsf.request("sssss").
+  crossplat::threadpool::initialize_with_threads(1);
 
   // Create user data as JSON object and make POST request.
   auto postJson =
@@ -29,9 +36,12 @@ int main_run() {
         web::http::client::http_client_config config;
         config.set_timeout(utility::seconds(30));
 
-        request[U("file")] = web::json::value::string(U("file"));
-        request[U("mac")] = web::json::value::string(U("mac"));
-        request[U("unp")] = web::json::value::string(U("unp"));
+        //        request[U("file")] = web::json::value::string(U("file"));
+        //        request[U("mac")] = web::json::value::string(U("mac"));
+        //        request[U("unp")] = web::json::value::string(U("unp"));
+
+        request[U("login")] = web::json::value::string(U("login"));
+        request[U("password")] = web::json::value::string(U("password"));
 
         return web::http::client::http_client(address, config)
             .request(web::http::methods::POST,

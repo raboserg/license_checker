@@ -15,7 +15,7 @@
 
 #include <memory>
 
-namespace utilities {
+namespace lic {
 
 struct ip_helper {
 
@@ -63,12 +63,10 @@ public:
   }
 };
 
-struct my_exception : public std::exception {
-	const std::string message;
-	my_exception(const std::string message) :message() {}
-	const char* what() noexcept {
-		return "my_exception::what()";
-	}
+struct license_exception : public std::exception {
+  const std::string message;
+  license_exception(const std::string message) : message() {}
+  virtual const char *what() const noexcept { return message.c_str(); }
 };
 // static std::unique_ptr<const wchar_t *> char_to_wchar_(const char *args) {
 //  wchar_t dst[100];
@@ -89,5 +87,5 @@ struct my_exception : public std::exception {
 //  return fdsfds;
 //}
 
-} // namespace utilities
+} // namespace lic
 #endif
