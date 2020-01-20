@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include <signal.h>
 
-#include <pplx/threadpool.h>
+//#include <pplx/threadpool.h>
 
 #ifdef _WIN32
 static const utility::string_t LIC_INI_FILE = U("lic_check_w.ini");
@@ -119,73 +119,49 @@ void license_worker() {
   }
 }
 
-
 const web::http::uri address = U("https://reqbin.com");
 const utility::string_t path = U("/echo/post/json");
 
-//{"login":"login","password":"password"}
+int main_run_1() {
 
-int main_run() {
-	// web::http::client::http_client sdfdsf("udfsds");
-	// sdfdsf.request("sssss").
-	
-	//crossplat::threadpool::initialize_with_threads(40);
-	
-	// Create user data as JSON object and make POST request.
-	auto postJson =
+  web::http::client::http_client_config config;
+  // config.set_validate_certificates(false);
 
-		pplx::create_task([]() {
-		web::json::value request;
+  config.set_ssl_context_callback(
+      [](boost::asio::ssl::context &context) -> void {
+        context.load_verify_file(std::string("./snicloudflaresslcom.crt"));
+      });
 
-		web::http::client::http_client_config config;
-		config.set_timeout(utility::seconds(30));
+  web::json::value request;
+  request[U("login")] = web::json::value::string(U("login"));
+  request[U("password")] = web::json::value::string(U("password"));
 
-		//        request[U("file")] = web::json::value::string(U("file"));
-		//        request[U("mac")] = web::json::value::string(U("mac"));
-		//        request[U("unp")] = web::json::value::string(U("unp"));
+  web::http::client::http_client client(address, config);
+  web::http::http_response response =
+      client
+          .request(web::http::methods::POST,
+                   web::http::uri_builder().append_path(path).to_string(),
+                   request.serialize())
+          .get();
 
-		request[U("login")] = web::json::value::string(U("login"));
-		request[U("password")] = web::json::value::string(U("password"));
+  ucout << response.to_string() << std::endl;
+  ucout << response.status_code() << std::endl;
 
-		return web::http::client::http_client(address, config)
-			.request(web::http::methods::POST,
-				web::http::uri_builder().append_path(path).to_string(),
-				request.serialize(), U("application/json"));
-			})
-		.then([](web::http::http_response response) { // Get the response.
-			// Check the status code.
-				ucout << response.to_string() << std::endl;
-				ucout << response.status_code() << std::endl;
-				if (response.status_code() == 201) {
-					throw std::runtime_error("Returned " +
-						std::to_string(response.status_code()));
-				}
-				// Convert the response body to JSON object.
-				return response.extract_json();
-			})
-				.then([](web::json::value jsonObject) { // Parse the user details.
-				ucout << jsonObject.to_string();
-																								/*ucout << jsonObject[U("first_name")].as_string() << " "
-								<< jsonObject[U("last_name")].as_string() << " ("
-								<< jsonObject[U("id")].as_string() << ")" << std::endl;*/
-					});
-
-			return 0;
+  return 0;
 }
-
 
 int main(int argc, const char *argv[]) {
 
   signal(SIGSEGV, posix_death_signal);
 
   // license_worker();
-	main_run();
+  // main_run();
 
 #ifdef _WIN32
   WinNT::Start_Service();
 #else
   try {
-    main_run();
+    main_run_1();
   } catch (lic::license_exception &ex) {
     //    ERROR_LOG(utility::conversions::to_string_t(std::string(ex.what())));
     std::cout << ex.what() << std::endl;

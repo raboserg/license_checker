@@ -24,14 +24,11 @@ const utility::string_t path = U("/echo/post/json");
 //{"login":"login","password":"password"}
 
 int main_run() {
-  // web::http::client::http_client sdfdsf("udfsds");
-  // sdfdsf.request("sssss").
-  //crossplat::threadpool::initialize_with_threads(1);
-	
+  // crossplat::threadpool::initialize_with_threads(1);
   // Create user data as JSON object and make POST request.
   auto postJson =
 
-		pplx::create_task([]() {
+      pplx::create_task([]() {
         web::json::value request;
 
         web::http::client::http_client_config config;
@@ -61,6 +58,7 @@ int main_run() {
             return response.extract_json();
           })
           .then([](web::json::value jsonObject) { // Parse the user details.
+            ucout << jsonObject.to_string();
             /*ucout << jsonObject[U("first_name")].as_string() << " "
                   << jsonObject[U("last_name")].as_string() << " ("
                   << jsonObject[U("id")].as_string() << ")" << std::endl;*/

@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "client_license.h"
+#include "client_license.h"
 #include "license_checker.h"
 
 #include <cpprest/http_client.h>
@@ -17,8 +17,8 @@
 #endif
 
 #include "tools.h"
-#include <cpprest/details/basic_types.h>
+#include <boost/exception/all.hpp>
 #include <cpprest/asyncrt_utils.h>
+#include <cpprest/details/basic_types.h>
 #include <parser_ini.h>
 #include <tracer.h>
-#include <boost/exception/all.hpp>

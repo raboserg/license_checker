@@ -2,7 +2,14 @@
 
 set(SOURCE_LIB client_license.cpp client_license.h)
 
-set(CPPREST_DIR ${VCPKG_DIR})
+#set(${CPPREST_DIR} "/home/user/projects/library/casablanca/build.debug/Release/Binaries")
+set(CPPREST_DIR "/home/user/projects/library/casablanca")
+#/build.debug/Release/Binaries
+
+#set(CPPREST_DIR ${VCPKG_DIR})
+
+#/home/user/projects/library/casablanca/Release/include
+
 
 if(CMAKE_HOST_WIN32)
     set(CPPREST_LIB_NAME "cpprest_2_10d")
@@ -12,14 +19,14 @@ endif()
 
 #add_executable(client ${SOURCE_LIB})
 add_library (client STATIC ${SOURCE_LIB})
-find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS ${CMAKE_LIBRARY_PATH})
+
+find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS "${CPPREST_DIR}/build.debug/Release/Binaries")
+
 
 if(CMAKE_HOST_WIN32)
     target_link_libraries(client ${CPPREST_LIB}) 
     target_include_directories(client PUBLIC ${CMAKE_INCLUDE_PATH} ${Boost_INCLUDE_DIRS})
-
 elseif(CMAKE_HOST_UNIX)
-
     set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
     set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
     set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
@@ -37,8 +44,8 @@ elseif(CMAKE_HOST_UNIX)
     set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH_})
     set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
 
-    message(STATUS "Boost_INCLUDE_DIRS - ${CMAKE_INCLUDE_PATH}")
-    target_include_directories(client PRIVATE "/home/user/projects/library/casablanca/Release/include" ${Boost_INCLUDE_DIRS} ${OPENSSL_INCLUDE_PATH})
+    message(STATUS "CPPREST_DIR}/Release/includeCPPREST_DIR}/Release/includeCPPREST_DIR}/Release/include - ${CPPREST_LIB}")
+    target_include_directories(client PUBLIC "${CPPREST_DIR}/Release/include" ${Boost_INCLUDE_DIRS} ${OPENSSL_INCLUDE_PATH})
     target_link_libraries(client PUBLIC ${CPPREST_LIB} pthread ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} pthread dl)
 
 endif()
