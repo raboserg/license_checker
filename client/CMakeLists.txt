@@ -17,6 +17,7 @@ find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS ${CMAKE_LIBRARY_PATH})
 if(CMAKE_HOST_WIN32)
     target_link_libraries(client ${CPPREST_LIB}) 
     target_include_directories(client PUBLIC ${CMAKE_INCLUDE_PATH} ${Boost_INCLUDE_DIRS})
+
 elseif(CMAKE_HOST_UNIX)
 
     set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
@@ -36,7 +37,7 @@ elseif(CMAKE_HOST_UNIX)
     set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH_})
     set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
 
-            message(STATUS "Boost_INCLUDE_DIRS - ${CMAKE_INCLUDE_PATH}")
+    message(STATUS "Boost_INCLUDE_DIRS - ${CMAKE_INCLUDE_PATH}")
     target_include_directories(client PRIVATE "/home/user/projects/library/casablanca/Release/include" ${Boost_INCLUDE_DIRS} ${OPENSSL_INCLUDE_PATH})
     target_link_libraries(client PUBLIC ${CPPREST_LIB} pthread ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} pthread dl)
 
