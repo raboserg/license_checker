@@ -13,6 +13,48 @@ enum {
   error_create_lic = 2,
 };
 
+////////////////////////////////////////////////////////////////
+#if (defined(_MSC_VER) && (_MSC_VER >= 1800)) && !CPPREST_FORCE_PPLX
+class direct_executor : public pplx::scheduler_interface {
+public:
+  virtual void schedule(concurrency::TaskProc_t proc, _In_ void *param) {
+    proc(param);
+  }
+};
+
+static std::shared_ptr<pplx::scheduler_interface> g_executor;
+std::shared_ptr<pplx::scheduler_interface> __cdecl get_scheduler() {
+  if (!g_executor) {
+    g_executor = std::make_shared<direct_executor>();
+  }
+  return g_executor;
+}
+#else
+std::shared_ptr<pplx::scheduler_interface> __cdecl get_scheduler() {
+  return pplx::get_ambient_scheduler();
+}
+#endif
+
+class TaskOptionsTestScheduler : public pplx::scheduler_interface {
+public:
+  TaskOptionsTestScheduler() : m_numTasks(0), m_scheduler(get_scheduler()) {}
+
+  virtual void schedule(pplx::TaskProc_t proc, void *param) {
+    pplx::details::atomic_increment(m_numTasks);
+    m_scheduler->schedule(proc, param);
+  }
+
+  long get_num_tasks() { return m_numTasks; }
+
+private:
+  pplx::details::atomic_long m_numTasks;
+  pplx::scheduler_ptr m_scheduler;
+
+  TaskOptionsTestScheduler(const TaskOptionsTestScheduler &);
+  TaskOptionsTestScheduler &operator=(const TaskOptionsTestScheduler &);
+};
+////////////////////////////////////////////////////////////////
+
 utility::string_t input_handle();
 
 typedef utils::Singleton<Parser> PARSER;
@@ -119,34 +161,77 @@ void license_worker() {
   }
 }
 
-const web::http::uri address = U("https://reqbin.com");
+const web::http::uri address = U("https://reqbin1.com");
 const utility::string_t path = U("/echo/post/json");
 
 int main_run_1() {
 
-  web::http::client::http_client_config config;
-  // config.set_validate_certificates(false);
+  TaskOptionsTestScheduler sched;
+  long n = 0;
+  try {
+    auto t1 = pplx::create_task(
+        []() -> web::http::http_response {
+          web::json::value request;
+          web::http::client::http_client_config config;
+          config.set_timeout(utility::seconds(30));
+          request[U("login")] = web::json::value::string(U("login"));
+          request[U("password")] = web::json::value::string(U("password"));
 
-  config.set_ssl_context_callback(
+          const utility::string_t url =
+              web::http::uri_builder().append_path(path).to_string();
+          const utility::string_t content_type = U("application/json");
+          
+					return web::http::client::http_client(address, config)
+              .request(web::http::methods::POST, url, request.serialize(),
+                       content_type)
+              .get();
+        },
+        sched);
+    ucout << sched.get_num_tasks() << std::endl;
+    // t1.wait();
+  } catch (std::exception_ptr &EH) {
+    std::exception_ptr currentException = std::current_exception();
+    ucout << currentException._Current_exception;
+  }
+  //} catch (web::http::http_exception &ex) {
+  //  ucout << sched.get_num_tasks() << std::endl;
+  //  ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+
+  // t1.get();
+
+  web::http::client::http_client_config config;
+  config.set_validate_certificates(false);
+  config.set_timeout(utility::seconds(60));
+
+  /*config.set_ssl_context_callback(
       [](boost::asio::ssl::context &context) -> void {
         context.load_verify_file(std::string("./snicloudflaresslcom.crt"));
-      });
+      });*/
 
-  web::json::value request;
-  request[U("login")] = web::json::value::string(U("login"));
-  request[U("password")] = web::json::value::string(U("password"));
-
+  web::json::value request_data;
+  web::http::http_response response;
   web::http::client::http_client client(address, config);
-  web::http::http_response response =
-      client
-          .request(web::http::methods::POST,
-                   web::http::uri_builder().append_path(path).to_string(),
-                   request.serialize())
-          .get();
 
-  ucout << response.to_string() << std::endl;
-  ucout << response.status_code() << std::endl;
+  request_data[U("login")] = web::json::value::string(U("login"));
+  request_data[U("password")] = web::json::value::string(U("password"));
 
+  while (true) {
+    try {
+      response =
+          client
+              .request(web::http::methods::POST,
+                       web::http::uri_builder().append_path(path).to_string(),
+                       request_data.serialize())
+              .get();
+      if (response.status_code() == 200) {
+        ucout << response.to_string() << std::endl;
+        ucout << response.status_code() << std::endl;
+      }
+      break;
+    } catch (web::http::http_exception &ex) {
+      ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+    }
+  }
   return 0;
 }
 
@@ -155,8 +240,9 @@ int main(int argc, const char *argv[]) {
   signal(SIGSEGV, posix_death_signal);
 
   // license_worker();
+  main_run_1();
   // main_run();
-
+  lic::os_utilities::sleep(1000);
 #ifdef _WIN32
   WinNT::Start_Service();
 #else

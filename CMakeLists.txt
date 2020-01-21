@@ -32,11 +32,8 @@ if(CMAKE_HOST_WIN32)
 elseif(CMAKE_HOST_UNIX)
     set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
     set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
-
     set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
     set(CMAKE_INCLUDE_PATH ${DEFAULT_UNIX_BOOST_DIR})
-#    set(BOOST_INCLUDEDIR ${DEFAULT_UNIX_BOOST_DIR})
-#    set(BOOST_LIBRARYDIR ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
     find_package(Boost COMPONENTS system)
     set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_LIBP7_DIR}/Binaries)
     find_library(P7_LIB NAMES P7)
@@ -47,22 +44,14 @@ elseif(CMAKE_HOST_UNIX)
     exec_program("ln -s ${P7_LIB} ${CMAKE_CURRENT_BINARY_DIR}/libP7.so.2")
     set(OPENSSL_LIBRARY_PATH "/home/user/projects/library/openssl")
     set(OPENSSL_INCLUDE_PATH "/home/user/projects/library/openssl/include")
-
     find_library(SSL_LIB ssl ${OPENSSL_LIBRARY_PATH})
     find_library(CRYPTO_LIB crypto ${OPENSSL_LIBRARY_PATH})
-
-    message("SSL_LIBSSL_LIBSSL_LIBSSL_LIBSSL_LIBSSL_LIBSSL_LIB ${OPENSSL_INCLUDE_PATH}")
-
-    set(CPPREST_DIR "/home/user/projects/library/casablanca")
-    #find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} "${CPPREST_DIR}/build.debug/Release/Binaries")
+    
+	set(CPPREST_DIR "/home/user/projects/library/casablanca")
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS "${CPPREST_DIR}/build.debug/Release/Binaries")
-    #set(CPPREST_LIB "${CPPREST_DIR}/build.debug/Release/Binaries/libcpprest.a")
     message("CPPREST_LIBCPPREST_LIBCPPREST_LIBCPPREST_LIBCPPREST_LIBCPPREST_LIBCPPREST_LIB = ${CPPREST_LIB}")
-
     set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH_})
     set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
-#    find_library(SSL_LIB ssl PATHS ${CMAKE_LIBRARY_PATH})
-#    find_library(CRYPTO_LIB crypto ${CMAKE_LIBRARY_PATH})
 endif()
 
 if(NOT DEFINED Boost_FOUND)

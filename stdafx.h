@@ -6,9 +6,9 @@
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
 #include <cpprest/uri.h>
+
 #include <iostream>
 #include <thread>
-//#include <pplx/threadpool.h>
 
 #ifdef _WIN32
 #include "service.h"
