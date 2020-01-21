@@ -167,9 +167,37 @@ const utility::string_t path = U("/echo/post/json");
 int main_run_1() {
 
   TaskOptionsTestScheduler sched;
-  long n = 0;
+
   try {
     auto t1 = pplx::create_task(
+        []() {
+          web::json::value request;
+          web::http::client::http_client_config config;
+          config.set_timeout(utility::seconds(30));
+          request[U("login")] = web::json::value::string(U("login"));
+          request[U("password")] = web::json::value::string(U("password"));
+
+          const utility::string_t url =
+              web::http::uri_builder().append_path(path).to_string();
+          const utility::string_t content_type = U("application/json");
+
+          return web::http::client::http_client(address, config)
+              .request(web::http::methods::POST, url, request.serialize(),
+                       content_type);
+        },
+        sched);
+    t1.get();
+    ucout << sched.get_num_tasks() << std::endl;
+    // t1.wait();
+  } catch (std::exception_ptr &EH) {
+    std::exception_ptr currentException = std::current_exception();
+    ucout << "";
+  } catch (web::http::http_exception &ex) {
+    ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+  }
+
+  try {
+    auto t2 = pplx::create_task(
         []() -> web::http::http_response {
           web::json::value request;
           web::http::client::http_client_config config;
@@ -180,8 +208,8 @@ int main_run_1() {
           const utility::string_t url =
               web::http::uri_builder().append_path(path).to_string();
           const utility::string_t content_type = U("application/json");
-          
-					return web::http::client::http_client(address, config)
+
+          return web::http::client::http_client(address, config)
               .request(web::http::methods::POST, url, request.serialize(),
                        content_type)
               .get();
@@ -191,7 +219,6 @@ int main_run_1() {
     // t1.wait();
   } catch (std::exception_ptr &EH) {
     std::exception_ptr currentException = std::current_exception();
-    ucout << currentException._Current_exception;
   }
   //} catch (web::http::http_exception &ex) {
   //  ucout << sched.get_num_tasks() << std::endl;
