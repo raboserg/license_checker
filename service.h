@@ -115,7 +115,7 @@ void WINAPI Service_Ctrl(DWORD dwCtrlCode) {
 
 // Thread procedure for all five worker threads...
 unsigned WINAPI Working_Proc(void *lpParameter) {
-  TCHAR szOutput[25];
+  //TCHAR szOutput[25];
   OutputDebugString(TEXT("Working_Proc() created!\n"));
   int nThreadNum = reinterpret_cast<int>(lpParameter);
   Notificator notificator_(L"openvpn.exe");

@@ -10,7 +10,7 @@ static const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
 #endif
 
 enum {
-  error_create_lic = 2,
+  error_create_lic = 2, // mybe create process
 };
 
 ////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ void posix_death_signal(int signum) {
 
 utility::string_t create_verify_license_command() {
   //[LICENSE] check_lic_cmd = -v --lic
-  //[FILES] lic_file_name = license.lic
+  //[FILES] lic_file_name = license_item.lic
   //[FILES] lic=D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
   const std::unique_ptr<Parser> parser_ =
       std::make_unique<Parser>(LIC_INI_FILE);
@@ -110,6 +110,8 @@ utility::string_t create_generate_machine_uid_command() {
 
   if (license_process_path.empty() && make_lic_cmd.empty() &&
       license_prod.empty()) {
+    // std::make_exception_ptr(std::runtime_error("Not create command generate
+    // machine uid"));
     throw "Not create command generate machine uid";
   }
 
@@ -128,7 +130,7 @@ void license_worker() {
 
     const utility::string_t license_process_path =
         create_verify_license_command();
-    // verify license
+    // verify license_item
     if (licenseChecker_->verify_license_file(license_process_path)) {
       // generate machine uid
       const utility::string_t machine_uid =
@@ -154,77 +156,20 @@ void license_worker() {
       ERROR_LOG(str_utf16.c_str());
       raise(SIGSEGV);
     }
-    //} catch (const utf16char *msg) {
+    //} catch (const utf16char *request) {
   } catch (const std::exception &msg) {
     ERROR_LOG(utility::conversions::to_string_t(msg.what()).c_str());
     raise(SIGSEGV);
   }
 }
 
-const web::http::uri address = U("https://reqbin1.com");
-const utility::string_t path = U("/echo/post/json");
+// const web::http::uri address = U("https://reqbin1.com");
+// const utility::string_t path = U("/echo/post/json");
+const web::http::uri address = U("http://192.168.105.69");
+const utility::string_t path =
+    U("/license-manager/rest/host/get-host-licenses");
 
 int main_run_1() {
-
-  TaskOptionsTestScheduler sched;
-
-  try {
-    auto t1 = pplx::create_task(
-        []() {
-          web::json::value request;
-          web::http::client::http_client_config config;
-          config.set_timeout(utility::seconds(30));
-          request[U("login")] = web::json::value::string(U("login"));
-          request[U("password")] = web::json::value::string(U("password"));
-
-          const utility::string_t url =
-              web::http::uri_builder().append_path(path).to_string();
-          const utility::string_t content_type = U("application/json");
-
-          return web::http::client::http_client(address, config)
-              .request(web::http::methods::POST, url, request.serialize(),
-                       content_type);
-        },
-        sched);
-    t1.get();
-    ucout << sched.get_num_tasks() << std::endl;
-    // t1.wait();
-  } catch (std::exception_ptr &EH) {
-    std::exception_ptr currentException = std::current_exception();
-    ucout << "";
-  } catch (web::http::http_exception &ex) {
-    ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
-  }
-
-  try {
-    auto t2 = pplx::create_task(
-        []() -> web::http::http_response {
-          web::json::value request;
-          web::http::client::http_client_config config;
-          config.set_timeout(utility::seconds(30));
-          request[U("login")] = web::json::value::string(U("login"));
-          request[U("password")] = web::json::value::string(U("password"));
-
-          const utility::string_t url =
-              web::http::uri_builder().append_path(path).to_string();
-          const utility::string_t content_type = U("application/json");
-
-          return web::http::client::http_client(address, config)
-              .request(web::http::methods::POST, url, request.serialize(),
-                       content_type)
-              .get();
-        },
-        sched);
-    ucout << sched.get_num_tasks() << std::endl;
-    // t1.wait();
-  } catch (std::exception_ptr &EH) {
-    std::exception_ptr currentException = std::current_exception();
-  }
-  //} catch (web::http::http_exception &ex) {
-  //  ucout << sched.get_num_tasks() << std::endl;
-  //  ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
-
-  // t1.get();
 
   web::http::client::http_client_config config;
   config.set_validate_certificates(false);
@@ -239,17 +184,27 @@ int main_run_1() {
   web::http::http_response response;
   web::http::client::http_client client(address, config);
 
-  request_data[U("login")] = web::json::value::string(U("login"));
-  request_data[U("password")] = web::json::value::string(U("password"));
+  request_data[U("file")] = web::json::value::string(U("file"));
+  request_data[U("mac")] = web::json::value::string(U("mac"));
+  request_data[U("unp")] = web::json::value::string(U("unp"));
 
+  /*const utility::string_t url =
+      web::http::uri_builder().append_path(path).to_string();*/
+  // DEBUG_LOG(client.base_uri().query().c_str());
   while (true) {
     try {
+      const utility::string_t content_type = U("application/json");
       response =
           client
               .request(web::http::methods::POST,
                        web::http::uri_builder().append_path(path).to_string(),
-                       request_data.serialize())
+                       request_data.serialize(), content_type)
               .get();
+
+      utility::string_t host_ = client.base_uri().host();
+      utility::string_t path_ = client.base_uri().path();
+      utility::string_t query_ = client.base_uri().query();
+
       if (response.status_code() == 200) {
         ucout << response.to_string() << std::endl;
         ucout << response.status_code() << std::endl;
@@ -262,14 +217,124 @@ int main_run_1() {
   return 0;
 }
 
+enum sdfdsf {
+  NEW_HOST = 1,   // "Новый хост";
+  HOST_SUSPENDED, // "Хост приостановлен";
+  NO_LICENSE,     // "Лицензии ещё нет"
+  LICENSE_ISSUE   // "Выпуск лицензии";
+};
+
+web::json::value receive_license() {
+
+  //const web::http::uri address = U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");
+
+	const web::http::uri address =
+		U("http://192.168.105.69/license-manager/rest/host/get-host-licenses1");
+
+  web::http::client::http_client_config config;
+  config.set_validate_certificates(false);
+  config.set_timeout(utility::seconds(65));
+
+  web::json::value message;
+  message[U("unp")] = web::json::value::string(U("123456789"));
+  message[U("request")] = web::json::value::string(U("request"));
+  message[U("mac")] = web::json::value::string(U("72-82-92-C2-B2-F2"));
+  // message[U("mac")] = web::json::license_value::string(U("mac"));
+
+  web::http::client::http_client client(address, config);
+  web::http::http_request request(web::http::methods::POST);
+  request.set_body(message.serialize(), U("application/json"));
+
+  web::json::value license_value = web::json::value::null();
+
+  for (;;) {
+    try {
+      web::http::http_response response = client.request(request).get();
+      bool status = response.status_code() == web::http::status_codes::OK;
+      if (status) {
+        response.content_ready().wait();
+        license_value = response.extract_json().get();
+        ucout << response.to_string() << std::endl;
+        TRACE_LOG(response.to_string().c_str());
+        //    if (license_value[U("hostLicenses")].is_null()) {
+        //      //"Хост приостановлен";
+        //      //"Лицензии ещё нет";
+        //      TRACE_LOG(license_value.to_string().c_str());
+        //    } else {
+        //      web::json::array licenses =
+        //      license_value[U("hostLicenses")].as_array(); web::json::value
+        //      license_item = licenses[licenses.size() - 1]; const
+        //      utility::string_t license =
+        //          license_item[U("license")].as_string();
+        //      const utility::string_t license_exp_date =
+        //          license_item[U("licenseExpirationDate")].as_string();
+        //      utility::string_t license_msg(U("data: ") + license_exp_date +
+        //                                    U("; lic: ") + license);
+        //      TRACE_LOG(license_msg.c_str());
+        //    }
+        break;
+      } else {
+        utility::string_t error_msg(U("Fault connection: status code - "));
+        error_msg.append(utility::conversions::to_string_t(
+            std::to_string(response.status_code())));
+        ERROR_LOG(error_msg.c_str());
+        break;
+      }
+    } catch (std::invalid_argument &ex) {
+      ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+    } catch (web::http::http_exception &ex) {
+			ucout << ex.error_code().value() << std::endl;
+			//12029
+      ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+			if (ex.error_code().value() == 0)
+				break;
+      //} catch (const web::json::json_exception &ex) {
+      //  std::cout << "json exception:" << ex.what();
+    }
+  }
+  return license_value;
+}
+
+void sfsdfds() {
+  try {
+    web::json::value license_value = receive_license();
+    if (license_value.is_null()) {
+    
+		} else {
+      if (license_value[U("hostLicenses")].is_null()) {
+        //"Хост приостановлен";
+        //"Лицензии ещё нет";
+        TRACE_LOG(license_value.to_string().c_str());
+      } else {
+        web::json::array licenses = license_value[U("hostLicenses")].as_array();
+        web::json::value license_item = licenses[licenses.size() - 1];
+        const utility::string_t license =
+            license_item[U("license")].as_string();
+        const utility::string_t license_exp_date =
+            license_item[U("licenseExpirationDate")].as_string();
+        utility::string_t license_msg(U("data: ") + license_exp_date +
+                                      U("; lic: ") + license);
+        TRACE_LOG(license_msg.c_str());
+
+        // save license to file
+      }
+    }
+  } catch (const web::json::json_exception &ex) {
+    std::cout << "json exception:" << ex.what();
+  }
+}
+
 int main(int argc, const char *argv[]) {
 
+  setlocale(LC_ALL, "ru_RU.UTF-8");
   signal(SIGSEGV, posix_death_signal);
 
   // license_worker();
-  main_run_1();
+  // main_run_1();
+  // receive_license();
+  sfsdfds();
   // main_run();
-  lic::os_utilities::sleep(1000);
+  // lic::os_utilities::sleep(1000);
 #ifdef _WIN32
   WinNT::Start_Service();
 #else
