@@ -226,10 +226,11 @@ enum sdfdsf {
 
 web::json::value receive_license() {
 
-  //const web::http::uri address = U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");
+  // const web::http::uri address =
+  // U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");
 
-	const web::http::uri address =
-		U("http://192.168.105.69/license-manager/rest/host/get-host-licenses1");
+  const web::http::uri address =
+      U("http://192.168.105.69/license-manager/rest/host/get-host-licenses1");
 
   web::http::client::http_client_config config;
   config.set_validate_certificates(false);
@@ -256,22 +257,6 @@ web::json::value receive_license() {
         license_value = response.extract_json().get();
         ucout << response.to_string() << std::endl;
         TRACE_LOG(response.to_string().c_str());
-        //    if (license_value[U("hostLicenses")].is_null()) {
-        //      //"Хост приостановлен";
-        //      //"Лицензии ещё нет";
-        //      TRACE_LOG(license_value.to_string().c_str());
-        //    } else {
-        //      web::json::array licenses =
-        //      license_value[U("hostLicenses")].as_array(); web::json::value
-        //      license_item = licenses[licenses.size() - 1]; const
-        //      utility::string_t license =
-        //          license_item[U("license")].as_string();
-        //      const utility::string_t license_exp_date =
-        //          license_item[U("licenseExpirationDate")].as_string();
-        //      utility::string_t license_msg(U("data: ") + license_exp_date +
-        //                                    U("; lic: ") + license);
-        //      TRACE_LOG(license_msg.c_str());
-        //    }
         break;
       } else {
         utility::string_t error_msg(U("Fault connection: status code - "));
@@ -283,13 +268,11 @@ web::json::value receive_license() {
     } catch (std::invalid_argument &ex) {
       ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
     } catch (web::http::http_exception &ex) {
-			ucout << ex.error_code().value() << std::endl;
-			//12029
+      ucout << ex.error_code().value() << std::endl;
+      // 12029
       ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
-			if (ex.error_code().value() == 0)
-				break;
-      //} catch (const web::json::json_exception &ex) {
-      //  std::cout << "json exception:" << ex.what();
+      if (ex.error_code().value() == 0)
+        break;
     }
   }
   return license_value;
@@ -299,8 +282,8 @@ void sfsdfds() {
   try {
     web::json::value license_value = receive_license();
     if (license_value.is_null()) {
-    
-		} else {
+
+    } else {
       if (license_value[U("hostLicenses")].is_null()) {
         //"Хост приостановлен";
         //"Лицензии ещё нет";
