@@ -1,0 +1,10 @@
+#ifdef _LIC_CONSTANTS
+
+DAT(FILES_lic,              _XPLATSTR("FILES.lic"))
+DAT(LICENSE_check_lic_cmd,	_XPLATSTR("LICENSE.check_lic_cmd"))
+DAT(FILES_lic_file_name,    _XPLATSTR("FILES.lic_file_name"))
+DAT(LICENSE_make_lic_cmd,   _XPLATSTR("LICENSE.make_lic_cmd"))
+DAT(LICENSE_prod,           _XPLATSTR("LICENSE.prod"))
+DAT(LICENSE_license_uid,    _XPLATSTR("LICENSE.license_uid"))
+
+#endif

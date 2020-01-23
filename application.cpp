@@ -69,7 +69,7 @@ void posix_death_signal(int signum) {
   exit(3);
 }
 
-utility::string_t create_verify_license_command() {
+utility::string_t make_verify_license_cmd() {
   //[LICENSE] check_lic_cmd = -v --lic
   //[FILES] lic_file_name = license_item.lic
   //[FILES] lic=D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
@@ -83,7 +83,7 @@ utility::string_t create_verify_license_command() {
 
   if (license_process_path.empty() && check_lic_cmd.empty() &&
       license_file_name.empty()) {
-    throw "Not create command varify license";
+    throw std::runtime_error("Not create command varify license");
   }
 
   license_process_path.append(U(" "))
@@ -94,7 +94,7 @@ utility::string_t create_verify_license_command() {
   return license_process_path;
 }
 
-utility::string_t create_generate_machine_uid_command() {
+utility::string_t make_generate_machine_uid_cmd() {
   //[LICENSE] prod = 2
   //[LICENSE] make_lic_cmd = -g -s --prod
   //[FILES]	lic = D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
@@ -110,9 +110,7 @@ utility::string_t create_generate_machine_uid_command() {
 
   if (license_process_path.empty() && make_lic_cmd.empty() &&
       license_prod.empty()) {
-    // std::make_exception_ptr(std::runtime_error("Not create command generate
-    // machine uid"));
-    throw "Not create command generate machine uid";
+    throw std::runtime_error("Not create command generate machine uid");
   }
 
   license_process_path.append(U(" "))
@@ -127,36 +125,36 @@ void license_worker() {
   try {
     const std::unique_ptr<LicenseChecker> licenseChecker_ =
         std::make_unique<LicenseChecker>();
-
-    const utility::string_t license_process_path =
-        create_verify_license_command();
     // verify license_item
-    if (licenseChecker_->verify_license_file(license_process_path)) {
+    const bool is_license_update =
+        licenseChecker_->verify_license_file(make_verify_license_cmd());
+    if (is_license_update) {
       // generate machine uid
       const utility::string_t machine_uid =
           licenseChecker_->generate_machine_uid(
-              create_generate_machine_uid_command());
+              make_generate_machine_uid_cmd());
       INFO_LOG(machine_uid.c_str());
-      DEBUG_LOG(TM("Need to get machine MAC"));
 
+      DEBUG_LOG(TM("Need to get machine MAC"));
+      //////////////////////////////////////
       // Need to create client here
+      //////////////////////////////////////
     } else {
       INFO_LOG(TM("License is SUCCESS"));
       // end thread
     }
-  } catch (boost::exception &ex) {
+  } catch (const boost::exception &ex) {
     utility::string_t str_utf16 =
         utility::conversions::to_string_t(boost::diagnostic_information(ex));
     ERROR_LOG(str_utf16.c_str());
     raise(SIGSEGV);
-  } catch (std::system_error se) {
+  } catch (const std::system_error se) {
     if (se.code().value() == error_create_lic) {
       utility::string_t str_utf16 =
           utility::conversions::to_string_t(se.what());
       ERROR_LOG(str_utf16.c_str());
       raise(SIGSEGV);
     }
-    //} catch (const utf16char *request) {
   } catch (const std::exception &msg) {
     ERROR_LOG(utility::conversions::to_string_t(msg.what()).c_str());
     raise(SIGSEGV);
@@ -224,23 +222,101 @@ enum sdfdsf {
   LICENSE_ISSUE   // "Выпуск лицензии";
 };
 
-web::json::value receive_license() {
+web::json::value make_request_message() {
+  const std::unique_ptr<Parser> parser_ =
+      std::make_unique<Parser>(LIC_INI_FILE);
 
-  // const web::http::uri address =
-  // U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");
+  const std::unique_ptr<LicenseChecker> licenseChecker_ =
+      std::make_unique<LicenseChecker>();
+
+  // get mac
+  const utility::string_t mac = parser_->get_value(U("LICENSE.mac"));
+	lic::license_constanst::FILES_lic;
+
+
+  // get unp
+  const utility::string_t unp = parser_->get_value(U("LICENSE.unp"));
+  // generate machine uid
+  const utility::string_t uid =
+      licenseChecker_->generate_machine_uid(make_generate_machine_uid_cmd());
+
+  INFO_LOG(uid.c_str());
+
+  web::json::value message;
+  message[U("unp")] = web::json::value::string(unp);
+  message[U("request")] = web::json::value::string(uid);
+  message[U("mac")] = web::json::value::string(mac);
+  // message[U("mac")] = web::json::license_value::string(U("mac"));
+  return message;
+}
+
+web::json::value connect() {
+
+  std::chrono::seconds time_try_connection_ = 2s;
+
+  /*const web::http::uri address =
+      U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");*/
 
   const web::http::uri address =
-      U("http://192.168.105.69/license-manager/rest/host/get-host-licenses1");
+      U("http://192.168.105.70/license-manager/rest/host/get-host-licenses1");
 
   web::http::client::http_client_config config;
   config.set_validate_certificates(false);
   config.set_timeout(utility::seconds(65));
 
-  web::json::value message;
-  message[U("unp")] = web::json::value::string(U("123456789"));
-  message[U("request")] = web::json::value::string(U("request"));
-  message[U("mac")] = web::json::value::string(U("72-82-92-C2-B2-F2"));
-  // message[U("mac")] = web::json::license_value::string(U("mac"));
+  const web::json::value message = make_request_message();
+  TRACE_LOG(message.to_string().c_str());
+
+  web::http::client::http_client client(address, config);
+  web::http::http_request request(web::http::methods::POST);
+  request.set_body(message.serialize(), U("application/json"));
+
+  web::http::http_response response;
+  web::json::value license_value = web::json::value::null();
+
+  auto start = std::chrono::steady_clock::now();
+  for (;;) {
+    try {
+      response = client.request(request).get();
+      break;
+    } catch (web::http::http_exception &ex) {
+      ucout << ex.error_code().value() << std::endl; // 12029
+      if (std::chrono::steady_clock::now() > (start + time_try_connection_)) {
+        ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+        std::throw_with_nested(std::runtime_error(ex.what()));
+      }
+    }
+  }
+
+  bool status = response.status_code() == web::http::status_codes::OK;
+  if (status) {
+    response.content_ready().wait();
+    license_value = response.extract_json().get();
+    ucout << response.to_string() << std::endl;
+    TRACE_LOG(response.to_string().c_str());
+  } else {
+    utility::string_t error_msg(U("Fault connection: status code - "));
+    error_msg.append(utility::conversions::to_string_t(
+        std::to_string(response.status_code())));
+    //???ucout << response.extract_json().get() << std::endl;
+    ERROR_LOG(error_msg.c_str());
+  }
+  return license_value;
+}
+
+web::json::value receive_license() {
+
+  const web::http::uri address =
+      U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");
+
+  // const web::http::uri address =
+  //    U("http://192.168.105.69/license-manager/rest/host/get-host-licenses1");
+
+  web::http::client::http_client_config config;
+  config.set_validate_certificates(false);
+  config.set_timeout(utility::seconds(65));
+
+  web::json::value message = make_request_message();
 
   web::http::client::http_client client(address, config);
   web::http::http_request request(web::http::methods::POST);
@@ -278,9 +354,9 @@ web::json::value receive_license() {
   return license_value;
 }
 
-void sfsdfds() {
+void license_parser() {
   try {
-    web::json::value license_value = receive_license();
+    web::json::value license_value = connect();
     if (license_value.is_null()) {
 
     } else {
@@ -302,8 +378,11 @@ void sfsdfds() {
         // save license to file
       }
     }
-  } catch (const web::json::json_exception &ex) {
-    std::cout << "json exception:" << ex.what();
+  } catch (const std::exception &ex) {
+    std::throw_with_nested(std::runtime_error(ex.what()));
+  } catch (const boost::exception &ex) {
+    std::throw_with_nested(
+        std::runtime_error(boost::diagnostic_information(ex)));
   }
 }
 
@@ -312,10 +391,15 @@ int main(int argc, const char *argv[]) {
   setlocale(LC_ALL, "ru_RU.UTF-8");
   signal(SIGSEGV, posix_death_signal);
 
+  try {
+    license_parser();
+  } catch (const std::runtime_error &err) {
+    ERROR_LOG(utility::conversions::to_string_t(err.what()).c_str());
+  }
   // license_worker();
   // main_run_1();
   // receive_license();
-  sfsdfds();
+  // license_parser();
   // main_run();
   // lic::os_utilities::sleep(1000);
 #ifdef _WIN32
