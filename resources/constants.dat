@@ -1,10 +1,12 @@
 #ifdef _LIC_CONSTANTS
 
-DAT(FILES_lic,              _XPLATSTR("FILES.lic"))
-DAT(LICENSE_check_lic_cmd,	_XPLATSTR("LICENSE.check_lic_cmd"))
-DAT(FILES_lic_file_name,    _XPLATSTR("FILES.lic_file_name"))
-DAT(LICENSE_make_lic_cmd,   _XPLATSTR("LICENSE.make_lic_cmd"))
-DAT(LICENSE_prod,           _XPLATSTR("LICENSE.prod"))
-DAT(LICENSE_license_uid,    _XPLATSTR("LICENSE.license_uid"))
+DAT(FILES_LIC,              _XPLATSTR("FILES.lic"))
+DAT(LICENSE_CHECK_LIC_CMD,  _XPLATSTR("LICENSE.check_lic_cmd"))
+DAT(FILES_LIC_FILE_NAME,    _XPLATSTR("FILES.lic_file_name"))
+DAT(LICENSE_MAKE_LIC_CMD,   _XPLATSTR("LICENSE.make_lic_cmd"))
+DAT(LICENSE_PROD,           _XPLATSTR("LICENSE.prod"))
+DAT(LICENSE_UID,            _XPLATSTR("LICENSE.license_uid"))
+DAT(LICENSE_MAC,            _XPLATSTR("LICENSE.mac"))
+DAT(LICENSE_UNP,            _XPLATSTR("LICENSE.unp"))
 
 #endif

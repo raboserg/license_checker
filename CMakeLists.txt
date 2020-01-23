@@ -1,6 +1,8 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 #set(VCPKG_TARGET_TRIPLET "x64-windows")
 
+set(CMAKE_CXX_STANDARD 14)
+
 include(path.cmake)
 project ("license_checker")
 
@@ -81,6 +83,7 @@ elseif(CMAKE_HOST_UNIX)
     set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools ${Boost_INCLUDE_DIRS} "${CPPREST_DIR}/Release/include" ${OPENSSL_INCLUDE_PATH} ${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCES_LIST})
     add_subdirectory("event_sink_linux")
+    target_compile_options(${PROJECT_NAME} PUBLIC -Wdeprecated-declarations)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS} ${P7_LIB} )
     target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 endif()

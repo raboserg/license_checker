@@ -231,8 +231,7 @@ web::json::value make_request_message() {
 
   // get mac
   const utility::string_t mac = parser_->get_value(U("LICENSE.mac"));
-	lic::license_constanst::FILES_lic;
-
+  ucout << lic::license_constanst::LICENSE_MAC << std::endl;
 
   // get unp
   const utility::string_t unp = parser_->get_value(U("LICENSE.unp"));
@@ -252,8 +251,7 @@ web::json::value make_request_message() {
 
 web::json::value connect() {
 
-  std::chrono::seconds time_try_connection_ = 2s;
-
+  std::chrono::seconds time_try_connection_{5};
   /*const web::http::uri address =
       U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");*/
 
@@ -288,7 +286,7 @@ web::json::value connect() {
     }
   }
 
-  bool status = response.status_code() == web::http::status_codes::OK;
+  const bool status = response.status_code() == web::http::status_codes::OK;
   if (status) {
     response.content_ready().wait();
     license_value = response.extract_json().get();
@@ -363,7 +361,7 @@ void license_parser() {
       if (license_value[U("hostLicenses")].is_null()) {
         //"Хост приостановлен";
         //"Лицензии ещё нет";
-        TRACE_LOG(license_value.to_string().c_str());
+        TRACE_LOG(license_value.serialize().c_str());
       } else {
         web::json::array licenses = license_value[U("hostLicenses")].as_array();
         web::json::value license_item = licenses[licenses.size() - 1];
@@ -395,6 +393,7 @@ int main(int argc, const char *argv[]) {
     license_parser();
   } catch (const std::runtime_error &err) {
     ERROR_LOG(utility::conversions::to_string_t(err.what()).c_str());
+    raise(SIGSEGV);
   }
   // license_worker();
   // main_run_1();

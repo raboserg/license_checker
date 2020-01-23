@@ -1,6 +1,4 @@
 #pragma once
-#ifndef LIC_MSG_H
-#define LIC_MSG_H
 
 #include "cpprest/details/basic_types.h"
 
@@ -13,6 +11,4 @@ public:
 #undef _LIC_CONSTANTS
 #undef DAT
 };
-
 } // namespace lic
-#endif
