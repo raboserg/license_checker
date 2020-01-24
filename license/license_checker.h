@@ -6,7 +6,7 @@
 #include <cpprest/asyncrt_utils.h>
 #include <cpprest/details/basic_types.h>
 #include <parser_ini.h>
-#include <tools.h>
+#include <license_helper.h>
 #include <tracer.h>
 
 namespace bp = boost::process;
@@ -22,8 +22,8 @@ class LicenseChecker {
 
 public:
   LicenseChecker();
-  bool verify_license_file(const utility::string_t &command);
-  utility::string_t generate_machine_uid(const utility::string_t &command);
+  bool verify_license_file();
+  utility::string_t generate_machine_uid();
   void save_license_to_file(const utility::string_t &command);
 };
 

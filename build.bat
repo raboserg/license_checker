@@ -1,4 +1,4 @@
-chcp 1251
+chcp 65001
 rem set VCPKG_DIR="D:/library/vcpkg/installed/x64-windows"
 set TOOLCHAIN_FILE="D:/library/vcpkg/scripts/buildsystems/vcpkg.cmake"
 

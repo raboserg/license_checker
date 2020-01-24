@@ -1,12 +1,18 @@
-#ifdef _LIC_CONSTANTS
+#ifdef _CONFIG_FILE_KEYS
+DAT(FILES_LIC,              U("FILES.lic"))
+DAT(LICENSE_CHECK_LIC_CMD,  U("LICENSE.check_lic_cmd"))
+DAT(FILES_LIC_FILE_NAME,    U("FILES.lic_file_name"))
+DAT(LICENSE_MAKE_LIC_CMD,   U("LICENSE.make_lic_cmd"))
+DAT(LICENSE_PROD,           U("LICENSE.prod"))
+DAT(LICENSE_UID,            U("LICENSE.license_uid"))
+DAT(LICENSE_MAC,            U("LICENSE.mac"))
+DAT(LICENSE_UNP,            U("LICENSE.unp"))
+DAT(LICENSE_FILE_NAME,      U("FILES.lic_file_name"))
+#endif
 
-DAT(FILES_LIC,              _XPLATSTR("FILES.lic"))
-DAT(LICENSE_CHECK_LIC_CMD,  _XPLATSTR("LICENSE.check_lic_cmd"))
-DAT(FILES_LIC_FILE_NAME,    _XPLATSTR("FILES.lic_file_name"))
-DAT(LICENSE_MAKE_LIC_CMD,   _XPLATSTR("LICENSE.make_lic_cmd"))
-DAT(LICENSE_PROD,           _XPLATSTR("LICENSE.prod"))
-DAT(LICENSE_UID,            _XPLATSTR("LICENSE.license_uid"))
-DAT(LICENSE_MAC,            _XPLATSTR("LICENSE.mac"))
-DAT(LICENSE_UNP,            _XPLATSTR("LICENSE.unp"))
-
+#ifdef _HOST_STATUS
+DAT(NEW,		U("NEW"))
+DAT(ACTIVE,		U("ACTIVE"))
+DAT(APPROVED,	U("APPROVED"))
+DAT(SUSPENDED,	U("SUSPENDED"))
 #endif

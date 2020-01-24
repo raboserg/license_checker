@@ -3,8 +3,11 @@
 void Parser::create_root(const utility::string_t &file_name) {
   utility::ifstream_t file(file_name, std::ios::in);
   if (!file.is_open()) {
-    //?? check else not open
-    DEBUG_LOG(utility::conversions::to_string_t(U("can't open ini file - ") + file_name).c_str());
+    const std::string error_msg(
+        std::string("can't open ini file - ")
+            .append(utility::conversions::to_utf8string(file_name)));
+    ERROR_LOG(utility::conversions::to_string_t(error_msg).c_str());
+    throw std::runtime_error(error_msg); // exeption in construct ???
   } else { // skip BOM
     unsigned char buffer[8];
     buffer[0] = 255;

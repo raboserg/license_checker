@@ -1,13 +1,8 @@
-﻿#include "stdafx.h"
+﻿#include "application.h"
+//#include "stdafx.h"
 #include <signal.h>
 
 //#include <pplx/threadpool.h>
-
-#ifdef _WIN32
-static const utility::string_t LIC_INI_FILE = U("lic_check_w.ini");
-#else
-static const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
-#endif
 
 enum {
   error_create_lic = 2, // mybe create process
@@ -69,70 +64,16 @@ void posix_death_signal(int signum) {
   exit(3);
 }
 
-utility::string_t make_verify_license_cmd() {
-  //[LICENSE] check_lic_cmd = -v --lic
-  //[FILES] lic_file_name = license_item.lic
-  //[FILES] lic=D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
-  const std::unique_ptr<Parser> parser_ =
-      std::make_unique<Parser>(LIC_INI_FILE);
-  utility::string_t license_process_path = parser_->get_value(U("FILES.lic"));
-  const utility::string_t check_lic_cmd =
-      parser_->get_value(U("LICENSE.check_lic_cmd"));
-  const utility::string_t license_file_name =
-      parser_->get_value(U("FILES.lic_file_name"));
-
-  if (license_process_path.empty() && check_lic_cmd.empty() &&
-      license_file_name.empty()) {
-    throw std::runtime_error("Not create command varify license");
-  }
-
-  license_process_path.append(U(" "))
-      .append(check_lic_cmd)
-      .append(U(" "))
-      .append(license_file_name);
-  INFO_LOG(license_process_path.c_str());
-  return license_process_path;
-}
-
-utility::string_t make_generate_machine_uid_cmd() {
-  //[LICENSE] prod = 2
-  //[LICENSE] make_lic_cmd = -g -s --prod
-  //[FILES]	lic = D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
-  const std::unique_ptr<Parser> parser_ =
-      std::make_unique<Parser>(LIC_INI_FILE);
-  utility::string_t license_process_path;
-  license_process_path = parser_->get_value(U("FILES.lic"));
-  const utility::string_t make_lic_cmd =
-      parser_->get_value(U("LICENSE.make_lic_cmd"));
-  const utility::string_t license_prod = parser_->get_value(U("LICENSE.prod"));
-  const utility::string_t license_uid =
-      parser_->get_value(U("LICENSE.license_uid"));
-
-  if (license_process_path.empty() && make_lic_cmd.empty() &&
-      license_prod.empty()) {
-    throw std::runtime_error("Not create command generate machine uid");
-  }
-
-  license_process_path.append(U(" "))
-      .append(make_lic_cmd)
-      .append(U(" "))
-      .append(license_prod);
-  INFO_LOG(license_process_path.c_str());
-  return license_process_path;
-}
-
 void license_worker() {
   try {
     const std::unique_ptr<LicenseChecker> licenseChecker_ =
         std::make_unique<LicenseChecker>();
     // verify license_item
-    const bool is_license_update =
-        licenseChecker_->verify_license_file(make_verify_license_cmd());
+    const bool is_license_update = licenseChecker_->verify_license_file();
     if (is_license_update) {
       // generate machine uid
       const utility::string_t machine_uid =
-          licenseChecker_->generate_machine_uid(
-              make_generate_machine_uid_cmd());
+          licenseChecker_->generate_machine_uid();
       INFO_LOG(machine_uid.c_str());
 
       DEBUG_LOG(TM("Need to get machine MAC"));
@@ -215,7 +156,7 @@ int main_run_1() {
   return 0;
 }
 
-enum sdfdsf {
+enum hostStatus {
   NEW_HOST = 1,   // "Новый хост";
   HOST_SUSPENDED, // "Хост приостановлен";
   NO_LICENSE,     // "Лицензии ещё нет"
@@ -230,40 +171,38 @@ web::json::value make_request_message() {
       std::make_unique<LicenseChecker>();
 
   // get mac
-  const utility::string_t mac = parser_->get_value(U("LICENSE.mac"));
-  ucout << lic::license_constanst::LICENSE_MAC << std::endl;
-
+  const utility::string_t mac =
+      parser_->get_value(lic::config_file_keys::LICENSE_MAC);
   // get unp
   const utility::string_t unp = parser_->get_value(U("LICENSE.unp"));
   // generate machine uid
-  const utility::string_t uid =
-      licenseChecker_->generate_machine_uid(make_generate_machine_uid_cmd());
+  const utility::string_t uid = licenseChecker_->generate_machine_uid();
 
   INFO_LOG(uid.c_str());
 
   web::json::value message;
   message[U("unp")] = web::json::value::string(unp);
-  message[U("request")] = web::json::value::string(uid);
+  message[U("request")] = web::json::value::string(U("request"));
   message[U("mac")] = web::json::value::string(mac);
-  // message[U("mac")] = web::json::license_value::string(U("mac"));
   return message;
 }
 
 web::json::value connect() {
 
   std::chrono::seconds time_try_connection_{5};
+
   /*const web::http::uri address =
       U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");*/
 
   const web::http::uri address =
-      U("http://192.168.105.70/license-manager/rest/host/get-host-licenses1");
+      U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");
 
   web::http::client::http_client_config config;
   config.set_validate_certificates(false);
   config.set_timeout(utility::seconds(65));
 
   const web::json::value message = make_request_message();
-  TRACE_LOG(message.to_string().c_str());
+  TRACE_LOG(message.serialize().c_str());
 
   web::http::client::http_client client(address, config);
   web::http::http_request request(web::http::methods::POST);
@@ -286,18 +225,28 @@ web::json::value connect() {
     }
   }
 
-  const bool status = response.status_code() == web::http::status_codes::OK;
-  if (status) {
+  //????????????????
+  const bool status_ok = response.status_code() == web::http::status_codes::OK;
+  const bool status_error =
+      (response.status_code() == web::http::status_codes::UnprocessableEntity ||
+       response.status_code() == web::http::status_codes::InternalError);
+
+  if (status_ok) {
     response.content_ready().wait();
     license_value = response.extract_json().get();
     ucout << response.to_string() << std::endl;
     TRACE_LOG(response.to_string().c_str());
-  } else {
+  } else if (status_error) {
+    response.content_ready().wait();
+    // license_value = response.extract_json().get();
+    //"userMessage": "Не пройдена валидация",
     utility::string_t error_msg(U("Fault connection: status code - "));
     error_msg.append(utility::conversions::to_string_t(
         std::to_string(response.status_code())));
     //???ucout << response.extract_json().get() << std::endl;
     ERROR_LOG(error_msg.c_str());
+  } else {
+    // unknow error
   }
   return license_value;
 }
@@ -359,21 +308,56 @@ void license_parser() {
 
     } else {
       if (license_value[U("hostLicenses")].is_null()) {
-        //"Хост приостановлен";
-        //"Лицензии ещё нет";
+        //"hostStatus": "SUSPENDED"
+        //"hostStatus": "APPROVED"
+        //"hostStatus": 1 "ACTIVE"
         TRACE_LOG(license_value.serialize().c_str());
       } else {
-        web::json::array licenses = license_value[U("hostLicenses")].as_array();
-        web::json::value license_item = licenses[licenses.size() - 1];
-        const utility::string_t license =
-            license_item[U("license")].as_string();
-        const utility::string_t license_exp_date =
-            license_item[U("licenseExpirationDate")].as_string();
-        utility::string_t license_msg(U("data: ") + license_exp_date +
-                                      U("; lic: ") + license);
-        TRACE_LOG(license_msg.c_str());
 
-        // save license to file
+        
+				web::json::object license_status = license_value[U("hostStatus")].as_object();
+				//???web::json::value sfdsf = license_status[U("adasd")].as_string();
+				
+        //if (!license_status.compare(lic::license_status::NEW)) {
+        //} else if (!license_status.compare(lic::license_status::ACTIVE)) {
+        //} else if (!license_status.compare(lic::license_status::APPROVED)) {
+        //} else if (!license_status.compare(lic::license_status::SUSPENDED)) {
+        //}
+
+				/*"hostStatus": {
+					"id": 1,
+						"name" : "Активен"
+				}*/
+
+        web::json::array licenses = license_value[U("hostLicenses")].as_array();
+				
+        if (licenses.size()) {
+          web::json::value license_item = licenses[licenses.size() - 1];
+          const utility::string_t license =
+              license_item[U("license")].as_string();
+          const utility::string_t license_exp_date =
+              license_item[U("licenseExpirationDate")].as_string();
+
+          utility::string_t license_msg(U("; data: ") +
+                                        license_exp_date + U("; lic: ") +
+                                        license);
+          TRACE_LOG(license_msg.c_str());
+
+          // save license to file
+          const std::unique_ptr<Parser> parser_ =
+              std::make_unique<Parser>(LIC_INI_FILE);
+          const utility::string_t lic_file_name =
+              parser_->get_value(lic::config_file_keys::FILES_LIC_FILE_NAME);
+
+          utility::ofstream_t file(lic_file_name, std::ios::out);
+          if (file.is_open()) {
+            file.write(reinterpret_cast<const wchar_t *>(license.c_str()),
+                       sizeof(wchar_t) * license.size());
+            file.close();
+          } else {
+            //?????
+          }
+        }
       }
     }
   } catch (const std::exception &ex) {

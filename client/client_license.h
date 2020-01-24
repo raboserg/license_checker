@@ -20,11 +20,14 @@ public:
   virtual ~my_plugin_api() {}
 };
 
-class ClientLisence : public my_plugin_api {
+class my_plugin : public my_plugin_api {
 public:
   void echo() { std::cout << "ClientLisence" << std::endl; }
 };
 
-int main_run();
+class license_http_client {
+
+
+};
 
 #endif

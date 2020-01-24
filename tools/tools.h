@@ -62,30 +62,5 @@ public:
 #endif
   }
 };
-
-struct license_exception : public std::exception {
-  const std::string message;
-  license_exception(const std::string message) : message() {}
-  virtual const char *what() const noexcept { return message.c_str(); }
-};
-// static std::unique_ptr<const wchar_t *> char_to_wchar_(const char *args) {
-//  wchar_t dst[100];
-//  size_t outSize;
-//  mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
-//  return std::make_unique<const wchar_t *>(dst);
-//}
-
-// static std::wstring char_to_wchar(const char *args) {
-//#ifdef _WIN32
-//  wchar_t dst[100];
-//  size_t outSize;
-//  mbstowcs_s(&outSize, dst, _countof(dst), args, _TRUNCATE);
-//  std::wstring fdsfds(dst);
-//#else
-//  std::string fdsfds(args);
-//#endif // _WIN32
-//  return fdsfds;
-//}
-
 } // namespace lic
 #endif

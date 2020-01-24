@@ -4,39 +4,19 @@
 #define APPLICATION_H
 #include "stdafx.h"
 
-#ifdef _WIN32
-static const utility::string_t LIC_INI_FILE = U("lic_check_w.ini");
-#else
-static const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
-#endif
-
-// class CEtwProvider {
-//  CEtwProvider(__in REFGUID ProviderId) { (VOID) Register(ProviderId); }
-//
-//  HRESULT Register(__in REFGUID ProviderId) {
-//    Unregister();
-//    return HRESULT_FROM_WIN32(
-//        EventRegister(&ProviderId, 0, 0, &m_hProviderHandle));
-//  }
-//
-//  VOID Write(__in const EVENT_DESCRIPTOR &eventDesc) {
-//    (VOID) EventWrite(m_hProviderHandle, &eventDesc, 0, NULL);
-//  }
-//
-//  HANDLE m_hProviderHandle;
-//};
-
 class CMainApp {
-  std::unique_ptr<Parser> parser_;
+	std::unique_ptr<Parser> parser_;
   std::unique_ptr<LicenseChecker> licenseChecker_;
 
 public:
-  CMainApp();
+  CMainApp(const utility::string_t config_file_name);
   virtual ~CMainApp();
+	//???utility::string_t make_verify_license_cmd();
+	//???utility::string_t make_machine_uid_cmd();
 };
 
-CMainApp::CMainApp()
-    : parser_(std::make_unique<Parser>(LIC_INI_FILE)),
+CMainApp::CMainApp(const utility::string_t config_file_name)
+    : parser_(std::make_unique<Parser>(config_file_name)),
       licenseChecker_(std::make_unique<LicenseChecker>()) {}
 
 CMainApp::~CMainApp() {}

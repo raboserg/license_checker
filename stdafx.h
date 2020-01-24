@@ -3,12 +3,16 @@
 #include "client_license.h"
 #include "license_checker.h"
 
+#include <thread>
+#include <chrono>
+#include <iostream>
+
+
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
 #include <cpprest/uri.h>
-
-#include <iostream>
-#include <thread>
+#include <cpprest/asyncrt_utils.h>
+#include <cpprest/details/basic_types.h>
 
 #ifdef _WIN32
 #include "service.h"
@@ -16,11 +20,9 @@
 #include "notificator_linux.h"
 #endif
 
-#include "tools.h"
+#include <tools.h>
 #include <boost/exception/all.hpp>
-#include <cpprest/asyncrt_utils.h>
-#include <cpprest/details/basic_types.h>
 #include <parser_ini.h>
 #include <tracer.h>
-#include <chrono>
-#include <lic_msg.h>
+#include <constants.h>
+#include <license_helper.h>
