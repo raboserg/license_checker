@@ -19,11 +19,12 @@ struct license_helper {
     //[FILES] lic=D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
     const std::unique_ptr<Parser> parser_ =
         std::make_unique<Parser>(LIC_INI_FILE);
-    utility::string_t license_process_path = parser_->get_value(U("FILES.lic"));
+    utility::string_t license_process_path =
+        parser_->get_value(lic::config_keys::FILES_LIC);
     const utility::string_t check_lic_cmd =
-        parser_->get_value(U("LICENSE.check_lic_cmd"));
+        parser_->get_value(lic::config_keys::LICENSE_CHECK_LIC_CMD);
     const utility::string_t license_file_name =
-        parser_->get_value(U("FILES.lic_file_name"));
+        parser_->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
 
     if (license_process_path.empty() && check_lic_cmd.empty() &&
         license_file_name.empty()) {
@@ -47,13 +48,13 @@ struct license_helper {
     const std::unique_ptr<Parser> parser_ =
         std::make_unique<Parser>(LIC_INI_FILE);
     utility::string_t license_process_path;
-    license_process_path = parser_->get_value(U("FILES.lic"));
+    license_process_path = parser_->get_value(lic::config_keys::FILES_LIC);
     const utility::string_t make_lic_cmd =
-        parser_->get_value(U("LICENSE.make_lic_cmd"));
+        parser_->get_value(lic::config_keys::LICENSE_MAKE_LIC_CMD);
     const utility::string_t license_prod =
-        parser_->get_value(U("LICENSE.prod"));
+        parser_->get_value(lic::config_keys::LICENSE_PROD);
     const utility::string_t license_uid =
-        parser_->get_value(U("LICENSE.license_uid"));
+        parser_->get_value(lic::config_keys::LICENSE_UID);
 
     if (license_process_path.empty() && make_lic_cmd.empty() &&
         license_prod.empty()) {
@@ -70,7 +71,7 @@ struct license_helper {
     return license_process_path;
   }
 
-  //static web::json::value make_request_message() {
+  // static web::json::value make_request_message() {
   //  const std::unique_ptr<Parser> parser_ =
   //      std::make_unique<Parser>(LIC_INI_FILE);
 

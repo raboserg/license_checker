@@ -10,9 +10,9 @@ DAT(LICENSE_UNP,            U("LICENSE.unp"))
 DAT(LICENSE_FILE_NAME,      U("FILES.lic_file_name"))
 #endif
 
-#ifdef _HOST_STATUS
-DAT(NEW,		U("NEW"))
-DAT(ACTIVE,		U("ACTIVE"))
-DAT(APPROVED,	U("APPROVED"))
-DAT(SUSPENDED,	U("SUSPENDED"))
+#ifdef _HOST_STATUSES
+DAT(NEW,	2, U("new"))
+DAT(ACTIVE,	1, U("active"))
+DAT(APPROVED,	3, U("approved"))
+DAT(SUSPENDED,	4, U("suspended"))
 #endif

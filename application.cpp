@@ -172,9 +172,10 @@ web::json::value make_request_message() {
 
   // get mac
   const utility::string_t mac =
-      parser_->get_value(lic::config_file_keys::LICENSE_MAC);
+      parser_->get_value(lic::config_keys::LICENSE_MAC);
   // get unp
-  const utility::string_t unp = parser_->get_value(U("LICENSE.unp"));
+  const utility::string_t unp =
+      parser_->get_value(lic::config_keys::LICENSE_UNP);
   // generate machine uid
   const utility::string_t uid = licenseChecker_->generate_machine_uid();
 
@@ -187,9 +188,17 @@ web::json::value make_request_message() {
   return message;
 }
 
-web::json::value connect() {
+web::http::client::http_client_config
+make_client_config(const int64_t &attempt) const {
+  web::http::client::http_client_config config;
+  config.set_validate_certificates(false);
+  config.set_timeout(utility::seconds(attempt + 5));
+  return config;
+}
 
-  std::chrono::seconds time_try_connection_{5};
+web::json::value connect(const int64_t &attempt) {
+
+  std::chrono::seconds time_try_connection_{attempt};
 
   /*const web::http::uri address =
       U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");*/
@@ -197,16 +206,14 @@ web::json::value connect() {
   const web::http::uri address =
       U("http://192.168.105.69/license-manager/rest/host/get-host-licenses");
 
-  web::http::client::http_client_config config;
-  config.set_validate_certificates(false);
-  config.set_timeout(utility::seconds(65));
+  web::http::client::http_client client(address, make_client_config(attempt));
 
   const web::json::value message = make_request_message();
   TRACE_LOG(message.serialize().c_str());
 
-  web::http::client::http_client client(address, config);
   web::http::http_request request(web::http::methods::POST);
-  request.set_body(message.serialize(), U("application/json"));
+  request.set_body(message.serialize(),
+                   web::http::details::mime_types::application_json);
 
   web::http::http_response response;
   web::json::value license_value = web::json::value::null();
@@ -225,29 +232,31 @@ web::json::value connect() {
     }
   }
 
-  //????????????????
-  const bool status_ok = response.status_code() == web::http::status_codes::OK;
-  const bool status_error =
-      (response.status_code() == web::http::status_codes::UnprocessableEntity ||
-       response.status_code() == web::http::status_codes::InternalError);
+  license_value = check_response_status(response);
+  //  //????????????????
+  //  const bool status_ok = response.status_code() ==
+  //  web::http::status_codes::OK; const bool status_error =
+  //      (response.status_code() ==
+  //      web::http::status_codes::UnprocessableEntity ||
+  //       response.status_code() == web::http::status_codes::InternalError);
 
-  if (status_ok) {
-    response.content_ready().wait();
-    license_value = response.extract_json().get();
-    ucout << response.to_string() << std::endl;
-    TRACE_LOG(response.to_string().c_str());
-  } else if (status_error) {
-    response.content_ready().wait();
-    // license_value = response.extract_json().get();
-    //"userMessage": "Не пройдена валидация",
-    utility::string_t error_msg(U("Fault connection: status code - "));
-    error_msg.append(utility::conversions::to_string_t(
-        std::to_string(response.status_code())));
-    //???ucout << response.extract_json().get() << std::endl;
-    ERROR_LOG(error_msg.c_str());
-  } else {
-    // unknow error
-  }
+  //  if (status_ok) {
+  //    response.content_ready().wait();
+  //    license_value = response.extract_json().get();
+  //    ucout << response.to_string() << std::endl;
+  //    TRACE_LOG(response.to_string().c_str());
+  //  } else if (status_error) {
+  //    response.content_ready().wait();
+  //    // license_value = response.extract_json().get();
+  //    //"userMessage": "Не пройдена валидация",
+  //    utility::string_t error_msg(U("Fault connection: status code - "));
+  //    error_msg.append(utility::conversions::to_string_t(
+  //        std::to_string(response.status_code())));
+  //    //???ucout << response.extract_json().get() << std::endl;
+  //    ERROR_LOG(error_msg.c_str());
+  //  } else {
+  //    // unknow error
+  //  }
   return license_value;
 }
 
@@ -263,7 +272,7 @@ web::json::value receive_license() {
   config.set_validate_certificates(false);
   config.set_timeout(utility::seconds(65));
 
-  web::json::value message = make_request_message();
+  const web::json::value message = make_request_message();
 
   web::http::client::http_client client(address, config);
   web::http::http_request request(web::http::methods::POST);
@@ -301,36 +310,64 @@ web::json::value receive_license() {
   return license_value;
 }
 
-void license_parser() {
+web::json::value
+check_response_status(const web::http::http_response &response) {
+
+  web::json::value license_value = web::json::value::null();
+
+  const bool status_ok = response.status_code() == web::http::status_codes::OK;
+  const bool status_error =
+      (response.status_code() == web::http::status_codes::UnprocessableEntity ||
+       response.status_code() == web::http::status_codes::InternalError);
+
+  if (status_ok) {
+    response.content_ready().wait();
+    license_value = response.extract_json().get();
+    ucout << response.to_string() << std::endl;
+    TRACE_LOG(response.to_string().c_str());
+  } else if (status_error) {
+    response.content_ready().wait();
+    // license_value = response.extract_json().get();
+    //"userMessage": "Не пройдена валидация",
+    utility::string_t error_msg(U("Fault connection: status code - "));
+    error_msg.append(utility::conversions::to_string_t(
+        std::to_string(response.status_code())));
+    //???ucout << response.extract_json().get() << std::endl;
+    ERROR_LOG(error_msg.c_str());
+  } else {
+    // unknow error
+  }
+  return license_value;
+}
+
+void extract_license() {
   try {
-    web::json::value license_value = connect();
+    web::http::http_response response = connect(5);
+    web::json::value license_value = connect(5);
     if (license_value.is_null()) {
 
     } else {
       if (license_value[U("hostLicenses")].is_null()) {
-        //"hostStatus": "SUSPENDED"
-        //"hostStatus": "APPROVED"
-        //"hostStatus": 1 "ACTIVE"
         TRACE_LOG(license_value.serialize().c_str());
       } else {
 
-        
-				web::json::object license_status = license_value[U("hostStatus")].as_object();
-				//???web::json::value sfdsf = license_status[U("adasd")].as_string();
-				
-        //if (!license_status.compare(lic::license_status::NEW)) {
+        web::json::object license_status =
+            license_value[U("hostStatus")].as_object();
+
+        //???web::json::value sfdsf = license_status[U("adasd")].as_string();
+
+        // if (!license_status.compare(lic::license_status::NEW)) {
         //} else if (!license_status.compare(lic::license_status::ACTIVE)) {
         //} else if (!license_status.compare(lic::license_status::APPROVED)) {
         //} else if (!license_status.compare(lic::license_status::SUSPENDED)) {
         //}
 
-				/*"hostStatus": {
-					"id": 1,
-						"name" : "Активен"
-				}*/
-
+        /*"hostStatus": {
+          "id": 1,
+          "name" : "Активен"
+        }*/
         web::json::array licenses = license_value[U("hostLicenses")].as_array();
-				
+
         if (licenses.size()) {
           web::json::value license_item = licenses[licenses.size() - 1];
           const utility::string_t license =
@@ -338,21 +375,22 @@ void license_parser() {
           const utility::string_t license_exp_date =
               license_item[U("licenseExpirationDate")].as_string();
 
-          utility::string_t license_msg(U("; data: ") +
-                                        license_exp_date + U("; lic: ") +
-                                        license);
+          utility::string_t license_msg(U("data: ") + license_exp_date +
+                                        U("; lic: ") + license);
           TRACE_LOG(license_msg.c_str());
 
           // save license to file
           const std::unique_ptr<Parser> parser_ =
               std::make_unique<Parser>(LIC_INI_FILE);
           const utility::string_t lic_file_name =
-              parser_->get_value(lic::config_file_keys::FILES_LIC_FILE_NAME);
+              parser_->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
 
           utility::ofstream_t file(lic_file_name, std::ios::out);
+
           if (file.is_open()) {
-            file.write(reinterpret_cast<const wchar_t *>(license.c_str()),
-                       sizeof(wchar_t) * license.size());
+            file.write(
+                reinterpret_cast<const utility::char_t *>(license.c_str()),
+                sizeof(utility::char_t) * license.size());
             file.close();
           } else {
             //?????
@@ -373,8 +411,12 @@ int main(int argc, const char *argv[]) {
   setlocale(LC_ALL, "ru_RU.UTF-8");
   signal(SIGSEGV, posix_death_signal);
 
+  if (lic::license_states::ACTIVE == 1)
+    ucout << "lic::license_statuses::ACTIVE " << lic::license_states::ACTIVE
+          << std::endl;
+
   try {
-    license_parser();
+    extract_license();
   } catch (const std::runtime_error &err) {
     ERROR_LOG(utility::conversions::to_string_t(err.what()).c_str());
     raise(SIGSEGV);
@@ -388,15 +430,8 @@ int main(int argc, const char *argv[]) {
 #ifdef _WIN32
   WinNT::Start_Service();
 #else
-  try {
-    main_run_1();
-  } catch (lic::license_exception &ex) {
-    //    ERROR_LOG(utility::conversions::to_string_t(std::string(ex.what())));
-    std::cout << ex.what() << std::endl;
-  }
-
-  //  LinuxNoficitator linuxNoficitator_;
-  //  linuxNoficitator_.run_notify(argc, argv);
+  LinuxNoficitator linuxNoficitator_;
+  linuxNoficitator_.run_notify(argc, argv);
 
 #endif
   ucout << input_handle();
