@@ -24,7 +24,7 @@ utility::string_t LicenseExtractor::receive_license() {
         web::json::array licenses = json_value[U("hostLicenses")].as_array();
         utility::string_t license;
         const size_t size = licenses.size();
-        if (!size == 0) {
+        if (!(size == 0)) {
           web::json::value license_item = licenses[licenses.size() - 1];
           license = license_item[U("license")].as_string();
           const utility::string_t license_exp_date =
@@ -54,7 +54,7 @@ void LicenseExtractor::processing_errors(
     const utility::string_t user_message =
         json_value[U("userMessage")].as_string();
 
-    error.append(" ").append(utility::conversions::utf16_to_utf8(user_message));
+    error.append(" ").append(utility::conversions::to_utf8string(user_message));
 
     ERROR_LOG(user_message.c_str());
 
@@ -85,7 +85,7 @@ LicenseExtractor::make_client_config(const int64_t &attempt) {
   return config;
 }
 
-//web::json::value LicenseExtractor::make_request_message() {
+// web::json::value LicenseExtractor::make_request_message() {
 //  const std::unique_ptr<Parser> parser_ =
 //      std::make_unique<Parser>(LIC_INI_FILE);
 //  const std::unique_ptr<LicenseChecker> licenseChecker_ =
@@ -110,7 +110,7 @@ web::http::http_response LicenseExtractor::send_request() {
   const std::chrono::seconds time_try_connection_{attempt_};
 
   //???
-  //const web::json::value message = make_request_message();
+  // const web::json::value message = make_request_message();
   //
 
   TRACE_LOG(message_.serialize().c_str());

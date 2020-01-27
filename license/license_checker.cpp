@@ -40,7 +40,6 @@ utility::string_t LicenseChecker::generate_machine_uid() {
 }
 
 void LicenseChecker::save_license_to_file(const utility::string_t &license) {
-
   // save license to file
   const std::unique_ptr<Parser> parser_ =
       std::make_unique<Parser>(LIC_INI_FILE);

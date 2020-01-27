@@ -47,7 +47,7 @@ elseif(CMAKE_HOST_UNIX)
     set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
 
     message(STATUS "CPPREST_DIR}/Release/includeCPPREST_DIR}/Release/includeCPPREST_DIR}/Release/include - ${CPPREST_LIB}")
-    target_include_directories(client PUBLIC "${CPPREST_DIR}/Release/include" ${Boost_INCLUDE_DIRS} ${OPENSSL_INCLUDE_PATH})
+    target_include_directories(client PUBLIC ../tracer ../tools "${CPPREST_DIR}/Release/include" ${Boost_INCLUDE_DIRS} ${OPENSSL_INCLUDE_PATH} ${DEFAULT_LIBP7_INCLUDE_DIR})
     target_link_libraries(client PUBLIC ${CPPREST_LIB} pthread ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} pthread dl)
 
 endif()
