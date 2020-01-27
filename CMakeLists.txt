@@ -1,5 +1,4 @@
 ﻿cmake_minimum_required (VERSION 3.8)
-#set(VCPKG_TARGET_TRIPLET "x64-windows")
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -75,7 +74,7 @@ if(CMAKE_HOST_WIN32)
     target_compile_definitions(${PROJECT_NAME} PRIVATE -D_WIN32_WINNT=0x0601 -D_WINSOCK_DEPRECATED_NO_WARNINGS)
     add_subdirectory("event_sink_win")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS} ${P7_LIB})
-    target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
+    target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST application.cpp ../tools/constants.cpp application.h stdafx.h)
     set(LINK_LIBS client license eventsink tracer pthread ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)

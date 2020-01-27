@@ -9,7 +9,7 @@ namespace lic {
 #undef DAT
 
 #define _HOST_STATUSES
-#define DAT(a, b, c) const unsigned short license_states::a;
+#define DAT(a, b, c) const unsigned short host_states::a;
 #include "../resources/constants.dat"
 #undef _HOST_STATUSES
 #undef DAT

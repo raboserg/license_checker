@@ -1,116 +1,133 @@
-﻿// client_license.cpp
-//
-#include "client_license.h"
+﻿#include "client_license.h"
 
-#include <cpprest/http_client.h>
-#include <cpprest/json.h>
-#include <cpprest/uri.h>
-//#include <pplx/threadpool.h>
+LicenseExtractor::LicenseExtractor(const web::http::uri &address_,
+                                   const web::json::value message_,
+                                   const int64_t &attempt)
+    : client_(address_, make_client_config(attempt)), message_(message_),
+      attempt_(attempt) {}
 
+utility::string_t LicenseExtractor::receive_license() {
+  const web::http::http_response response = send_request();
 
-//#if (defined(_MSC_VER) && (_MSC_VER >= 1800)) && !CPPREST_FORCE_PPLX
-//class direct_executor : public pplx::scheduler_interface {
-//public:
-//	virtual void schedule(concurrency::TaskProc_t proc, _In_ void *param) {
-//		proc(param);
-//	}
-//};
-//
-//static std::shared_ptr<pplx::scheduler_interface> g_executor;
-//std::shared_ptr<pplx::scheduler_interface> __cdecl get_scheduler() {
-//	if (!g_executor) {
-//		g_executor = std::make_shared<direct_executor>();
-//	}
-//
-//	return g_executor;
-//}
-//#else
-//std::shared_ptr<pplx::scheduler_interface> __cdecl get_scheduler() {
-//	return pplx::get_ambient_scheduler();
-//}
-//#endif
-//
-//class TaskOptionsTestScheduler : public pplx::scheduler_interface {
-//public:
-//	TaskOptionsTestScheduler() : m_numTasks(0), m_scheduler(get_scheduler()) {}
-//
-//	virtual void schedule(pplx::TaskProc_t proc, void *param) {
-//		pplx::details::atomic_increment(m_numTasks);
-//		m_scheduler->schedule(proc, param);
-//	}
-//
-//	long get_num_tasks() { return m_numTasks; }
-//
-//private:
-//	pplx::details::atomic_long m_numTasks;
-//	pplx::scheduler_ptr m_scheduler;
-//
-//	TaskOptionsTestScheduler(const TaskOptionsTestScheduler &);
-//	TaskOptionsTestScheduler &operator=(const TaskOptionsTestScheduler &);
-//};
-
-/*
-requestDTO
-{
-  "file": "string",
-  "mac": "string",
-  "unp": "string"
+  ucout << response.to_string() << std::endl;
+  if (response.status_code() == web::http::status_codes::OK) {
+    response.content_ready().wait();
+    web::json::value json_value = response.extract_json().get();
+    if (!json_value[U("hostStatus")].is_null()) {
+      const web::json::object host_status =
+          json_value[U("hostStatus")].as_object();
+      const int host_state = host_status.at(U("id")).as_integer();
+      const utility::string_t host_state_name =
+          host_status.at(U("name")).as_string();
+      if (lic::host_states::ACTIVE == host_state) {
+        TRACE_LOG(host_state_name.c_str());
+        web::json::array licenses = json_value[U("hostLicenses")].as_array();
+        utility::string_t license;
+        const size_t size = licenses.size();
+        if (!size == 0) {
+          web::json::value license_item = licenses[licenses.size() - 1];
+          license = license_item[U("license")].as_string();
+          const utility::string_t license_exp_date =
+              license_item[U("licenseExpirationDate")].as_string();
+          utility::string_t license_msg(U("data: ") + license_exp_date +
+                                        U("; lic: ") + license);
+          TRACE_LOG(license_msg.c_str());
+        }
+        return license;
+      }
+    }
+  } else {
+    processing_errors(response);
+  }
 }
-*/
-// const web::http::uri address = U("https://jsonplaceholder.typicode.com/");
-// const utility::string_t path = U("/posts");
 
-const web::http::uri address = U("https://reqbin.com");
-const utility::string_t path = U("/echo/post/json");
+void LicenseExtractor::processing_errors(
+    const web::http::http_response &response) {
+  std::string error = "Fault connection: status code - " +
+                      std::to_string(response.status_code());
+  ERROR_LOG(utility::conversions::to_string_t(error).c_str());
 
-//{"login":"login","password":"password"}
+  if (response.status_code() == web::http::status_codes::UnprocessableEntity) {
+    response.content_ready().wait();
+    web::json::value json_value = response.extract_json().get();
 
-int main_run() {
-  // crossplat::threadpool::initialize_with_threads(1);
-  // Create user data as JSON object and make POST request.
-  //TaskOptionsTestScheduler sched;
-	//long n = 0;
-	//auto t1 = pplx::create_task([&n]() { n++; }, sched); // run on sched
-	//t1.wait();
+    const utility::string_t user_message =
+        json_value[U("userMessage")].as_string();
 
-  auto postJson =
+    error.append(" ").append(utility::conversions::utf16_to_utf8(user_message));
 
-      pplx::create_task(
-          []() {
-            
-					web::json::value request;
-					web::http::client::http_client_config config;
-          config.set_timeout(utility::seconds(30));
+    ERROR_LOG(user_message.c_str());
 
-            //        request[U("file")] = web::json::value::string(U("file"));
-            //        request[U("mac")] = web::json::value::string(U("mac"));
-            //        request[U("unp")] = web::json::value::string(U("unp"));
+    if (!json_value[U("fieldErrors")].is_null()) {
+      web::json::array field_errors = json_value[U("fieldErrors")].as_array();
+      for (auto field : field_errors) {
+        const web::json::object field_error = field.as_object();
+        const utility::string_t message =
+            field_error.at(U("message")).as_string();
+        const utility::string_t fieldName =
+            field_error.at(U("fieldName")).as_string();
+        ERROR_LOG(utility::string_t(U("fieldName "))
+                      .append(fieldName)
+                      .append(U(" "))
+                      .append(message)
+                      .c_str());
+      }
+    }
+  }
+  throw std::runtime_error(error.c_str());
+}
 
-            request[U("login")] = web::json::value::string(U("login"));
-            request[U("password")] = web::json::value::string(U("password"));
+web::http::client::http_client_config
+LicenseExtractor::make_client_config(const int64_t &attempt) {
+  web::http::client::http_client_config config;
+  config.set_validate_certificates(false);
+  config.set_timeout(utility::seconds(attempt + 5));
+  return config;
+}
 
-            return web::http::client::http_client(address, config)
-                .request(web::http::methods::POST,
-                         web::http::uri_builder().append_path(path).to_string(),
-                         request.serialize(), U("application/json"));
-          })
-          .then([](web::http::http_response response) { // Get the response.
-            // Check the status code.
-            ucout << response.to_string() << std::endl;
-            ucout << response.status_code() << std::endl;
-            if (response.status_code() == 201) {
-              throw std::runtime_error("Returned " +
-                                       std::to_string(response.status_code()));
-            }
-            // Convert the response body to JSON object.
-            return response.extract_json();
-          })
-          .then([](web::json::value jsonObject) { // Parse the user details.
-            //ucout << jsonObject.to_string();
-            /*ucout << jsonObject[U("first_name")].as_string() << " "
-                  << jsonObject[U("last_name")].as_string() << " ("
-                  << jsonObject[U("id")].as_string() << ")" << std::endl;*/
-          });
+//web::json::value LicenseExtractor::make_request_message() {
+//  const std::unique_ptr<Parser> parser_ =
+//      std::make_unique<Parser>(LIC_INI_FILE);
+//  const std::unique_ptr<LicenseChecker> licenseChecker_ =
+//      std::make_unique<LicenseChecker>();
+//  // get unp
+//  const utility::string_t unp =
+//      parser_->get_value(lic::config_keys::LICENSE_UNP);
+//  // get mac
+//  const utility::string_t mac =
+//      parser_->get_value(lic::config_keys::LICENSE_MAC);
+//  // generate machine uid
+//  const utility::string_t uid = licenseChecker_->generate_machine_uid();
+//  INFO_LOG(uid.c_str());
+//  web::json::value message;
+//  message[U("unp")] = web::json::value::string(unp);
+//  message[U("request")] = web::json::value::string(U("request"));
+//  message[U("mac")] = web::json::value::string(mac);
+//  return message;
+//}
 
-  return 0;
+web::http::http_response LicenseExtractor::send_request() {
+  const std::chrono::seconds time_try_connection_{attempt_};
+
+  //???
+  //const web::json::value message = make_request_message();
+  //
+
+  TRACE_LOG(message_.serialize().c_str());
+  web::http::http_request request(web::http::methods::POST);
+  request.set_body(message_.serialize(),
+                   web::http::details::mime_types::application_json);
+  auto start = std::chrono::steady_clock::now();
+  for (;;) {
+    try {
+      return client_.request(request).get();
+      break;
+    } catch (web::http::http_exception &ex) {
+      ucout << ex.error_code().value() << std::endl; // error code = 12029
+      if (std::chrono::steady_clock::now() > (start + time_try_connection_)) {
+        ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+        std::throw_with_nested(std::runtime_error(ex.what()));
+      }
+    }
+  }
 }

@@ -21,9 +21,13 @@ class Parser {
   void create_root(const utility::string_t &file_name);
 
 public:
-  Parser(const utility::string_t &file_name);
+	Parser();
+	Parser(const utility::string_t &file_name);
   utility::string_t get_value(const utility::string_t &key) const;
   prop_tree get_tree() { return this->root_; }
   virtual ~Parser();
 };
+
+typedef utils::Singleton<Parser> PARSER;
+
 #endif

@@ -8,11 +8,12 @@ DAT(LICENSE_UID,            U("LICENSE.license_uid"))
 DAT(LICENSE_MAC,            U("LICENSE.mac"))
 DAT(LICENSE_UNP,            U("LICENSE.unp"))
 DAT(LICENSE_FILE_NAME,      U("FILES.lic_file_name"))
+DAT(LICENSE_SRV_URI,	    U("LICENSE.license_manager_uri"))
 #endif
 
 #ifdef _HOST_STATUSES
-DAT(NEW,	2, U("new"))
-DAT(ACTIVE,	1, U("active"))
+DAT(NEW,		4, U("new"))
+DAT(ACTIVE,		1, U("active"))
 DAT(APPROVED,	3, U("approved"))
-DAT(SUSPENDED,	4, U("suspended"))
+DAT(SUSPENDED,	2, U("suspended"))
 #endif

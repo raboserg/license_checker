@@ -4,6 +4,10 @@
 #include <constants.h>
 #include <tracer.h>
 
+//#include <cpprest/details/basic_types.h>
+//#include <cpprest/json.h>
+//#include "license_checker.h"
+
 #ifdef _WIN32
 static const utility::string_t LIC_INI_FILE = U("lic_check_w.ini");
 #else
@@ -71,24 +75,20 @@ struct license_helper {
     return license_process_path;
   }
 
-  // static web::json::value make_request_message() {
+  //static web::json::value make_request_message() {
   //  const std::unique_ptr<Parser> parser_ =
   //      std::make_unique<Parser>(LIC_INI_FILE);
-
   //  const std::unique_ptr<LicenseChecker> licenseChecker_ =
   //      std::make_unique<LicenseChecker>();
-
+  //  // get unp
+  //  const utility::string_t unp =
+  //      parser_->get_value(lic::config_keys::LICENSE_UNP);
   //  // get mac
   //  const utility::string_t mac =
-  //      parser_->get_value(lic::config_file_keys::LICENSE_MAC);
-  //  // get unp
-  //  const utility::string_t unp = parser_->get_value(U("LICENSE.unp"));
+  //      parser_->get_value(lic::config_keys::LICENSE_MAC);
   //  // generate machine uid
-  //  const utility::string_t uid =
-  //      licenseChecker_->generate_machine_uid(make_machine_uid_cmd());
-
+  //  const utility::string_t uid = licenseChecker_->generate_machine_uid();
   //  INFO_LOG(uid.c_str());
-
   //  web::json::value message;
   //  message[U("unp")] = web::json::value::string(unp);
   //  message[U("request")] = web::json::value::string(U("request"));

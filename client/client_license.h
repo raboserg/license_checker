@@ -1,33 +1,33 @@
 ﻿// client_license.h
 #pragma once
-
 #ifndef CLIENT_LICENSE_H
 #define CLIENT_LICENSE_H
 
-#include <boost/config.hpp>
-//#include <cpprest/http_client.h>
-//#include <cpprest/json.h>
-//#include <cpprest/uri.h>
-//#include <pplx/threadpool.h>
+#include <constants.h>
+#include <cpprest/http_client.h>
+#include <cpprest/json.h>
+#include <cpprest/asyncrt_utils.h>
+#include <cpprest/details/basic_types.h>
+#include <tracer.h>
 
-#include <iostream>
-#include <string>
-
-class BOOST_SYMBOL_VISIBLE my_plugin_api {
+class LicenseExtractor {
 public:
-  virtual std::string name() const = 0;
-  virtual float calculate(const float x, const float y) = 0;
-  virtual ~my_plugin_api() {}
-};
+  LicenseExtractor(const web::http::uri &address_,
+                   const web::json::value message_, const int64_t &attempt);
 
-class my_plugin : public my_plugin_api {
-public:
-  void echo() { std::cout << "ClientLisence" << std::endl; }
-};
+  utility::string_t receive_license();
 
-class license_http_client {
+private:
+  const int64_t attempt_;
+  const web::http::uri address_;
+  web::http::client::http_client client_;
+  web::json::value message_;
 
-
+  web::http::client::http_client_config
+  make_client_config(const int64_t &attempt);
+  web::json::value make_request_message();
+  web::http::http_response send_request();
+  void processing_errors(const web::http::http_response &response);
 };
 
 #endif

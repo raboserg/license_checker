@@ -3,7 +3,7 @@
 set(SOURCE_LIB client_license.cpp client_license.h)
 
 #set(${CPPREST_DIR} "/home/user/projects/library/casablanca/build.debug/Release/Binaries")
-set(CPPREST_DIR "/home/user/projects/library/casablanca")
+
 #/build.debug/Release/Binaries
 
 #set(CPPREST_DIR ${VCPKG_DIR})
@@ -13,19 +13,21 @@ set(CPPREST_DIR "/home/user/projects/library/casablanca")
 
 if(CMAKE_HOST_WIN32)
     set(CPPREST_LIB_NAME "cpprest_2_10d")
+	find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME})
 elseif(CMAKE_HOST_UNIX)
+	set(CPPREST_DIR "/home/user/projects/library/casablanca")
     set(CPPREST_LIB_NAME cpprest)
+	find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS "${CPPREST_DIR}/build.debug/Release/Binaries")
 endif()
 
 #add_executable(client ${SOURCE_LIB})
 add_library (client STATIC ${SOURCE_LIB})
 
-find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS "${CPPREST_DIR}/build.debug/Release/Binaries")
-
+#find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS "${CPPREST_DIR}/build.debug/Release/Binaries")
 
 if(CMAKE_HOST_WIN32)
     target_link_libraries(client ${CPPREST_LIB}) 
-    target_include_directories(client PUBLIC ${CMAKE_INCLUDE_PATH} ${Boost_INCLUDE_DIRS})
+    target_include_directories(client PUBLIC ../tracer ../tools ${Boost_INCLUDE_DIRS} ${DEFAULT_LIBP7_INCLUDE_DIR})
 elseif(CMAKE_HOST_UNIX)
     set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
     set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
