@@ -1,14 +1,17 @@
 ﻿#include "client_license.h"
 
-LicenseExtractor::LicenseExtractor(const web::http::uri &address_,
-                                   const web::json::value message_,
+LicenseExtractor::LicenseExtractor(const web::http::uri &address,
+                                   const web::json::value message,
                                    const int64_t &attempt)
-    : client_(address_, make_client_config(attempt)), message_(message_),
-      attempt_(attempt) {}
+    : client_(address, make_client_config(attempt)), message_(message),
+      attempt_(attempt) {
+  request_.set_method(web::http::methods::POST);
+  request_.set_body(message_.serialize(),
+                    web::http::details::mime_types::application_json);
+}
 
 utility::string_t LicenseExtractor::receive_license() {
   const web::http::http_response response = send_request();
-
   ucout << response.to_string() << std::endl;
   if (response.status_code() == web::http::status_codes::OK) {
     response.content_ready().wait();
@@ -81,8 +84,30 @@ web::http::client::http_client_config
 LicenseExtractor::make_client_config(const int64_t &attempt) {
   web::http::client::http_client_config config;
   config.set_validate_certificates(false);
-  config.set_timeout(utility::seconds(attempt + 5));
   return config;
+}
+
+web::http::http_response LicenseExtractor::send_request() {
+  const std::chrono::seconds time_try_connection_{attempt_};
+  //???	std::chrono::duration_cast<std::chrono::seconds>(attempt_);
+  if (message_.is_null())
+    throw std::runtime_error("message for request is empty");
+
+  TRACE_LOG(message_.serialize().c_str());
+
+  auto start = std::chrono::steady_clock::now();
+  for (;;) {
+    try {
+      return client_.request(request_).get();
+      break;
+    } catch (web::http::http_exception &ex) {
+      ucout << ex.error_code().value() << std::endl; // error code = 12029
+      if (std::chrono::steady_clock::now() > (start + time_try_connection_)) {
+        ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+        std::throw_with_nested(std::runtime_error(ex.what()));
+      }
+    }
+  }
 }
 
 // web::json::value LicenseExtractor::make_request_message() {
@@ -105,29 +130,3 @@ LicenseExtractor::make_client_config(const int64_t &attempt) {
 //  message[U("mac")] = web::json::value::string(mac);
 //  return message;
 //}
-
-web::http::http_response LicenseExtractor::send_request() {
-  const std::chrono::seconds time_try_connection_{attempt_};
-
-  //???
-  // const web::json::value message = make_request_message();
-  //
-
-  TRACE_LOG(message_.serialize().c_str());
-  web::http::http_request request(web::http::methods::POST);
-  request.set_body(message_.serialize(),
-                   web::http::details::mime_types::application_json);
-  auto start = std::chrono::steady_clock::now();
-  for (;;) {
-    try {
-      return client_.request(request).get();
-      break;
-    } catch (web::http::http_exception &ex) {
-      ucout << ex.error_code().value() << std::endl; // error code = 12029
-      if (std::chrono::steady_clock::now() > (start + time_try_connection_)) {
-        ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
-        std::throw_with_nested(std::runtime_error(ex.what()));
-      }
-    }
-  }
-}

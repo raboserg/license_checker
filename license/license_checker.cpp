@@ -31,20 +31,26 @@ bool LicenseChecker::verify_license_file() {
 }
 
 utility::string_t LicenseChecker::generate_machine_uid() {
-  const utility::string_t line =
+  utility::string_t line =
       run_proc(lic::license_helper::make_machine_uid_cmd());
   if (line.empty()) {
     throw std::runtime_error("does not make file by lic");
   }
+  // delete carriage return
+	const size_t len = line.length();
+  if (len && (line.c_str()[len - 1] == 0x0D))
+    line.erase(len - 1);
+
   return line;
 }
 
 void LicenseChecker::save_license_to_file(const utility::string_t &license) {
   // save license to file
-  const std::unique_ptr<Parser> parser_ =
-      std::make_unique<Parser>(LIC_INI_FILE);
-  const utility::string_t lic_file_name =
-      parser_->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
+  /*const std::unique_ptr<Parser> parser_ =
+      std::make_unique<Parser>(LIC_INI_FILE);*/
+  
+	const utility::string_t lic_file_name =
+		PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
 
   utility::ofstream_t file(lic_file_name, std::ios::out);
   if (file.is_open()) {

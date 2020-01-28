@@ -26,12 +26,12 @@ class Notificator {
 public:
   Notificator(const _bstr_t name);
   virtual ~Notificator();
-  DWORD notification_wait(HANDLE hStopEven);
+  DWORD wait(HANDLE hStopEven);
   void set_cencel(const bool flag);
 
 private:
   void release();
-  std::tuple<BOOL, IWBSRVS, IWBOBJSINK> init_context();
+  std::tuple<BOOL, IWBSRVS, IWBOBJSINK> registration_event();
 
   const _bstr_t wql_query;
   const _bstr_t app_name;

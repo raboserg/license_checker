@@ -23,6 +23,9 @@ HRESULT __stdcall EventSink::Indicate(LONG lObjectCount,
   HRESULT hres = S_OK;
   BSTR strClassProp = SysAllocString(L"__CLASS");
   for (int i = 0; i < lObjectCount; i++) {
+
+
+
     printf("Event: openvpn is opening\n");
     OutputDebugString(L"Event: openvpn is opening");
     _variant_t varReturnValue;

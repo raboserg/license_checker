@@ -5,7 +5,7 @@
 void Work_Proc(void *arg) {
   HANDLE cencel_event = (HANDLE)arg;
   WinNT::Notificator notificator_(L"openvpn.exe");
-  notificator_.notification_wait(cencel_event);
+  notificator_.wait(cencel_event);
   _endthread();
 }
 

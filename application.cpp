@@ -72,10 +72,11 @@ static web::json::value make_request_message() {
       parser_->get_value(lic::config_keys::LICENSE_MAC);
   // generate machine uid
   const utility::string_t uid = licenseChecker_->generate_machine_uid();
+	ucout << uid << std::endl;
   INFO_LOG(uid.c_str());
   web::json::value message;
   message[U("unp")] = web::json::value::string(unp);
-  message[U("request")] = web::json::value::string(U("request"));
+  message[U("request")] = web::json::value::string(uid);
   message[U("mac")] = web::json::value::string(mac);
   return message;
 }

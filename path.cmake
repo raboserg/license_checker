@@ -36,8 +36,17 @@ elseif(CMAKE_HOST_UNIX)
         set(CMAKE_INCLUDE_PATH  "${VCPKG_DIR}/include")
     #endif()
     set(DEFAULT_UNIX_BOOST_DIR "~/projects/library/boost_1_72_0")
-    set(DEFAULT_UNIX_LIBP7_DIR "~/projects/library/libP7Client")
+    
+	set(DEFAULT_UNIX_LIBP7_DIR "~/projects/library/libP7Client")
     set(DEFAULT_LIBP7_INCLUDE_DIR ${DEFAULT_UNIX_LIBP7_DIR}/Headers)
+	
+	set(OPENSSL_LIBRARY_PATH "/home/user/projects/library/openssl")
+    set(OPENSSL_INCLUDE_PATH "/home/user/projects/library/openssl/include")
+	
+	set(CPPREST_DIR "/home/user/projects/library/casablanca")
+	set(CPPREST_INCLUDE_DIR "${CPPREST_DIR}/Release/include")
+	set(CPPREST_LIBRARY_DIR "${CPPREST_DIR}/build.debug/Release/Binaries")
+	
 endif()
 
 #set(DEFAULT_WIN_LOCAL_DIRECTORY "d:/work/local/")

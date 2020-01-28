@@ -43,13 +43,12 @@ elseif(CMAKE_HOST_UNIX)
     # cd /usr/local/lib
     # sudo ldconfig -n
     exec_program("ln -s ${P7_LIB} ${CMAKE_CURRENT_BINARY_DIR}/libP7.so.2")
-    set(OPENSSL_LIBRARY_PATH "/home/user/projects/library/openssl")
-    set(OPENSSL_INCLUDE_PATH "/home/user/projects/library/openssl/include")
+    #set(OPENSSL_LIBRARY_PATH "/home/user/projects/library/openssl")
+    #set(OPENSSL_INCLUDE_PATH "/home/user/projects/library/openssl/include")
     find_library(SSL_LIB ssl ${OPENSSL_LIBRARY_PATH})
     find_library(CRYPTO_LIB crypto ${OPENSSL_LIBRARY_PATH})
-    set(CPPREST_DIR "/home/user/projects/library/casablanca")
-    find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS "${CPPREST_DIR}/build.debug/Release/Binaries")
-    message("CPPREST_LIBCPPREST_LIBCPPREST_LIBCPPREST_LIBCPPREST_LIBCPPREST_LIBCPPREST_LIB = ${CPPREST_LIB}")
+    #set(CPPREST_DIR "/home/user/projects/library/casablanca")
+    find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS ${CPPREST_LIBRARY_DIR})
     set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH_})
     set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
 endif()
@@ -78,7 +77,11 @@ if(CMAKE_HOST_WIN32)
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST application.cpp ../tools/constants.cpp application.h stdafx.h)
     set(LINK_LIBS client license eventsink tracer pthread ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
-    set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools ${Boost_INCLUDE_DIRS} "${CPPREST_DIR}/Release/include" ${OPENSSL_INCLUDE_PATH} ${DEFAULT_LIBP7_INCLUDE_DIR})
+    set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools 
+		${Boost_INCLUDE_DIRS} 
+		${CPPREST_INCLUDE_DIR} 
+		${OPENSSL_INCLUDE_PATH} 
+		${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCES_LIST})
     add_subdirectory("event_sink_linux")
 

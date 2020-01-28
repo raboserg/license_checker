@@ -6,11 +6,11 @@ WinNT::Notificator::Notificator(const _bstr_t name)
 
 WinNT::Notificator ::~Notificator() { release(); };
 
-DWORD WinNT::Notificator::notification_wait(HANDLE hStopEvent) {
+DWORD WinNT::Notificator::wait(HANDLE hStopEvent) {
   BOOL result;
   WinNT::IWBSRVS pSvc;
   WinNT::IWBOBJSINK pStubSink;
-  std::tie(result, pSvc, pStubSink) = init_context();
+  std::tie(result, pSvc, pStubSink) = registration_event();
   if (result) {
     HRESULT hres = pSvc->ExecNotificationQueryAsync(
         _bstr_t("WQL"), wql_query_, WBEM_FLAG_SEND_STATUS, NULL, pStubSink);
@@ -29,7 +29,7 @@ DWORD WinNT::Notificator::notification_wait(HANDLE hStopEvent) {
 }
 
 std::tuple<BOOL, WinNT::IWBSRVS, WinNT::IWBOBJSINK>
-WinNT::Notificator::init_context() {
+WinNT::Notificator::registration_event() {
   HRESULT hres = CoInitializeEx(0, COINIT_MULTITHREADED);
   if (FAILED(hres)) {
     SvcDebugOut(TEXT("Failed to initialize COM library. Error code = = 0x%X"),

@@ -119,7 +119,7 @@ unsigned WINAPI Working_Proc(void *lpParameter) {
   OutputDebugString(TEXT("Working_Proc() created!\n"));
   int nThreadNum = reinterpret_cast<int>(lpParameter);
   Notificator notificator_(L"openvpn.exe");
-  notificator_.notification_wait(hStopEvent);
+  notificator_.wait(hStopEvent);
   _endthreadex(0);
   return 0;
 }
