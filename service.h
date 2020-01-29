@@ -115,7 +115,7 @@ void WINAPI Service_Ctrl(DWORD dwCtrlCode) {
 
 // Thread procedure for all five worker threads...
 unsigned WINAPI Working_Proc(void *lpParameter) {
-  //TCHAR szOutput[25];
+  // TCHAR szOutput[25];
   OutputDebugString(TEXT("Working_Proc() created!\n"));
   int nThreadNum = reinterpret_cast<int>(lpParameter);
   Notificator notificator_(L"openvpn.exe");
@@ -149,6 +149,49 @@ void SetTheServiceStatus(DWORD dwCurrentState, DWORD dwWin32ExitCode,
   else
     printf("SetServiceStatus() looks OK.\n");
   return;
+}
+
+// Installs a service in the SCM database
+void SvcInstall(void) {
+  SC_HANDLE schSCManager;
+  SC_HANDLE schService;
+  WCHAR szPath[MAX_PATH];
+  if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
+    wprintf(L"Cannot install service, error %u\n", GetLastError());
+    return;
+  } else
+    wprintf(L"Service was installed successfully!\n");
+  // Get a handle to the SCM database
+  schSCManager = OpenSCManager(NULL, // local computer
+                               NULL, // ServicesActive database
+                               SC_MANAGER_ALL_ACCESS); // full access rights
+  if (schSCManager == NULL) {
+    wprintf(L"OpenSCManager() failed, error %u\n", GetLastError());
+    return;
+  } else
+    wprintf(L"OpenSCManager() is pretty fine!\n");
+  // Create the service
+  schService = CreateService(schSCManager,       // SCM database
+                             SERVICE_NAME,       // name of service
+                             SERVICE_NAME,       // service name to display
+                             SERVICE_ALL_ACCESS, // desired access
+                             SERVICE_INTERACTIVE_PROCESS, // service type
+                             SERVICE_DEMAND_START,        // start type
+                             SERVICE_ERROR_NORMAL,        // error control type
+                             szPath, // path to service's binary
+                             NULL,   // no load ordering group
+                             NULL,   // no tag identifier
+                             NULL,   // no dependencies
+                             NULL,   // LocalSystem account
+                             NULL);  // no password
+  if (schService == NULL) {
+    wprintf(L"CreateService() failed, error %u\n", GetLastError());
+    CloseServiceHandle(schSCManager);
+    return;
+  } else
+    wprintf(L"CreateService() is pretty fine!\n");
+  CloseServiceHandle(schService);
+  CloseServiceHandle(schSCManager);
 }
 
 //  Handle API errors or other problems by ending the service and

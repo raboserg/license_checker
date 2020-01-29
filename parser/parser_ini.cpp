@@ -31,6 +31,12 @@ void Parser::create_root(const utility::string_t &file_name) {
 
 Parser::Parser()
 	: file_name_(std::move(LIC_INI_FILE)) {
+#ifdef _WIN32
+	WCHAR szPath[MAX_PATH];
+	if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
+		wprintf(L"Cannot install service, error %u\n", GetLastError());
+	}
+#endif
 	create_root(file_name_);
 }
 
