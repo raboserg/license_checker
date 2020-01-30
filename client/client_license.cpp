@@ -15,7 +15,10 @@ utility::string_t LicenseExtractor::receive_license() {
   ucout << response.to_string() << std::endl;
   if (response.status_code() == web::http::status_codes::OK) {
     response.content_ready().wait();
-    web::json::value json_value = response.extract_json().get();
+		web::http::http_headers headers= response.headers();
+		const utility::string_t content_type = headers[web::http::header_names::content_type];
+		//text/html;charset=UTF-8
+		web::json::value json_value = response.extract_json().get();
     if (!json_value[U("hostStatus")].is_null()) {
       const web::json::object host_status =
           json_value[U("hostStatus")].as_object();

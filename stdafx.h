@@ -11,7 +11,8 @@
 #include <cpprest/details/basic_types.h>
 
 #ifdef _WIN32
-#include "service.h"
+//#include "service.h"
+#include <manager.h>
 #else
 #include "notificator_linux.h"
 #endif

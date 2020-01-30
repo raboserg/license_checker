@@ -1,0 +1,57 @@
+#pragma once
+
+#include "ace/config-lite.h"
+
+#if defined(ACE_WIN32) && !defined(ACE_LACKS_WIN32_SERVICES)
+
+#include "ace/Event_Handler.h"
+#include "ace/Mutex.h"
+#include "ace/NT_Service.h"
+#include "ace/Singleton.h"
+#include "ace/Reactor.h"
+#include "ace/WFMO_Reactor.h"
+
+#include "notificator.h"
+
+class Service : public ACE_NT_Service {
+public:
+  Service(void);
+
+  ~Service(void);
+
+	int open(void *args);
+
+  /// We override <handle_control> because it handles stop requests
+  /// privately.
+  virtual void handle_control(DWORD control_code);
+
+	/// Handle events being signaled by the main thread.
+	int handle_signal(int signum, siginfo_t * = 0, ucontext_t * = 0);
+
+  /// We override <handle_exception> so a 'stop' control code can pop
+  /// the reactor off of its wait.
+  virtual int handle_exception(ACE_HANDLE h);
+
+  /// This is a virtual method inherited from ACE_NT_Service.
+  virtual int svc(void);
+
+  /// Where the real work is done:
+  virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg = 0);
+
+private:
+  typedef ACE_NT_Service inherited;
+
+private:
+  int stop_;
+	std::shared_ptr<ACE_Auto_Event> event_;
+	std::shared_ptr<WinNT::Notificator> notificator_;
+};
+
+// Define a singleton class as a way to insure that there's only one
+// Service instance in the program, and to protect against access from
+// multiple threads.  The first reference to it at runtime creates it,
+// and the ACE_Object_Manager deletes it at run-down.
+
+typedef ACE_Singleton<Service, ACE_Mutex> SERVICE;
+
+#endif /* ACE_WIN32 && !ACE_LACKS_WIN32_SERVICES */

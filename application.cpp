@@ -69,33 +69,41 @@ static web::json::value make_request_message() {
       parser_->get_value(lic::config_keys::LICENSE_UNP);
   // get mac
   const utility::string_t mac =
-      parser_->get_value(lic::config_keys::LICENSE_MAC);
+      parser_->get_value(lic::config_keys::LICENSE_AGENT_ID);
   // generate machine uid
   const utility::string_t uid = licenseChecker_->generate_machine_uid();
-	ucout << uid << std::endl;
+  ucout << uid << std::endl;
   INFO_LOG(uid.c_str());
   web::json::value message;
   message[U("unp")] = web::json::value::string(unp);
   message[U("request")] = web::json::value::string(uid);
-  message[U("mac")] = web::json::value::string(mac);
+  message[U("agentId")] = web::json::value::string(mac);
   return message;
 }
 
-int main(int argc, const char *argv[]) {
+int main(int argc, char *argv[]) {
 
   setlocale(LC_ALL, "ru_RU.UTF-8");
   signal(SIGSEGV, posix_death_signal);
+
+#ifdef _WIN32
+	return PROCESS::instance()->run(argc, argv);
+#else
+	LinuxNoficitator linuxNoficitator_;
+	linuxNoficitator_.run_notify(argc, argv);
+
+#endif
+
 
   const std::unique_ptr<LicenseChecker> licenseChecker_ =
       std::make_unique<LicenseChecker>();
 
   try {
+    const web::http::uri address_ =
+        PARSER::instance()->get_value(lic::config_keys::LICENSE_SRV_URI);
 
-		const web::http::uri address_ =
-			PARSER::instance()->get_value(lic::config_keys::LICENSE_SRV_URI);
-
-		const std::unique_ptr<LicenseExtractor> licenseExtractor_ =
-			std::make_unique<LicenseExtractor>(address_, make_request_message(), 5);
+    const std::unique_ptr<LicenseExtractor> licenseExtractor_ =
+        std::make_unique<LicenseExtractor>(address_, make_request_message(), 5);
 
     utility::string_t lic = licenseExtractor_->receive_license();
     if (!lic.empty()) {
@@ -104,16 +112,12 @@ int main(int argc, const char *argv[]) {
   } catch (const std::runtime_error &err) {
     ERROR_LOG(utility::conversions::to_string_t(err.what()).c_str());
     raise(SIGSEGV);
+  } catch (web::http::http_exception &ex) {
+    ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+    raise(SIGSEGV);
   }
 
   // lic::os_utilities::sleep(1000);
-#ifdef _WIN32
-  WinNT::Start_Service();
-#else
-  LinuxNoficitator linuxNoficitator_;
-  linuxNoficitator_.run_notify(argc, argv);
-
-#endif
   ucout << input_handle();
   return 0;
 }
