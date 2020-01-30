@@ -87,13 +87,11 @@ int main(int argc, char *argv[]) {
   signal(SIGSEGV, posix_death_signal);
 
 #ifdef _WIN32
-	return PROCESS::instance()->run(argc, argv);
+  return PROCESS::instance()->run(argc, argv);
 #else
-	LinuxNoficitator linuxNoficitator_;
-	linuxNoficitator_.run_notify(argc, argv);
-
+  LinuxNoficitator linuxNoficitator_;
+  linuxNoficitator_.run_notify(argc, argv);
 #endif
-
 
   const std::unique_ptr<LicenseChecker> licenseChecker_ =
       std::make_unique<LicenseChecker>();

@@ -11,7 +11,7 @@ endif()
 if(DEFINED VCPKG_TARGET_TRIPLET)
   set(VCPKG_DIR "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")
 elseif(NOT DEFINED VCPKG_TARGET_TRIPLET)
-    message(WARNING "need to define VCPKG_TARGET_TRIPLET variabe")
+    #message(WARNING "need to define VCPKG_TARGET_TRIPLET variabe")
     if(CMAKE_HOST_WIN32)
         set(VCPKG_TARGET_TRIPLET "x64-windows")
     elseif(CMAKE_HOST_UNIX)
@@ -45,7 +45,11 @@ elseif(CMAKE_HOST_UNIX)
 	
 	set(CPPREST_DIR "/home/user/projects/library/casablanca")
 	set(CPPREST_INCLUDE_DIR "${CPPREST_DIR}/Release/include")
-	set(CPPREST_LIBRARY_DIR "${CPPREST_DIR}/build.debug/Release/Binaries")
+    set(CPPREST_LIBRARY_DIR "${CPPREST_DIR}/build.debug/Release/Binaries")
+    
+    set(ACE_ROOT "/projects/ACE_wrappers")
+    set(ACE_INCLUDE_DIR ${ACE_ROOT})
+    set(ACE_LIBRARY_DIR "${ACE_ROOT}/lib")
 	
 endif()
 

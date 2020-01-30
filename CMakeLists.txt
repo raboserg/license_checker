@@ -28,15 +28,14 @@ endif()
 
 if(CMAKE_HOST_WIN32)
     
-	set(ACE_ROOT ${VCPKG_DIR})
-    set(ACE_INCLUDE_DIR "${ACE_ROOT}/include")
-    set(ACE_LIBRARY_DIR "${ACE_ROOT}/Debug/lib")
+#    set(ACE_ROOT ${VCPKG_DIR})
+#    set(ACE_INCLUDE_DIR "${ACE_ROOT}/include")
+#    set(ACE_LIBRARY_DIR "${ACE_ROOT}/Debug/lib")
 
-	find_package(Boost 1.71.0 COMPONENTS filesystem REQUIRED)
+    find_package(Boost 1.71.0 COMPONENTS filesystem REQUIRED)
     find_library(P7_LIB NAMES P7x64d.dll)
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME})
-	find_library(ACE NAMES aced HINTS ${ACE_LIBRARY_DIR})
-
+    find_library(ACE NAMES aced HINTS ${ACE_LIBRARY_DIR})
 elseif(CMAKE_HOST_UNIX)
     set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
     set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
@@ -78,38 +77,35 @@ add_subdirectory("parser")
 add_subdirectory("tracer")
 
 if(CMAKE_HOST_WIN32)
-	
-	add_subdirectory("nt_service")
-
+    add_subdirectory("nt_service")
     set(SOURCE_LIST application.cpp application.h ./tools/constants.cpp stdafx.h)
     set(LINK_LIBS client license tracer NT_Service ${ACE} ${P7_LIB} ${Boost_LIBRARIES} runtimeobject)
-    set(INCLUDE_DIRS client license event_sink_win tracer tools nt_service ${Boost_INCLUDE_DIRS} ${DEFAULT_LIBP7_INCLUDE_DIR})
+    set(INCLUDE_DIRS client license event_sink_win tracer tools nt_service
+        ${Boost_INCLUDE_DIRS}
+        ${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCE_LIST})
     target_compile_definitions(${PROJECT_NAME} PRIVATE -D_WIN32_WINNT=0x0601 -D_WINSOCK_DEPRECATED_NO_WARNINGS)
     #add_subdirectory("event_sink_win")
-
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS})
     target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST application.cpp ../tools/constants.cpp application.h stdafx.h)
     set(LINK_LIBS client license eventsink tracer pthread ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
     set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools
-		${Boost_INCLUDE_DIRS} 
-		${CPPREST_INCLUDE_DIR} 
-		${OPENSSL_INCLUDE_PATH} 
-		${DEFAULT_LIBP7_INCLUDE_DIR})
+        ${Boost_INCLUDE_DIRS}
+        ${CPPREST_INCLUDE_DIR}
+        ${OPENSSL_INCLUDE_PATH}
+        ${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCES_LIST})
     add_subdirectory("event_sink_linux")
-
     set(DEPRECATION_FLAG "-Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DEPRECATION_FLAG}")
-
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS} ${P7_LIB} )
     target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 endif()
 
 if(CMAKE_HOST_WIN32)
-	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/lic_check_w.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/lic_check_w.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 elseif(CMAKE_HOST_UNIX)
-	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/lic_check_l.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/lic_check_l.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()

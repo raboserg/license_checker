@@ -6,7 +6,6 @@ const utility::string_t LIC_INI_FILE = U("lic_check_w.ini");
 const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
 #endif
 
-
 void Parser::create_root(const utility::string_t &file_name) {
   utility::ifstream_t file(file_name, std::ios::in);
   if (!file.is_open()) {
@@ -15,7 +14,7 @@ void Parser::create_root(const utility::string_t &file_name) {
             .append(utility::conversions::to_utf8string(file_name)));
     ERROR_LOG(utility::conversions::to_string_t(error_msg).c_str());
     throw std::runtime_error(error_msg); // exeption in constructor ???
-  } else { // skip BOM
+  } else {                               // skip BOM
     unsigned char buffer[8];
     buffer[0] = 255;
     while (file.good() && buffer[0] > 127)
@@ -28,16 +27,14 @@ void Parser::create_root(const utility::string_t &file_name) {
   }
 }
 
-
-Parser::Parser()
-	: file_name_(std::move(LIC_INI_FILE)) {
+Parser::Parser() : file_name_(std::move(LIC_INI_FILE)) {
 #ifdef _WIN32
-	WCHAR szPath[MAX_PATH];
-	if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
-		wprintf(L"Cannot install service, error %u\n", GetLastError());
-	}
+  WCHAR szPath[MAX_PATH];
+  if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
+    wprintf(L"Cannot install service, error %u\n", GetLastError());
+  }
 #endif
-	create_root(file_name_);
+  create_root(file_name_);
 }
 
 Parser::Parser(const utility::string_t &file_name)
