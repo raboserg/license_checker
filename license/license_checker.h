@@ -2,11 +2,10 @@
 #ifndef LICENSE_CHECKER_H
 #define LICENSE_CHECKER_H
 
-#include <parser_ini.h>
+//#include <parser_ini.h>
 #include <boost/process.hpp>
 #include <cpprest/asyncrt_utils.h>
 #include <cpprest/details/basic_types.h>
-#include <license_helper.h>
 #include <tracer.h>
 
 namespace bp = boost::process;

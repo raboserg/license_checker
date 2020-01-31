@@ -10,7 +10,7 @@
 #include "ace/Singleton.h"
 #include "ace/Reactor.h"
 #include "ace/WFMO_Reactor.h"
-
+#include "worker_task.h"
 #include "notificator.h"
 
 class Service : public ACE_NT_Service {
@@ -19,7 +19,9 @@ public:
 
   ~Service(void);
 
-	int open(void *args);
+	//???int open(void *args);
+
+	virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
 
   /// We override <handle_control> because it handles stop requests
   /// privately.

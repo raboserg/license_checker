@@ -13,7 +13,8 @@ LicenseExtractor::LicenseExtractor(const web::http::uri &address,
 utility::string_t LicenseExtractor::receive_license() {
   const web::http::http_response response = send_request();
   ucout << response.to_string() << std::endl;
-  if (response.status_code() == web::http::status_codes::OK) {
+	utility::string_t license;
+	if (response.status_code() == web::http::status_codes::OK) {
     response.content_ready().wait();
 		web::http::http_headers headers= response.headers();
 		const utility::string_t content_type = headers[web::http::header_names::content_type];
@@ -25,10 +26,9 @@ utility::string_t LicenseExtractor::receive_license() {
       const int host_state = host_status.at(U("id")).as_integer();
       const utility::string_t host_state_name =
           host_status.at(U("name")).as_string();
-      if (lic::host_states::ACTIVE == host_state) {
+			if (lic::host_states::ACTIVE == host_state) {
         TRACE_LOG(host_state_name.c_str());
         web::json::array licenses = json_value[U("hostLicenses")].as_array();
-        utility::string_t license;
         const size_t size = licenses.size();
         if (!(size == 0)) {
           web::json::value license_item = licenses[licenses.size() - 1];
@@ -39,8 +39,8 @@ utility::string_t LicenseExtractor::receive_license() {
                                         U("; lic: ") + license);
           TRACE_LOG(license_msg.c_str());
         }
-        return license;
       }
+			return license;
     }
   } else {
     processing_errors(response);

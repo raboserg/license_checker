@@ -1,5 +1,6 @@
 ﻿#include "eventsink.h"
 #include "tracer.h"
+#include "worker_task.h"
 
 ULONG __stdcall EventSink::AddRef() { return InterlockedIncrement(&m_lRef); }
 
@@ -24,13 +25,22 @@ HRESULT __stdcall EventSink::Indicate(LONG lObjectCount,
   HRESULT hres = S_OK;
   BSTR strClassProp = SysAllocString(L"__CLASS");
   for (int i = 0; i < lObjectCount; i++) {
-    //printf("Event: openvpn is opening\n");
-		
-		sink_event_->signal();
-		TRACE_LOG(TM("Event: openvpn is opening...\n"));
-		ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t): Event: openvpn is opening...\n")));
-		
-    //OutputDebugString(L"Event: openvpn is opening");
+    // printf("Event: openvpn is opening\n");
+
+    sink_event_->signal();
+
+    ACE_Message_Block *mblk = 0;
+    ACE_Message_Block *log_blk = 0;
+    ACE_NEW_RETURN(log_blk, ACE_Message_Block(reinterpret_cast<char *>(this)),
+                   -1);
+    log_blk->cont(mblk);
+
+    LICENSE_WORKER_TASK::instance()->put(log_blk);
+
+    TRACE_LOG(TM("Event: openvpn is opening...\n"));
+    ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t): Event: openvpn is opening...\n")));
+
+    // OutputDebugString(L"Event: openvpn is opening");
     _variant_t varReturnValue;
     hres = (*apObjArray)->Get(strClassProp, 0, &varReturnValue, NULL, 0);
     BSTR dsfdsf = varReturnValue.bstrVal;

@@ -27,11 +27,6 @@ elseif(CMAKE_HOST_UNIX)
 endif()
 
 if(CMAKE_HOST_WIN32)
-    
-#    set(ACE_ROOT ${VCPKG_DIR})
-#    set(ACE_INCLUDE_DIR "${ACE_ROOT}/include")
-#    set(ACE_LIBRARY_DIR "${ACE_ROOT}/Debug/lib")
-
     find_package(Boost 1.71.0 COMPONENTS filesystem REQUIRED)
     find_library(P7_LIB NAMES P7x64d.dll)
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME})

@@ -3,7 +3,6 @@
 #include "eventsink.h"
 #include <ace/Auto_Event.h>
 #include <strsafe.h>
-#include <tuple>
 
 static const _bstr_t applicationName = "openvpn.exe";
 

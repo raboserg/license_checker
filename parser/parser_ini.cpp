@@ -27,7 +27,7 @@ void Parser::create_root(const utility::string_t &file_name) {
   }
 }
 
-Parser::Parser() : file_name_(std::move(LIC_INI_FILE)) {
+Parser::Parser() : file_name_(LIC_INI_FILE) {
 #ifdef _WIN32
   WCHAR szPath[MAX_PATH];
   if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
@@ -37,8 +37,7 @@ Parser::Parser() : file_name_(std::move(LIC_INI_FILE)) {
   create_root(file_name_);
 }
 
-Parser::Parser(const utility::string_t &file_name)
-    : file_name_(std::move(file_name)) {
+Parser::Parser(const utility::string_t &file_name) : file_name_(file_name) {
   create_root(file_name);
 }
 
