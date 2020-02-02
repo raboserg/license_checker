@@ -45,14 +45,14 @@ class LinuxNoficitator {
                               const size_t buffer_size);
   void event_process(const struct fanotify_event_metadata *event);
 
-  int initialize_fanotify(unsigned int numbers, const char **paths);
+  int initialize_fanotify(unsigned int numbers, char **paths);
 
   int fanotify_fd;
   unsigned int numbers;
 
 public:
   virtual ~LinuxNoficitator();
-  int run_notify(int argc, const char **argv);
+  int run_notify(int argc, char *argv[]);
   void shutdown_fanotify(const int numbers, const int fanotify_fd);
   static void srv_run(void *argc);
 };

@@ -75,8 +75,7 @@ void LinuxNoficitator::shutdown_fanotify(const int numbers,
   close(fanotify_fd);
 }
 
-int LinuxNoficitator::initialize_fanotify(unsigned int numbers,
-                                          const char **paths) {
+int LinuxNoficitator::initialize_fanotify(unsigned int numbers, char **paths) {
   const int fanotify_fd = fanotify_init(FAN_CLOEXEC, init_mask);
   /* Create new fanotify device */
   if (fanotify_fd < 0) {
@@ -101,7 +100,7 @@ int LinuxNoficitator::initialize_fanotify(unsigned int numbers,
   return fanotify_fd;
 }
 
-int LinuxNoficitator::run_notify(int argc, const char **argv) {
+int LinuxNoficitator::run_notify(int argc, char *argv[]) {
   // int fanotify_fd;
   struct pollfd fds[FD_POLL_MAX];
   /* Input arguments... */
