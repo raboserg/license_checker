@@ -1,7 +1,6 @@
 ﻿#include "license_checker.h"
 #include <license_helper.h>
 
-
 LicenseChecker::LicenseChecker() {}
 
 utility::string_t LicenseChecker::run_proc(const utility::string_t &command) {

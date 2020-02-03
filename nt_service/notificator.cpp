@@ -4,16 +4,17 @@
 
 WinNT::Notificator::Notificator()
     : app_name(applicationName), is_cencel(false) {
-  //Initialize();
-	DEBUG_LOG(TM("Notificator::Notificator()"));
+  // Initialize();
+  DEBUG_LOG(TM("Notificator::Notificator()"));
 }
 
 WinNT::Notificator::Notificator(const _bstr_t name)
     : app_name(name), is_cencel(false) {
-  //Initialize();
+  // Initialize();
 }
 
-WinNT::Notificator::~Notificator() { //Release();
+WinNT::Notificator::~Notificator(){
+    // Release();
 };
 
 int WinNT::Notificator::Register_Notification() {
@@ -54,7 +55,8 @@ int WinNT::Notificator::Create_IWbemServices() {
   return 0;
 }
 
-int WinNT::Notificator::Create_IWbemObjectSink(const shared_ptr<ACE_Auto_Event> &sink_event) {
+int WinNT::Notificator::Create_IWbemObjectSink(
+    const shared_ptr<ACE_Auto_Event> &sink_event) {
   CComPtr<IUnsecuredApartment> pUnsecApp;
   HRESULT hres =
       CoCreateInstance(CLSID_UnsecuredApartment, NULL, CLSCTX_LOCAL_SERVER,
@@ -88,20 +90,21 @@ int WinNT::Notificator::Create_IWbemObjectSink(const shared_ptr<ACE_Auto_Event> 
   return 0;
 }
 
-int WinNT::Notificator::Initialize(const shared_ptr<ACE_Auto_Event> &sink_event) {
-  if (Init_Context())
+int WinNT::Notificator::Initialize(
+    const shared_ptr<ACE_Auto_Event> &sink_event) {
+  if (Init_Context() == -1)
     return -1;
-  if (Create_IWbemServices())
+  if (Create_IWbemServices() == -1)
     return -1;
-  if (Create_IWbemObjectSink(sink_event))
+  if (Create_IWbemObjectSink(sink_event) == -1)
     return -1;
-  if (Register_Notification())
+  if (Register_Notification() == -1)
     return -1;
   return 0;
 }
 
 int WinNT::Notificator::Init_Context() {
-	HRESULT hres = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
+  HRESULT hres = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
   if (FAILED(hres)) {
     SvcDebugOut(
         TEXT("Failed to Windows::Foundation::Initialize. Error code = = 0x%X"),
@@ -113,12 +116,12 @@ int WinNT::Notificator::Init_Context() {
       CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
                            RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
   if (FAILED(hres)) {
-		Windows::Foundation::Uninitialize();
+    Windows::Foundation::Uninitialize();
     SvcDebugOut(TEXT("Failed to initialize security. Error code = 0x%X"), hres);
     return -1;
   }
 
-	TRACE_LOG(TM("Notificator::Init_Context"));
+  TRACE_LOG(TM("Notificator::Init_Context"));
 
   return 0;
 }
@@ -129,7 +132,7 @@ void WinNT::Notificator::Release() {
   service_->CancelAsyncCall(stub_sink_);
   service_->Release();
   stub_sink_->Release();
-	Windows::Foundation::Uninitialize();
+  Windows::Foundation::Uninitialize();
   cout << "release" << endl;
 }
 

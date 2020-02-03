@@ -27,18 +27,20 @@ utility::string_t LicenseExtractor::receive_license() {
       const utility::string_t host_state_name =
           host_status.at(U("name")).as_string();
 			if (lic::host_states::ACTIVE == host_state) {
-        TRACE_LOG(host_state_name.c_str());
-        web::json::array licenses = json_value[U("hostLicenses")].as_array();
-        const size_t size = licenses.size();
-        if (!(size == 0)) {
-          web::json::value license_item = licenses[licenses.size() - 1];
-          license = license_item[U("license")].as_string();
-          const utility::string_t license_exp_date =
-              license_item[U("licenseExpirationDate")].as_string();
-          utility::string_t license_msg(U("data: ") + license_exp_date +
-                                        U("; lic: ") + license);
-          TRACE_LOG(license_msg.c_str());
-        }
+				if (!json_value[U("hostLicenses")].is_null()) {
+					TRACE_LOG(host_state_name.c_str());
+					web::json::array licenses = json_value[U("hostLicenses")].as_array();
+					const size_t size = licenses.size();
+					if (!(size == 0)) {
+						web::json::value license_item = licenses[licenses.size() - 1];
+						license = license_item[U("license")].as_string();
+						const utility::string_t license_exp_date =
+							license_item[U("licenseExpirationDate")].as_string();
+						utility::string_t license_msg(U("data: ") + license_exp_date +
+							U("; lic: ") + license);
+						TRACE_LOG(license_msg.c_str());
+					}
+				}
       }
 			return license;
     }
