@@ -14,7 +14,8 @@ find_library(ACE NAMES ${ACE_LIB_NAME} HINTS ${ACE_LIBRARY_DIR})
 add_library(NT_Service STATIC initializer.cpp initializer.h 
 	ntsvc.cpp ntsvc.h 
 	notificator.cpp notificator.h 
-	eventsink.cpp eventsink.h worker_task.cpp worker_task.h)
+	eventsink.cpp eventsink.h worker_task.cpp worker_task.h
+	get_task.cpp get_task.h)
 
 target_link_libraries(NT_Service PUBLIC ${ACE})
 target_include_directories(NT_Service PUBLIC ../tracer ../tools ../client ../license ../parser ${ACE_INCLUDE_DIR} ${DEFAULT_LIBP7_INCLUDE_DIR})

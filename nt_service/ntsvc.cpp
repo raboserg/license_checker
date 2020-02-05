@@ -21,6 +21,7 @@ Service::~Service(void) {
 
 int Service::handle_close(ACE_HANDLE, ACE_Reactor_Mask) {
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t): Service::handle_close #####\n")));
+	reactor()->end_reactor_event_loop();
   return 0;
 }
 // This method is called when the service gets a control request.  It
@@ -42,9 +43,6 @@ void Service::handle_control(DWORD control_code) {
 int Service::handle_signal(int, siginfo_t *siginfo, ucontext_t *) {
   DEBUG_LOG(TM("Service::handle_signal..."));
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t): Service::handle_signal...\n")));
-
-
-
   return 0;
 }
 
@@ -55,9 +53,6 @@ int Service::handle_exception(ACE_HANDLE) {
   ACE_DEBUG(
       (LM_DEBUG, ACE_TEXT("int Service::handle_exception(ACE_HANDLE)\n")));
   DEBUG_LOG(TM("int Service::handle_exception(ACE_HANDLE)"));
-  
-	reactor()->end_reactor_event_loop();
-
   return -1;
 }
 
@@ -83,7 +78,13 @@ int Service::svc(void) {
   if (report_status(SERVICE_RUNNING) == 0)
     reactor()->owner(ACE_Thread::self());
 
-  if (this->reactor()->register_handler(this, event_->handle()) == -1) {
+	Get_Task_T *get_task_ = new Get_Task_T(ACE_Thread_Manager::instance(), 1);
+	//std::unique_ptr< Get_Task_T> get_task_(new Get_Task_T(ACE_Thread_Manager::instance(), 1));
+
+	ACE_Time_Value tv1(5, 0);
+	ACE_Reactor::instance()->schedule_timer(get_task_, 0, tv1, tv1);
+
+	if (this->reactor()->register_handler(this, event_->handle()) == -1) {
     ACE_ERROR((LM_ERROR, "%p\t cannot register handle with Reactor\n",
                "Service::svc"));
     ERROR_LOG(TM("cannot register handle with Reactor"));
@@ -93,7 +94,7 @@ int Service::svc(void) {
 
   // Schedule a timer every two seconds.
   ACE_Time_Value tv(2, 0);
-  ACE_Reactor::instance()->schedule_timer(this, 0, tv, tv);
+  ACE_Reactor::instance()->schedule_timer(this, 0, tv, tv); 
 
 	this->notificator_->Initialize(this->event_);
 
@@ -113,7 +114,7 @@ int Service::svc(void) {
 
   reactor()->cancel_timer(this);
 
-  return 0;
+	return 0;
 }
 
 #endif /* ACE_WIN32 && !ACE_LACKS_WIN32_SERVICES */
