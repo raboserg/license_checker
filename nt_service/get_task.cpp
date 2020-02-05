@@ -27,12 +27,19 @@ int Get_Task_T::handle_timeout(const ACE_Time_Value &tv, const void *) {
   return 0;
 }
 
+int Get_Task_T::handle_exception(ACE_HANDLE) {
+	ACE_DEBUG(
+		(LM_DEBUG, ACE_TEXT("Get_Task_T::handle_exception(ACE_HANDLE)\n")));
+	this->stop_ = 1;
+	return -1;
+}
+
 int Get_Task_T::svc() {
   ACE_DEBUG((LM_INFO, ACE_TEXT("(%P|%t) task started\n")));
 
   while (!this->stop_) {
     signal_.wait();
-    ACE_DEBUG((LM_INFO, ACE_TEXT("(%P|%t) task finished\n")));
+    ACE_DEBUG((LM_INFO, ACE_TEXT("(%P|%t) task running\n")));
   }
   /*if (this->n) {
                                   }

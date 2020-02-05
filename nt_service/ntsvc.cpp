@@ -7,21 +7,24 @@
 Service::Service(void) : event_(std::make_shared<ACE_Auto_Event>()) {
   this->svc_status_.dwServiceType =
       SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS;
-	// Remember the Reactor instance.
+  // Remember the Reactor instance.
   reactor(ACE_Reactor::instance());
-	notificator_ = std::make_shared<WinNT::Notificator>();
+  notificator_ = std::make_shared<WinNT::Notificator>();
+  get_task_ = new Get_Task_T(ACE_Thread_Manager::instance(), 1);
   DEBUG_LOG(TM("Service::Service(void) "));
 }
 
 Service::~Service(void) {
   if (ACE_Reactor::instance()->cancel_timer(this) == -1)
     ACE_ERROR((LM_ERROR, "Service::~Service failed to cancel_timer.\n"));
+
+  delete get_task_;
   DEBUG_LOG(TM("Service::~Service failed to cancel_timer"));
 }
 
 int Service::handle_close(ACE_HANDLE, ACE_Reactor_Mask) {
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t): Service::handle_close #####\n")));
-	reactor()->end_reactor_event_loop();
+  reactor()->end_reactor_event_loop();
   return 0;
 }
 // This method is called when the service gets a control request.  It
@@ -36,6 +39,7 @@ void Service::handle_control(DWORD control_code) {
     DEBUG_LOG(TM("Service control stop requested"));
     stop_ = 1;
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
+    //???reactor()->notify(this->get_task_, ACE_Event_Handler::EXCEPT_MASK);
   } else
     inherited::handle_control(control_code);
 }
@@ -78,13 +82,10 @@ int Service::svc(void) {
   if (report_status(SERVICE_RUNNING) == 0)
     reactor()->owner(ACE_Thread::self());
 
-	Get_Task_T *get_task_ = new Get_Task_T(ACE_Thread_Manager::instance(), 1);
-	//std::unique_ptr< Get_Task_T> get_task_(new Get_Task_T(ACE_Thread_Manager::instance(), 1));
+  ACE_Time_Value tv1(5, 0);
+  ACE_Reactor::instance()->schedule_timer(get_task_, 0, tv1, tv1);
 
-	ACE_Time_Value tv1(5, 0);
-	ACE_Reactor::instance()->schedule_timer(get_task_, 0, tv1, tv1);
-
-	if (this->reactor()->register_handler(this, event_->handle()) == -1) {
+  if (this->reactor()->register_handler(this, event_->handle()) == -1) {
     ACE_ERROR((LM_ERROR, "%p\t cannot register handle with Reactor\n",
                "Service::svc"));
     ERROR_LOG(TM("cannot register handle with Reactor"));
@@ -94,13 +95,13 @@ int Service::svc(void) {
 
   // Schedule a timer every two seconds.
   ACE_Time_Value tv(2, 0);
-  ACE_Reactor::instance()->schedule_timer(this, 0, tv, tv); 
+  ACE_Reactor::instance()->schedule_timer(this, 0, tv, tv);
 
-	this->notificator_->Initialize(this->event_);
+  this->notificator_->Initialize(this->event_);
 
   // while (!this->stop_)reactor()->handle_events();
 
-	LICENSE_WORKER_TASK::instance()->open();
+  LICENSE_WORKER_TASK::instance()->open();
 
   reactor()->run_reactor_event_loop();
 
@@ -114,7 +115,7 @@ int Service::svc(void) {
 
   reactor()->cancel_timer(this);
 
-	return 0;
+  return 0;
 }
 
 #endif /* ACE_WIN32 && !ACE_LACKS_WIN32_SERVICES */
