@@ -1,12 +1,16 @@
-#include "worker_task.h"
+#include "event_sink_task.h"
 #define BOOST_NO_CXX11_DECLTYPE
 #include "client_license.h"
 #include "license_helper.h"
 
-int License_Worker_Task::svc() {
+EventSink_Task::EventSink_Task() {
+	this->open();
+}
+
+int EventSink_Task::svc() {
 
   for (ACE_Message_Block *log_blk; getq(log_blk) != -1;) {
-    ACE_DEBUG((LM_DEBUG, ACE_TEXT("License_Worker_Task::svc()\n")));
+    ACE_DEBUG((LM_DEBUG, ACE_TEXT("EventSink_Task::svc()\n")));
 
     const std::unique_ptr<LicenseChecker> licenseChecker_ =
         std::make_unique<LicenseChecker>();
@@ -39,5 +43,5 @@ int License_Worker_Task::svc() {
   return 0;
 }
 
-typedef ACE_Unmanaged_Singleton<License_Worker_Task, ACE_Null_Mutex>
+typedef ACE_Unmanaged_Singleton<EventSink_Task, ACE_Null_Mutex>
     LICENSE_WORKER_TASK;

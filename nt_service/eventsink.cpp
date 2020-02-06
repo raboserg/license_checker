@@ -1,6 +1,6 @@
 ﻿#include "eventsink.h"
 #include "tracer.h"
-#include "worker_task.h"
+#include "event_sink_task.h"
 
 ULONG __stdcall EventSink::AddRef() { return InterlockedIncrement(&m_lRef); }
 
@@ -26,8 +26,6 @@ HRESULT __stdcall EventSink::Indicate(LONG lObjectCount,
   BSTR strClassProp = SysAllocString(L"__CLASS");
   for (int i = 0; i < lObjectCount; i++) {
     // printf("Event: openvpn is opening\n");
-
-    sink_event_->signal();
 
     ACE_Message_Block *mblk = 0;
     ACE_Message_Block *log_blk = 0;

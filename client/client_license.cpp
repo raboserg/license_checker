@@ -114,24 +114,3 @@ web::http::http_response LicenseExtractor::send_request() {
     }
   }
 }
-
-// web::json::value LicenseExtractor::make_request_message() {
-//  const std::unique_ptr<Parser> parser_ =
-//      std::make_unique<Parser>(LIC_INI_FILE);
-//  const std::unique_ptr<LicenseChecker> licenseChecker_ =
-//      std::make_unique<LicenseChecker>();
-//  // get unp
-//  const utility::string_t unp =
-//      parser_->get_value(lic::config_keys::LICENSE_UNP);
-//  // get mac
-//  const utility::string_t mac =
-//      parser_->get_value(lic::config_keys::LICENSE_MAC);
-//  // generate machine uid
-//  const utility::string_t uid = licenseChecker_->generate_machine_uid();
-//  INFO_LOG(uid.c_str());
-//  web::json::value message;
-//  message[U("unp")] = web::json::value::string(unp);
-//  message[U("request")] = web::json::value::string(U("request"));
-//  message[U("mac")] = web::json::value::string(mac);
-//  return message;
-//}

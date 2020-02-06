@@ -10,10 +10,10 @@
 #include "ace/Singleton.h"
 #include "ace/Reactor.h"
 #include "ace/WFMO_Reactor.h"
-#include "worker_task.h"
+#include "event_sink_task.h"
 #include "notificator.h"
 
-#include "get_task.h"
+#include "get_license_task.h"
 
 
 class Service : public ACE_NT_Service {
@@ -59,8 +59,8 @@ private:
   int stop_;
 	std::shared_ptr<ACE_Auto_Event> event_;
 	std::shared_ptr<WinNT::Notificator> notificator_;
-
-	Get_Task_T *get_task_;
+	
+	Get_License_Task *get_task_;
 };
 
 // Define a singleton class as a way to insure that there's only one

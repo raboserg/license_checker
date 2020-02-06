@@ -9,6 +9,9 @@
   TM("/P7.Sink=Baical /P7.Pool=32768 /P7.PSize=65536 /P7.Addr=127.0.0.1 "      \
      "/P7:Port=9009")
 
+//#define LOGIN_CONNECT TM("/P7.Sink=FileTxt /P7.Dir=./Logs/ /P7.Format=\"[%tf]
+//%lv %ms\"")
+
 template <typename T>
 using deleted_unique_ptr = std::unique_ptr<T, std::function<void(T *)>>;
 

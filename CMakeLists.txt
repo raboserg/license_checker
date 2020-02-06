@@ -3,7 +3,13 @@
 set(CMAKE_CXX_STANDARD 14)
 
 include(path.cmake)
-project ("license_checker")
+
+if(CMAKE_HOST_WIN32)
+    project ("itVPNAgent")
+elseif(CMAKE_HOST_UNIX)
+    project ("itvpnagent")
+endif()
+
 
 set(LINK "STATIC")
 set(VARIANT "DEBUG")
@@ -75,7 +81,7 @@ if(CMAKE_HOST_WIN32)
     add_subdirectory("nt_service")
     set(SOURCE_LIST application.cpp application.h ./tools/constants.cpp stdafx.h)
     set(LINK_LIBS client license tracer NT_Service ${ACE} ${P7_LIB} ${Boost_LIBRARIES} runtimeobject)
-    set(INCLUDE_DIRS client license event_sink_win tracer tools nt_service
+    set(INCLUDE_DIRS client license tracer tools nt_service
         ${Boost_INCLUDE_DIRS}
         ${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCE_LIST})

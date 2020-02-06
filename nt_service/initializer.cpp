@@ -75,11 +75,11 @@ static BOOL WINAPI ConsoleHandler(DWORD /*ctrlType*/) {
 	return TRUE;
 }
 
-ACE_NT_SERVICE_DEFINE(LicenseService, Service, ACE_TEXT("License Service"));
+ACE_NT_SERVICE_DEFINE(itVPNAgent, Service, ACE_TEXT("itVPNAgent"));
 
 int Process::run(int argc, char *argv[]) {
-	SERVICE::instance()->name(ACE_TEXT("LicenseService"),
-		ACE_TEXT("License Service"));
+	SERVICE::instance()->name(ACE_TEXT("itVPNAgent"),
+		ACE_TEXT("itVPNAgent"));
 
 	parse_args(argc, argv);
 
@@ -136,7 +136,7 @@ int Process::run(int argc, char *argv[]) {
 	}
 	else {
 
-		ACE_LOG_MSG->open(argv[0], ACE_Log_Msg::SYSLOG, "LicenseServiceSyslogTest");
+		ACE_LOG_MSG->open(argv[0], ACE_Log_Msg::SYSLOG, "itVPNAgentSyslogTest");
 
 		/*static ofstream *output_file = new ofstream("ntsvc.log", ios::out);
 		if (output_file && output_file->rdstate() == ios::goodbit)
@@ -150,7 +150,7 @@ int Process::run(int argc, char *argv[]) {
 		ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t): Starting service.\n")));
 		DEBUG_LOG(TM("Starting service"));
 
-		ACE_NT_SERVICE_RUN(LicenseService, SERVICE::instance(), ret);
+		ACE_NT_SERVICE_RUN(itVPNAgent, SERVICE::instance(), ret);
 		if (ret == 0) {
 			DEBUG_LOG(TM("Couldn't start service"));
 			ACE_ERROR(
