@@ -38,7 +38,7 @@ utility::string_t LicenseChecker::generate_machine_uid() {
     throw std::runtime_error("does not make file by lic");
   }
   // delete carriage return
-	const size_t len = line.length();
+  const size_t len = line.length();
   if (len && (line.c_str()[len - 1] == 0x0D))
     line.erase(len - 1);
 
@@ -47,11 +47,8 @@ utility::string_t LicenseChecker::generate_machine_uid() {
 
 void LicenseChecker::save_license_to_file(const utility::string_t &license) {
   // save license to file
-  /*const std::unique_ptr<Parser> parser_ =
-      std::make_unique<Parser>(LIC_INI_FILE);*/
-  
-	const utility::string_t lic_file_name =
-		PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
+  const utility::string_t lic_file_name =
+      PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
 
   utility::ofstream_t file(lic_file_name, std::ios::out);
   if (file.is_open()) {
