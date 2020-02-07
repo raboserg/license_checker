@@ -46,21 +46,19 @@ public:
 private:
   typedef ACE_NT_Service inherited;
 
-	int get_seconds_in_day() {
-		const int sec = 60;
-		const int min = 60;
-		const int hour = 60;
-		const int hours_in_day = 24;
-		const int sec_in_day = sec * min * hour * hours_in_day; // 5 184 000 seconds
-		return sec_in_day;
+	// 60 * 60 * 60 * 24 = 5 184 000 seconds in day
+	int get_seconds_in_hours(const int hours) {
+		const int sec_min = 60;
+		const int min_hour = 60;
+		const int sec_hour = 60;
+		return sec_min * min_hour * sec_hour * hours; 
 	}
 
 private:
   int stop_;
 	std::shared_ptr<ACE_Auto_Event> event_;
 	std::shared_ptr<WinNT::Notificator> notificator_;
-	
-	Get_License_Task *get_task_;
+	std::unique_ptr<Get_License_Task> get_license_task_;
 };
 
 // Define a singleton class as a way to insure that there's only one

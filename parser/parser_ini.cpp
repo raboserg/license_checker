@@ -1,5 +1,6 @@
 #include "parser_ini.h"
-
+#include <cpprest/asyncrt_utils.h>
+#include <tracer.h>
 
 #ifdef _WIN32
 const utility::string_t LIC_INI_FILE = U("lic_check_w.ini");
@@ -61,4 +62,4 @@ utility::string_t Parser::get_value(const utility::string_t &key) const {
   return value;
 }
 
-Parser::~Parser() { DEBUG_LOG(TM("Parser::~Parser()")); }
+Parser::~Parser() {}

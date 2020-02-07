@@ -9,6 +9,11 @@ DAT(LICENSE_AGENT_ID,       U("LICENSE.agentId"))
 DAT(LICENSE_UNP,            U("LICENSE.unp"))
 DAT(LICENSE_FILE_NAME,      U("FILES.lic_file_name"))
 DAT(LICENSE_SRV_URI,	    U("LICENSE.license_manager_uri"))
+
+DAT(LICENSE_DAY_FOR_UPDATE,		U("LICENSE.day_for_update"))
+DAT(LICENSE_TIMEOUT_TRY,		U("LICENSE.timeout_try_sec"))
+DAT(LICENSE_TIMEOUT_CHECK_DAY,  U("LICENSE.timeout_check_day_hours"))
+DAT(LICENSE_TIMEOUT_TRY_GET_LIC,U("LICENSE.timeout_try_get_lic_min"))
 #endif
 
 #ifdef _HOST_STATUSES

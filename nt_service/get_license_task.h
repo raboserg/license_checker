@@ -48,21 +48,20 @@ private:
 
 class Get_License_Task : public ACE_Task<ACE_MT_SYNCH> {
 public:
-	Get_License_Task();
 	Get_License_Task(ACE_Thread_Manager *thr_mgr, const int n_threads);
 	virtual ~Get_License_Task();
-
-  virtual int svc(void);
+	Get_License_Task();
+	void close();
+	virtual int svc(void);
+	int open(ACE_Time_Value tv1);
   //virtual int handle_signal(int, siginfo_t *siginfo, ucontext_t *);
-  virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg);
 	virtual int handle_exception(ACE_HANDLE h);
+	virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg);
 
 private:
-	void open();
-  void shutdown();
 	bool done(void) const;
-	
-	bool stop_;
+
+	bool done_;
   int n_threads_;
   ACE_SYNCH_MUTEX lock_;
   ACE_Array<ACE_CString> results_;

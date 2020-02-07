@@ -90,7 +90,7 @@ if(CMAKE_HOST_WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS})
     target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 elseif(CMAKE_HOST_UNIX)
-    set(SOURCES_LIST application.cpp ../tools/constants.cpp application.h stdafx.h ../tools/license_helper.h)
+    set(SOURCES_LIST application.cpp ../tools/constants.cpp application.h stdafx.h)
     set(LINK_LIBS client license eventsink tracer pthread ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
     set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools
         ${Boost_INCLUDE_DIRS}

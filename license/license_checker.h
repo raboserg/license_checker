@@ -2,11 +2,9 @@
 #ifndef LICENSE_CHECKER_H
 #define LICENSE_CHECKER_H
 
-//#include <parser_ini.h>
-#include <boost/process.hpp>
-#include <cpprest/asyncrt_utils.h>
+#define _TURN_OFF_PLATFORM_STRING
 #include <cpprest/details/basic_types.h>
-#include <tracer.h>
+#include <boost/process.hpp>
 
 namespace bp = boost::process;
 
@@ -21,9 +19,13 @@ class LicenseChecker {
 
 public:
   LicenseChecker();
-  bool verify_license_file();
+	bool check_day_updete();
+	bool verify_license_file();
   utility::string_t generate_machine_uid();
   void save_license_to_file(const utility::string_t &command);
+private:	
+	utility::string_t make_verify_license_cmd();
+	utility::string_t make_machine_uid_cmd();
 };
 
 #endif
