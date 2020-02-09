@@ -62,7 +62,7 @@ elseif(CMAKE_HOST_UNIX)
 	set(CPPREST_INCLUDE_DIR "${CPPREST_DIR}/Release/include")
     set(CPPREST_LIBRARY_DIR "${CPPREST_DIR}/build.debug/Release/Binaries")
     
-    set(ACE_ROOT "~/projects/ACE_wrappers")
+    set(ACE_ROOT "~/projects/lACE_wrappers")
     set(ACE_INCLUDE_DIR ${ACE_ROOT})
     set(ACE_LIBRARY_DIR "${ACE_ROOT}/lib")
 	
