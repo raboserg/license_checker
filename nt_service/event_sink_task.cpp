@@ -20,7 +20,8 @@ int EventSink_Task::svc() {
           PARSER::instance()->get_value(lic::config_keys::LICENSE_SRV_URI);
 
       if (!licenseChecker_->verify_license_file()) {
-        // get unp
+        
+				// get unp
         const utility::string_t unp =
             PARSER::instance()->get_value(lic::config_keys::LICENSE_UNP);
         // get agent
@@ -35,6 +36,7 @@ int EventSink_Task::svc() {
             std::make_unique<LicenseExtractor>(address_, message_, 5);
 
         const utility::string_t lic = licenseExtractor_->receive_license();
+
         if (!lic.empty()) {
           licenseChecker_->save_license_to_file(lic);
         }

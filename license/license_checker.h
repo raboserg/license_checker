@@ -3,8 +3,10 @@
 #define LICENSE_CHECKER_H
 
 #define _TURN_OFF_PLATFORM_STRING
-#include <cpprest/details/basic_types.h>
+#include "ace/Date_Time.h"
 #include <boost/process.hpp>
+#include <cpprest/details/basic_types.h>
+#include "client_license.h"
 
 namespace bp = boost::process;
 
@@ -19,13 +21,16 @@ class LicenseChecker {
 
 public:
   LicenseChecker();
-	bool check_day_updete();
-	bool verify_license_file();
+  bool check_update_day();
+  bool verify_license_file();
   utility::string_t generate_machine_uid();
   void save_license_to_file(const utility::string_t &command);
-private:	
-	utility::string_t make_verify_license_cmd();
-	utility::string_t make_machine_uid_cmd();
+  ACE_Date_Time extract_license_date(const utility::string_t &lic);
+	std::shared_ptr<LicenseExtractor> make_license_extractor();
+
+private:
+  utility::string_t make_verify_license_cmd();
+  utility::string_t make_machine_uid_cmd();
 };
 
 #endif

@@ -59,11 +59,7 @@ public:
   virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg);
 
 private:
-  bool done(void) const;
 
-  bool done_;
   int n_threads_;
-  ACE_SYNCH_MUTEX lock_;
   ACE_Array<ACE_CString> results_;
-  ACE_SYNCH_CONDITION condition_;
 };

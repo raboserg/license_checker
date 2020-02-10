@@ -77,8 +77,6 @@ add_subdirectory("license")
 add_subdirectory("parser")
 add_subdirectory("tracer")
 
-add_subdirectory("nt_service")
-
 if(CMAKE_HOST_WIN32)
     add_subdirectory("nt_service")
     set(SOURCE_LIST application.cpp application.h ./tools/constants.cpp stdafx.h)

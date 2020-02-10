@@ -4,7 +4,9 @@
 #include <cpprest/asyncrt_utils.h>
 #include <tracer.h>
 
-#include "ace/Date_Time.h"
+//#include "ace/Auto_Ptr.h"
+//#include "ace/Codecs.h"
+
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_stdlib.h"
 
@@ -120,18 +122,68 @@ utility::string_t LicenseChecker::make_machine_uid_cmd() {
   return license_process_path;
 }
 
-bool LicenseChecker::check_day_updete() {
+bool LicenseChecker::check_update_day() {
   ACE_Date_Time date_time;
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%t) Day of today %d\n"), date_time.day()));
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%t) Day of today %d day\n"), date_time.day()));
   const utility::string_t license_update_day =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_DAY_FOR_UPDATE);
   if (license_update_day.empty())
     ACE_ERROR_RETURN(
         (LM_ERROR, ACE_TEXT("%T (%t):\tGet LICENSE_DAY_FOR_UPDATE failed\n")),
         false);
-	//THROW EXEPTION - ABORT SERVICE
+  // THROW EXEPTION - ABORT SERVICE
   const long day = ACE_OS::atol(license_update_day.c_str());
   if (date_time.day() >= day)
     return true;
   return false;
+}
+
+ACE_Date_Time
+LicenseChecker::extract_license_date(const utility::string_t &lic) {
+  ACE_Date_Time date_time;
+  utility::stringstream_t ss(lic);
+  utility::string_t item;
+  std::vector<utility::string_t> splitted;
+  while (std::getline(ss, item, L'.'))
+    splitted.push_back(item);
+  if (!splitted[2].empty()) {
+    const std::vector<unsigned char> date_lic =
+        utility::conversions::from_base64(splitted[2]);
+    std::string str(date_lic.begin(), date_lic.end());
+    int year, month, day;
+    sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day);
+    date_time = ACE_Date_Time(day, month, year);
+  } else {
+    date_time = ACE_Date_Time(0);
+  }
+  /*std::string item;
+  std::vector<std::string> splitted;
+  std::stringstream ss(utility::conversions::utf16_to_utf8(lic));
+  while (std::getline(ss, item, '.'))
+    splitted.push_back(item);
+  size_t decode_len = 0;
+  ACE_Auto_Basic_Array_Ptr<ACE_Byte> decode_buf(
+      ACE_Base64::decode((const ACE_Byte *)splitted[2].c_str(), &decode_len));
+  int year, month, day;
+  sscanf((char *)decode_buf.get(), "%d-%d-%d", &year, &month, &day);
+  ACE_Date_Time date_time(day, month, year);*/
+
+  return date_time;
+}
+
+std::shared_ptr<LicenseExtractor> LicenseChecker::make_license_extractor() {
+  const web::http::uri address_ =
+      PARSER::instance()->get_value(lic::config_keys::LICENSE_SRV_URI);
+  // get unp
+  const utility::string_t unp =
+      PARSER::instance()->get_value(lic::config_keys::LICENSE_UNP);
+  // get agent
+  const utility::string_t agent =
+      PARSER::instance()->get_value(lic::config_keys::LICENSE_AGENT_ID);
+  // generate machine uid
+  const utility::string_t uid = generate_machine_uid();
+
+  const Message message_ = Message(uid, unp, agent);
+
+  return std::make_shared<LicenseExtractor>(address_, message_, 5);
 }
