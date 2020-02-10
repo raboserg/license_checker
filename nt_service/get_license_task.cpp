@@ -90,7 +90,7 @@ int Get_License_Task::svc() {
 
       /// const uint64_t dsfds = utility::datetime::from_days(1); //???
 
-      //const utility::string_t lic =
+      // const utility::string_t lic =
       //    L"Mg==.MDAwMQ==.MjAyMC0xMi0wN1QxMzoxNjoyN1o=."
       //    L"txNi2dB9pSz3DAOi2Kq2zA62ym6lEx1iJcrSmK0urV0=."
       //    L"dXz+MH3Td1Pay3qZFbrWgybE3iith0PPaptDkNMHZsh/fpHdCvqwrtbzl68oeTKV";
@@ -106,20 +106,20 @@ int Get_License_Task::svc() {
 
           if (!lic.empty()) {
             licenseChecker_->save_license_to_file(lic);
-						ACE_Date_Time date = licenseChecker_->extract_license_date(lic);
-						
-						/*ACE_Time_Value tv1;
-						reactor()->schedule_timer(this, 0, tv1, tv1);*/
-          }
+            ACE_Date_Time date = licenseChecker_->extract_license_date(lic);
 
+            /*ACE_Time_Value tv1;
+            reactor()->schedule_timer(this, 0, tv1, tv1);*/
+          }
         } else {
           INFO_LOG(TM("License is SUCCESS")); //??????
         }
       } catch (const std::runtime_error &err) {
-        ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tShutting down service\n")));
+        ACE_DEBUG(
+            (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task: \n"), err.what()));
+        CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
         reactor()->end_reactor_event_loop(); //???
         break;
-        // CRITICAL_LOG(TM("KEY OF LICENSE_DAY_FOR_UPDATE is failed"));
       }
     }
   }

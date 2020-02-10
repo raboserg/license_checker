@@ -3,6 +3,7 @@
 #include "ace/Reactor.h"
 #include "ace/Task.h"
 
+#include "ace/Reactor_Notification_Strategy.h"
 #include "ace/Timer_Heap.h"
 #include "ace/Timer_Queue_Adapters.h"
 
@@ -59,7 +60,8 @@ public:
   virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg);
 
 private:
-
   int n_threads_;
   ACE_Array<ACE_CString> results_;
+  // the Bridge/Strategy patterns.
+  ACE_Reactor_Notification_Strategy notification_strategy_;
 };
