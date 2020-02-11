@@ -4,7 +4,7 @@
 #include <tracer.h>
 
 LicenseExtractor::LicenseExtractor(const web::http::uri &address,
-                                   const Message message,
+                                   const Message &message,
                                    const int64_t &attempt)
     : client_(address, make_client_config(attempt)), message_(message),
       attempt_(attempt) {
@@ -106,7 +106,7 @@ web::http::http_response LicenseExtractor::send_request() {
      throw std::runtime_error("message for request is empty");
 
   auto start = std::chrono::steady_clock::now();
-  for (;;) {
+  while (1) {
     try {
       return client_.request(request_).get();
       break;

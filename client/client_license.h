@@ -32,7 +32,7 @@ private:
 
 class LicenseExtractor {
 public:
-  LicenseExtractor(const web::http::uri &address_, const Message message_,
+  LicenseExtractor(const web::http::uri &address_, const Message &message_,
                    const int64_t &attempt);
 
   utility::string_t receive_license();

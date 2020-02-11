@@ -1,10 +1,17 @@
 #include "get_license_task.h"
 #include "client_license.h"
-#include "license_checker.h"
 #include "tracer.h"
 
+/// const uint64_t dsfds = utility::datetime::from_days(1); //???
+
+const utility::string_t LIC =
+    L"Mg==.MDAwMQ==.MjAyMC0xMi0wN1QxMzoxNjoyN1o=."
+    L"txNi2dB9pSz3DAOi2Kq2zA62ym6lEx1iJcrSmK0urV0=."
+    L"dXz+MH3Td1Pay3qZFbrWgybE3iith0PPaptDkNMHZsh/fpHdCvqwrtbzl68oeTKV";
+
 Get_License_Task::Get_License_Task()
-    : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), n_threads_(1) {
+    : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), n_threads_(1),
+      licenseChecker_(new LicenseChecker()) {
   this->reactor(ACE_Reactor::instance());
 }
 
@@ -40,15 +47,14 @@ void Get_License_Task::close() {
 
 int Get_License_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
   ACE_UNUSED_ARG(tv);
-
+  ACE_DEBUG(
+      (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task::handle_timeout\n")));
   try {
-    // MOVE TO CONSTURCTOR
-    const std::unique_ptr<LicenseChecker> licenseChecker_ =
-        std::make_unique<LicenseChecker>();
     if (licenseChecker_->check_update_day()) {
       this->putq(new ACE_Message_Block(0, ACE_Message_Block::MB_SIG));
-      ACE_DEBUG(
-          (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task::handle_timeout\n")));
+    } else {
+      const ACE_Time_Value tv(5, 0);
+      reactor()->schedule_timer(this, 0, tv, tv);
     }
   } catch (const std::runtime_error &err) {
     ACE_DEBUG(
@@ -84,36 +90,26 @@ int Get_License_Task::svc() {
     }
 
     if (message->msg_type() == ACE_Message_Block::MB_SIG) {
-
-      const std::unique_ptr<LicenseChecker> licenseChecker_ =
-          std::make_unique<LicenseChecker>();
-
-      /// const uint64_t dsfds = utility::datetime::from_days(1); //???
-
-      // const utility::string_t lic =
-      //    L"Mg==.MDAwMQ==.MjAyMC0xMi0wN1QxMzoxNjoyN1o=."
-      //    L"txNi2dB9pSz3DAOi2Kq2zA62ym6lEx1iJcrSmK0urV0=."
-      //    L"dXz+MH3Td1Pay3qZFbrWgybE3iith0PPaptDkNMHZsh/fpHdCvqwrtbzl68oeTKV";
-
       try {
 
-        if (!licenseChecker_->verify_license_file()) {
+        ACE_Date_Time date = licenseChecker_->extract_license_date(LIC);
 
-          const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
-              licenseChecker_->make_license_extractor();
+        const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
+            licenseChecker_->make_license_extractor();
 
-          const utility::string_t lic = licenseExtractor_->receive_license();
+        // TRY TO CONNECT
+        const utility::string_t lic = licenseExtractor_->receive_license();
 
-          if (!lic.empty()) {
-            licenseChecker_->save_license_to_file(lic);
-            ACE_Date_Time date = licenseChecker_->extract_license_date(lic);
+        if (!lic.empty()) {
 
-            /*ACE_Time_Value tv1;
-            reactor()->schedule_timer(this, 0, tv1, tv1);*/
-          }
-        } else {
-          INFO_LOG(TM("License is SUCCESS")); //??????
+          const ACE_Date_Time date = licenseChecker_->extract_license_date(lic);
+
+          licenseChecker_->save_license_to_file(lic);
+
+          ACE_Time_Value tv1(5, 0);
+          reactor()->schedule_timer(this, 0, tv1, tv1);
         }
+
       } catch (const std::runtime_error &err) {
         ACE_DEBUG(
             (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task: \n"), err.what()));

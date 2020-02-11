@@ -40,7 +40,6 @@ int EventSink_Task::svc() {
         if (!lic.empty()) {
           licenseChecker_->save_license_to_file(lic);
         }
-
       } else {
         INFO_LOG(TM("License is SUCCESS"));
       }

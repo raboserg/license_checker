@@ -3,10 +3,10 @@
 #include "ace/Reactor.h"
 #include "ace/Task.h"
 
-#include "ace/Reactor_Notification_Strategy.h"
+//#include "ace/Reactor_Notification_Strategy.h"
 #include "ace/Timer_Heap.h"
 #include "ace/Timer_Queue_Adapters.h"
-
+#include "license_checker.h"
 #include "event_sink_task.h"
 
 class Get_License_Task;
@@ -62,6 +62,7 @@ public:
 private:
   int n_threads_;
   ACE_Array<ACE_CString> results_;
+	const std::unique_ptr<LicenseChecker> licenseChecker_;
   // the Bridge/Strategy patterns.
-  ACE_Reactor_Notification_Strategy notification_strategy_;
+  //???ACE_Reactor_Notification_Strategy notification_strategy_;
 };

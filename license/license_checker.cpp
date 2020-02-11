@@ -124,7 +124,8 @@ utility::string_t LicenseChecker::make_machine_uid_cmd() {
 
 bool LicenseChecker::check_update_day() {
   ACE_Date_Time date_time;
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%t) Day of today %d day\n"), date_time.day()));
+  ACE_DEBUG(
+      (LM_DEBUG, ACE_TEXT("(%t) Day of today %d day\n"), date_time.day()));
   const utility::string_t license_update_day =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_DAY_FOR_UPDATE);
   if (license_update_day.empty())
@@ -140,21 +141,24 @@ bool LicenseChecker::check_update_day() {
 
 ACE_Date_Time
 LicenseChecker::extract_license_date(const utility::string_t &lic) {
-  ACE_Date_Time date_time;
+  ACE_Date_Time date_time = ACE_Date_Time(0);
   utility::stringstream_t ss(lic);
   utility::string_t item;
   std::vector<utility::string_t> splitted;
-  while (std::getline(ss, item, L'.'))
+  while (std::getline(ss, item, _XPLATSTR('.')))
     splitted.push_back(item);
   if (!splitted[2].empty()) {
     const std::vector<unsigned char> date_lic =
         utility::conversions::from_base64(splitted[2]);
     std::string str(date_lic.begin(), date_lic.end());
     int year, month, day;
+#ifndef _WIN32
     sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day);
+#else
+    swscanf_s(utility::conversions::to_string_t(str).c_str(),
+              _XPLATSTR("%d-%d-%d"), &year, &month, &day);
+#endif // !_WIN32
     date_time = ACE_Date_Time(day, month, year);
-  } else {
-    date_time = ACE_Date_Time(0);
   }
   /*std::string item;
   std::vector<std::string> splitted;
@@ -183,7 +187,8 @@ std::shared_ptr<LicenseExtractor> LicenseChecker::make_license_extractor() {
   // generate machine uid
   const utility::string_t uid = generate_machine_uid();
 
-  const Message message_ = Message(uid, unp, agent);
+  // const Message message_ = Message(uid, unp, agent);
 
-  return std::make_shared<LicenseExtractor>(address_, message_, 5);
+  return std::make_shared<LicenseExtractor>(address_, Message(uid, unp, agent),
+                                            5);
 }
