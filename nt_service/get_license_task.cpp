@@ -91,9 +91,7 @@ int Get_License_Task::svc() {
 
     if (message->msg_type() == ACE_Message_Block::MB_SIG) {
       try {
-
-        ACE_Date_Time date = licenseChecker_->extract_license_date(LIC);
-
+        // TEST ACE_Date_Time date = licenseChecker_->extract_license_date(LIC);
         const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
             licenseChecker_->make_license_extractor();
 
