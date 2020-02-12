@@ -81,15 +81,15 @@ add_subdirectory("parser")
 add_subdirectory("tracer")
 
 if(CMAKE_HOST_WIN32)
-    add_subdirectory("nt_service")
     set(SOURCE_LIST application.cpp application.h ./tools/constants.cpp stdafx.h)
     set(LINK_LIBS client license tracer NT_Service ${ACE} ${P7_LIB} ${Boost_LIBRARIES} runtimeobject)
     set(INCLUDE_DIRS client license tracer tools nt_service
         ${Boost_INCLUDE_DIRS}
         ${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCE_LIST})
-    target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0x0601 -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
     #add_subdirectory("event_sink_win")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0x0601 -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE -D_WIN32 -D_WINDOWS)
+    add_subdirectory("nt_service")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS})
     target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 elseif(CMAKE_HOST_UNIX)
