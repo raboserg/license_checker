@@ -51,7 +51,9 @@ utility::string_t LicenseChecker::generate_machine_uid() {
     line.erase(len - 1);
 
   if (line.length() != lic::constats::UID_SIZE)
-    throw std::runtime_error("size of UID is not valid: " + line.length());
+    throw std::runtime_error("size of UID isn't valid: " +
+                             std::to_string(line.length()));
+
   return line;
 }
 
@@ -126,7 +128,8 @@ utility::string_t LicenseChecker::make_machine_uid_cmd() {
 
 bool LicenseChecker::check_update_day() {
   ACE_Date_Time date_time;
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tDay of today %d day\n"), date_time.day()));
+  ACE_DEBUG(
+      (LM_DEBUG, ACE_TEXT("%T (%t):\tDay of today %d day\n"), date_time.day()));
   const utility::string_t license_update_day =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_DAY_FOR_UPDATE);
   if (license_update_day.empty())
@@ -172,7 +175,8 @@ LicenseChecker::extract_license_date(const utility::string_t &lic) {
   return date_time;
 }
 
-std::shared_ptr<LicenseExtractor> LicenseChecker::make_license_extractor(const int64_t &attempt) {
+std::shared_ptr<LicenseExtractor>
+LicenseChecker::make_license_extractor(const int64_t &attempt) {
   const web::http::uri address_ =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_SRV_URI);
   // get unp

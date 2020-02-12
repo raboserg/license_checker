@@ -5,17 +5,17 @@
 
 #define _TURN_OFF_PLATFORM_STRING
 
+#include "constants.h"
 #include <cpprest/details/basic_types.h>
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
-#include "constants.h"
 
 struct Result {
-	int state;
-	utility::string_t lic;
-	utility::string_t year_lic;
-	utility::string_t month_lic;
-	utility::string_t errors; //???
+  int state;
+  utility::string_t license;
+  utility::string_t year_lic;
+  utility::string_t month_lic;
+  utility::string_t errors; //???
 };
 
 class Message {
@@ -30,9 +30,8 @@ public:
 
   utility::string_t get_agent() const { return agent_; }
 
-	bool is_valid() {
-		return !uid_.empty() && !unp_.empty() && !agent_.empty();
-	}
+  bool is_valid() { return !uid_.empty() && !unp_.empty() && !agent_.empty(); }
+
 private:
   const utility::string_t uid_;
   const utility::string_t unp_;
@@ -44,12 +43,13 @@ public:
   LicenseExtractor(const web::http::uri &address_, const Message &message_,
                    const int64_t &attempt);
 
-  utility::string_t receive_license();
+  utility::string_t processing_license();
+  Result get_result() { return result_; }
 
 private:
-	Result result_;
-	Message message_;
-	const int64_t attempt_;
+  Result result_;
+  Message message_;
+  const int64_t attempt_;
   const web::http::uri address_;
   web::http::http_request request_;
   web::http::client::http_client client_;

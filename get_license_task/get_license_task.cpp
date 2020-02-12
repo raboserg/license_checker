@@ -1,14 +1,15 @@
 #include "get_license_task.h"
+#include "ace/Date_Time.h"
 #include "client_license.h"
 #include "constants.h"
 #include "tracer.h"
 
 /// const uint64_t dsfds = utility::datetime::from_days(1); //???
 
-const utility::string_t LIC =
-    L"Mg==.MDAwMQ==.MjAyMC0xMi0wN1QxMzoxNjoyN1o=."
-    L"txNi2dB9pSz3DAOi2Kq2zA62ym6lEx1iJcrSmK0urV0=."
-    L"dXz+MH3Td1Pay3qZFbrWgybE3iith0PPaptDkNMHZsh/fpHdCvqwrtbzl68oeTKV";
+// const utility::string_t LIC =
+//    L"Mg==.MDAwMQ==.MjAyMC0xMi0wN1QxMzoxNjoyN1o=."
+//    L"txNi2dB9pSz3DAOi2Kq2zA62ym6lEx1iJcrSmK0urV0=."
+//    L"dXz+MH3Td1Pay3qZFbrWgybE3iith0PPaptDkNMHZsh/fpHdCvqwrtbzl68oeTKV";
 
 Get_License_Task::Get_License_Task()
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), n_threads_(1),
@@ -29,19 +30,10 @@ Get_License_Task::~Get_License_Task() {
 
 int Get_License_Task::open(ACE_Time_Value tv1) {
   reactor()->schedule_timer(this, 0, tv1, tv1);
-  if (this->activate(THR_NEW_LWP, n_threads_) == -1)
-    ACE_ERROR_RETURN(
-        (LM_ERROR, ACE_TEXT("%T (%t):\tGet_License_Task: activate failed")),
-        -1);
-  else
-    ACE_DEBUG((LM_INFO,
-               ACE_TEXT("%T (%t):\tGet_License_Task: started %d threads\n"),
-               n_threads_));
   return 0;
 }
 
 void Get_License_Task::close() {
-  this->putq(new ACE_Message_Block(0, ACE_Message_Block::MB_STOP));
   reactor()->cancel_timer(this);
   ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\tGet_License_Task: cancel timer\n")));
 }
@@ -50,81 +42,66 @@ int Get_License_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
   ACE_UNUSED_ARG(tv);
   ACE_DEBUG(
       (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task::handle_timeout\n")));
-  try {
-    if (licenseChecker_->check_update_day()) {
-      this->putq(new ACE_Message_Block(0, ACE_Message_Block::MB_SIG));
-    } else {
-      // SET TIMER FOR NEXT CHECK UPDATE DAY = 24 * 60 * 60
-      const ACE_Time_Value tv(lic::constats::SECS_IN_DAY, 0);
-      reactor()->schedule_timer(this, 0, tv, tv);
-    }
-  } catch (const std::runtime_error &err) {
-    ACE_DEBUG(
-        (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task: \n"), err.what()));
-    CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
-    this->putq(new ACE_Message_Block(0, ACE_Message_Block::MB_STOP));
-  }
+  if (this->activate(THR_NEW_LWP) == -1)
+    ACE_ERROR_RETURN(
+        (LM_ERROR, ACE_TEXT("%T (%t):\tGet_License_Task: activate failed")),
+        -1);
   return 0;
 }
 
 int Get_License_Task::handle_exception(ACE_HANDLE) {
   ACE_DEBUG(
       (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task::handle_exception()\n")));
-  this->putq(new ACE_Message_Block(0, ACE_Message_Block::MB_STOP));
   return -1;
 }
 
 int Get_License_Task::svc() {
-
   ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\tGet_License_Task: task started\n")));
-
-  ACE_Message_Block *message = 0;
-
-  for (;;) {
-
-    if (this->getq(message) == -1)
-      ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("getq")), -1);
-
-    if (message->msg_type() == ACE_Message_Block::MB_STOP) {
-      ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task: MB_STOP\n")));
-      message->release();
-      break;
-    }
-
-    if (message->msg_type() == ACE_Message_Block::MB_SIG) {
-      try {
-        const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
-            licenseChecker_->make_license_extractor(1);
-
-        // TRY GET LICENSE ?????
-        //const utility::string_t license = licenseExtractor_->receive_license();
-				const utility::string_t license = licenseExtractor_->receive_license();
-
+  try {
+    if (licenseChecker_->check_update_day()) {
+      const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
+          licenseChecker_->make_license_extractor(1);
+      // TRY GET LICENSE ?????
+      licenseExtractor_->processing_license();
+      const Result result = licenseExtractor_->get_result();
+      if (result.state == lic::host_states::ACTIVE) {
+        const utility::string_t license = result.license;
         if (license.empty()) {
           // SHEDULE TIME FOR NEXT TRY GET LICENSE
-          schedule_wait(10);
+          this->schedule_handle_timeout(5 * 60);
         } else {
-          const ACE_Date_Time date =
+          const ACE_Date_Time license_date =
               licenseChecker_->extract_license_date(license);
-          licenseChecker_->save_license_to_file(license);
+          const ACE_Date_Time current_date;
+          if (current_date.month() = license_date.month())
+            licenseChecker_->save_license_to_file(license);
         }
-      } catch (const std::runtime_error &err) {
-        reactor()->end_reactor_event_loop(); //???
-        CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
-        ACE_ERROR_RETURN(
-            (LM_ERROR, ACE_TEXT("%T (%t):\tGet_License_Task: killing task\n"),
-             err.what()),
-            -1);
+      } else {
+        // TODO:save state to file ???
+        // SHADULE TIME FOR NEXT GET LICENSE STATE
+        this->schedule_handle_timeout(5 * 60); // 5 minutes
       }
+    } else {
+      // set timer for next check update day: 24 * 60 * 60
+      this->schedule_handle_timeout(lic::constats::WAIT_NEXT_DAY_SECS);
+      // TODO:save state to file ???
+      INFO_LOG(TM("Wait next day"));
     }
+  } catch (const std::runtime_error &err) {
+    CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
+    ACE_ERROR_RETURN((LM_ERROR,
+                      ACE_TEXT("%T (%t):\tGet_License_Task: kill task #\n"),
+                      err.what()),
+                     -1);
+    shutdown_service(); //???
   }
   ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\tGet_License_Task: task finished\n")));
   return 0;
 }
 
-int Get_License_Task::schedule_wait(const int seconds) {
-  reactor()->cancel_timer(this);
+int Get_License_Task::schedule_handle_timeout(const int &seconds) {
   ACE_Time_Value tv1(seconds, 0);
+  reactor()->cancel_timer(this);
   reactor()->schedule_timer(this, 0, tv1, tv1);
   return 0;
 }

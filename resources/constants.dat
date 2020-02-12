@@ -26,5 +26,5 @@ DAT(SUSPENDED,	2, U("suspended"))
 #ifdef _CONSTANTS
 DAT(UID_SIZE,		58, U("uid size"))
 DAT(CHECK_DAYS,		5, U("check days"))
-DAT(SECS_IN_DAY,	86400, U("check days"))
+DAT(WAIT_NEXT_DAY_SECS,	86400, U("check days"))
 #endif

@@ -49,8 +49,6 @@ if(CMAKE_HOST_WIN32)
 		set(ACE_INCLUDE_DIR "${VCPKG_DIR}/include")
 		set(ACE_LIBRARY_DIR "${VCPKG_DIR}/lib")
 		set(CPPREST_LIB_DIR "${VCPKG_DIR}/lib")
-
-
 	endif()
 elseif(CMAKE_HOST_UNIX)
     #if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
@@ -63,20 +61,19 @@ elseif(CMAKE_HOST_UNIX)
     #endif()
     set(DEFAULT_UNIX_BOOST_DIR "~/projects/library/boost_1_72_0")
     
-	set(DEFAULT_UNIX_LIBP7_DIR "~/projects/library/libP7Client")
+    set(DEFAULT_UNIX_LIBP7_DIR "~/projects/library/libP7Client")
     set(DEFAULT_LIBP7_INCLUDE_DIR ${DEFAULT_UNIX_LIBP7_DIR}/Headers)
 	
-	set(OPENSSL_LIBRARY_PATH "/home/user/projects/library/openssl")
+    set(OPENSSL_LIBRARY_PATH "/home/user/projects/library/openssl")
     set(OPENSSL_INCLUDE_PATH "/home/user/projects/library/openssl/include")
 	
-	set(CPPREST_DIR "/home/user/projects/library/casablanca")
-	set(CPPREST_INCLUDE_DIR "${CPPREST_DIR}/Release/include")
+    set(CPPREST_DIR "/home/user/projects/library/casablanca")
+    set(CPPREST_INCLUDE_DIR "${CPPREST_DIR}/Release/include")
     set(CPPREST_LIBRARY_DIR "${CPPREST_DIR}/build.debug/Release/Binaries")
     
     set(ACE_ROOT "~/projects/lACE_wrappers")
     set(ACE_INCLUDE_DIR ${ACE_ROOT})
     set(ACE_LIBRARY_DIR "${ACE_ROOT}/lib")
-	
 endif()
 
 #set(DEFAULT_WIN_LOCAL_DIRECTORY "d:/work/local/")
