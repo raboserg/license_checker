@@ -16,9 +16,15 @@ DAT(LICENSE_TIMEOUT_CHECK_DAY,  U("LICENSE.timeout_check_day_hours"))
 DAT(LICENSE_TIMEOUT_TRY_GET_LIC,U("LICENSE.timeout_try_get_lic_min"))
 #endif
 
-#ifdef _HOST_STATUSES
+#ifdef _LICENSE_STATUSES
 DAT(NEW,		4, U("new"))
 DAT(ACTIVE,		1, U("active"))
 DAT(APPROVED,	3, U("approved"))
 DAT(SUSPENDED,	2, U("suspended"))
+#endif
+
+#ifdef _CONSTANTS
+DAT(UID_SIZE,		58, U("uid size"))
+DAT(CHECK_DAYS,		5, U("check days"))
+DAT(SECS_IN_DAY,	86400, U("check days"))
 #endif

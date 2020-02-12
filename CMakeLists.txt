@@ -15,7 +15,7 @@ set(LINK "STATIC")
 set(VARIANT "RELEASE")
 
 set(CMAKE_USER_MAKE_RULES_OVERRIDE "build.cmake")
-#include(build.cmake)
+include(build.cmake)
 
 message(STATUS "$$$$$ CMAKE_CROSSCOMPILING - ${CMAKE_CROSSCOMPILING}")
 message(STATUS "$$$$$ CMAKE_INCLUDE_PATH - ${CMAKE_INCLUDE_PATH}")
@@ -81,11 +81,12 @@ add_subdirectory("client")
 add_subdirectory("license")
 add_subdirectory("parser")
 add_subdirectory("tracer")
+add_subdirectory("get_license_task")
 
 if(CMAKE_HOST_WIN32)
     set(SOURCE_LIST application.cpp application.h ./tools/constants.cpp stdafx.h)
-    set(LINK_LIBS client license tracer NT_Service ${ACE} ${P7_LIB} ${Boost_LIBRARIES} runtimeobject)
-    set(INCLUDE_DIRS client license tracer tools nt_service
+    set(LINK_LIBS tracer NT_Service ${ACE} ${P7_LIB} ${Boost_LIBRARIES} runtimeobject)
+    set(INCLUDE_DIRS client license tracer tools nt_service get_license_task
         ${Boost_INCLUDE_DIRS}
         ${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCE_LIST})
@@ -96,8 +97,8 @@ if(CMAKE_HOST_WIN32)
     target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST application.cpp ../tools/constants.cpp application.h stdafx.h)
-    set(LINK_LIBS client license eventsink tracer pthread ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
-    set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools
+    set(LINK_LIBS client license eventsink tracer pthread get_license_task ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
+    set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools ../get_license_task
         ${Boost_INCLUDE_DIRS}
         ${CPPREST_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_PATH}

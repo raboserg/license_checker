@@ -7,7 +7,7 @@
 #include "ace/Timer_Heap.h"
 #include "ace/Timer_Queue_Adapters.h"
 #include "license_checker.h"
-#include "event_sink_task.h"
+//#include "event_sink_task.h"
 
 class Get_License_Task;
 
@@ -27,14 +27,14 @@ public:
     if ((*val) != id_)
       return -1;
     /////////////////////////////////////////////////
-    ACE_Message_Block *mblk = 0;
+  /*  ACE_Message_Block *mblk = 0;
     ACE_Message_Block *log_blk = 0;
 
     ACE_NEW_RETURN(log_blk, ACE_Message_Block(reinterpret_cast<char *>(this)),
                    -1);
     log_blk->cont(mblk);
 
-    LICENSE_WORKER_TASK::instance()->put(log_blk);
+    LICENSE_WORKER_TASK::instance()->put(log_blk);*/
     /////////////////////////////////////////////////
 
     ACE_UNUSED_ARG(val);
@@ -58,6 +58,7 @@ public:
   // virtual int handle_signal(int, siginfo_t *siginfo, ucontext_t *);
   virtual int handle_exception(ACE_HANDLE h);
   virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg);
+	virtual int schedule_wait(const int seconds);
 
 private:
   int n_threads_;

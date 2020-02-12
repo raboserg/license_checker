@@ -12,10 +12,18 @@ struct config_keys {
 };
 
 struct host_states {
-#define _HOST_STATUSES
+#define _LICENSE_STATUSES
 #define DAT(a, b, c) const static unsigned short a = b;
 #include "../resources/constants.dat"
-#undef _HOST_STATUSES
+#undef _LICENSE_STATUSES
+#undef DAT
+};
+
+struct constats {
+#define _CONSTANTS
+#define DAT(a, b, c) const static unsigned short a = b;
+#include "../resources/constants.dat"
+#undef _CONSTANTS
 #undef DAT
 };
 } // namespace lic

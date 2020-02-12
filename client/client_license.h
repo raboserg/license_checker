@@ -8,6 +8,15 @@
 #include <cpprest/details/basic_types.h>
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
+#include "constants.h"
+
+struct Result {
+	int state;
+	utility::string_t lic;
+	utility::string_t year_lic;
+	utility::string_t month_lic;
+	utility::string_t errors; //???
+};
 
 class Message {
 public:
@@ -38,8 +47,9 @@ public:
   utility::string_t receive_license();
 
 private:
-  const int64_t attempt_;
-  Message message_;
+	Result result_;
+	Message message_;
+	const int64_t attempt_;
   const web::http::uri address_;
   web::http::http_request request_;
   web::http::client::http_client client_;

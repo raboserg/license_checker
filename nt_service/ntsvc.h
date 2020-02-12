@@ -15,7 +15,6 @@
 
 #include "get_license_task.h"
 
-
 class Service : public ACE_NT_Service {
 public:
   Service(void);
@@ -46,12 +45,11 @@ public:
 private:
   typedef ACE_NT_Service inherited;
 
-	// 60 * 60 * 60 * 24 = 5 184 000 seconds in day
-	int get_seconds_in_hours(const int hours) {
+	int get_seconds_in_hours(const int days) {
 		const int sec_min = 60;
 		const int min_hour = 60;
-		const int sec_hour = 60;
-		return sec_min * min_hour * sec_hour * hours; 
+		const int hour_day = 24;
+		return sec_min * min_hour * hour_day * days;
 	}
 
 private:

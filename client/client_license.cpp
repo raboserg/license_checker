@@ -7,7 +7,7 @@ LicenseExtractor::LicenseExtractor(const web::http::uri &address,
                                    const Message &message,
                                    const int64_t &attempt)
     : client_(address, make_client_config(attempt)), message_(message),
-      attempt_(attempt) {
+      attempt_(attempt){
   request_.set_method(web::http::methods::POST);
   request_.set_body(make_request_message(message).serialize(),
                     web::http::details::mime_types::application_json);
@@ -33,15 +33,21 @@ utility::string_t LicenseExtractor::receive_license() {
       const utility::string_t host_state_name =
           host_status.at(_XPLATSTR("name")).as_string();
       TRACE_LOG(host_state_name.c_str());
+			
+			result_.state = host_state;
 
       if (lic::host_states::ACTIVE == host_state) {
+				
         if (!json_value[_XPLATSTR("hostLicenses")].is_null()) {
           web::json::array licenses =
               json_value[_XPLATSTR("hostLicenses")].as_array();
           const size_t size = licenses.size();
           if (!(size == 0)) {
             web::json::value license_item = licenses[licenses.size() - 1];
-            license = license_item[_XPLATSTR("license")].as_string();
+						
+						result_.lic = license;
+      
+						license = license_item[_XPLATSTR("license")].as_string();
             const utility::string_t license_exp_date =
                 license_item[_XPLATSTR("licenseExpirationDate")].as_string();
             utility::string_t license_msg(_XPLATSTR("data: ") +

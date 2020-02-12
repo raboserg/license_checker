@@ -1,5 +1,6 @@
 #include "get_license_task.h"
 #include "client_license.h"
+#include "constants.h"
 #include "tracer.h"
 
 /// const uint64_t dsfds = utility::datetime::from_days(1); //???
@@ -53,7 +54,8 @@ int Get_License_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
     if (licenseChecker_->check_update_day()) {
       this->putq(new ACE_Message_Block(0, ACE_Message_Block::MB_SIG));
     } else {
-      const ACE_Time_Value tv(5, 0);
+      // SET TIMER FOR NEXT CHECK UPDATE DAY = 24 * 60 * 60
+      const ACE_Time_Value tv(lic::constats::SECS_IN_DAY, 0);
       reactor()->schedule_timer(this, 0, tv, tv);
     }
   } catch (const std::runtime_error &err) {
@@ -91,32 +93,38 @@ int Get_License_Task::svc() {
 
     if (message->msg_type() == ACE_Message_Block::MB_SIG) {
       try {
-        // TEST ACE_Date_Time date = licenseChecker_->extract_license_date(LIC);
         const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
-            licenseChecker_->make_license_extractor();
+            licenseChecker_->make_license_extractor(1);
 
-        // TRY TO CONNECT
-        const utility::string_t lic = licenseExtractor_->receive_license();
+        // TRY GET LICENSE ?????
+        //const utility::string_t license = licenseExtractor_->receive_license();
+				const utility::string_t license = licenseExtractor_->receive_license();
 
-        if (!lic.empty()) {
-
-          const ACE_Date_Time date = licenseChecker_->extract_license_date(lic);
-
-          licenseChecker_->save_license_to_file(lic);
-
-          ACE_Time_Value tv1(5, 0);
-          reactor()->schedule_timer(this, 0, tv1, tv1);
+        if (license.empty()) {
+          // SHEDULE TIME FOR NEXT TRY GET LICENSE
+          schedule_wait(10);
+        } else {
+          const ACE_Date_Time date =
+              licenseChecker_->extract_license_date(license);
+          licenseChecker_->save_license_to_file(license);
         }
-
       } catch (const std::runtime_error &err) {
-        ACE_DEBUG(
-            (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task: \n"), err.what()));
-        CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
         reactor()->end_reactor_event_loop(); //???
-        break;
+        CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
+        ACE_ERROR_RETURN(
+            (LM_ERROR, ACE_TEXT("%T (%t):\tGet_License_Task: killing task\n"),
+             err.what()),
+            -1);
       }
     }
   }
   ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\tGet_License_Task: task finished\n")));
+  return 0;
+}
+
+int Get_License_Task::schedule_wait(const int seconds) {
+  reactor()->cancel_timer(this);
+  ACE_Time_Value tv1(seconds, 0);
+  reactor()->schedule_timer(this, 0, tv1, tv1);
   return 0;
 }

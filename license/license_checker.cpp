@@ -50,6 +50,8 @@ utility::string_t LicenseChecker::generate_machine_uid() {
   if (len && (line.c_str()[len - 1] == 0x0D))
     line.erase(len - 1);
 
+  if (line.length() != lic::constats::UID_SIZE)
+    throw std::runtime_error("size of UID is not valid: " + line.length());
   return line;
 }
 
@@ -124,19 +126,14 @@ utility::string_t LicenseChecker::make_machine_uid_cmd() {
 
 bool LicenseChecker::check_update_day() {
   ACE_Date_Time date_time;
-  ACE_DEBUG(
-      (LM_DEBUG, ACE_TEXT("(%t) Day of today %d day\n"), date_time.day()));
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tDay of today %d day\n"), date_time.day()));
   const utility::string_t license_update_day =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_DAY_FOR_UPDATE);
   if (license_update_day.empty())
-    ACE_ERROR_RETURN(
-        (LM_ERROR, ACE_TEXT("%T (%t):\tGet LICENSE_DAY_FOR_UPDATE failed\n")),
-        false);
-  // THROW EXEPTION - ABORT SERVICE
+    throw std::runtime_error("Key of LICENSE.day_for_update is failed");
   const long day = ACE_OS::atol(license_update_day.c_str());
-  if (date_time.day() >= day)
-    return true;
-  return false;
+  return (date_time.day() >= day &&
+          date_time.day() <= day + lic::constats::CHECK_DAYS);
 }
 
 ACE_Date_Time
@@ -175,7 +172,7 @@ LicenseChecker::extract_license_date(const utility::string_t &lic) {
   return date_time;
 }
 
-std::shared_ptr<LicenseExtractor> LicenseChecker::make_license_extractor() {
+std::shared_ptr<LicenseExtractor> LicenseChecker::make_license_extractor(const int64_t &attempt) {
   const web::http::uri address_ =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_SRV_URI);
   // get unp
@@ -187,8 +184,7 @@ std::shared_ptr<LicenseExtractor> LicenseChecker::make_license_extractor() {
   // generate machine uid
   const utility::string_t uid = generate_machine_uid();
 
-  // const Message message_ = Message(uid, unp, agent);
+  const Message message_ = Message(uid, unp, agent);
 
-  return std::make_shared<LicenseExtractor>(address_, Message(uid, unp, agent),
-                                            5);
+  return std::make_shared<LicenseExtractor>(address_, message_, attempt);
 }

@@ -82,7 +82,7 @@ int Service::svc(void) {
 
   // Schedule a timer every two seconds.
   ACE_Time_Value tv(2, 0);
-  //ACE_Reactor::instance()->schedule_timer(this, 0, tv, tv);
+  //ACE_Reactor::instance()->schedule_wait(this, 0, tv, tv);
 
   //////////////////////////////////////////////////////////////////////////
 

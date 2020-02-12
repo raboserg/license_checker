@@ -32,11 +32,11 @@ elseif(CMAKE_HOST_UNIX)
     set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH_})
     set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
    
-    target_include_directories(client PUBLIC ../tracer ../tools 
+    target_include_directories(client PRIVATE ../tracer ../tools 
 		${CPPREST_INCLUDE_DIR} 
 		${Boost_INCLUDE_DIRS} 
 		${OPENSSL_INCLUDE_PATH} 
 		${DEFAULT_LIBP7_INCLUDE_DIR})
-    target_link_libraries(client PUBLIC ${CPPREST_LIB} pthread ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} pthread dl)
+    target_link_libraries(client PRIVATE ${CPPREST_LIB} pthread ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} pthread dl)
 
 endif()
