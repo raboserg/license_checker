@@ -152,11 +152,11 @@ LicenseChecker::extract_license_date(const utility::string_t &lic) {
         utility::conversions::from_base64(splitted[2]);
     std::string str(date_lic.begin(), date_lic.end());
     int year, month, day;
-#ifndef _WIN32
-    sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day);
-#else
+#ifdef _WIN32
     swscanf_s(utility::conversions::to_string_t(str).c_str(),
               _XPLATSTR("%d-%d-%d"), &year, &month, &day);
+#else
+    sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day);
 #endif // !_WIN32
     date_time = ACE_Date_Time(day, month, year);
   }

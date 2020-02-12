@@ -1,7 +1,8 @@
 ﻿#include "stdafx.h"
 #include <signal.h>
 
-#define TEST_TRACE(X) ACE_Trace ____(ACE_TEXT(X), __LINE__, ACE_TEXT(__FILE__))
+//#define TEST_TRACE(X) ACE_Trace ____(ACE_TEXT(X), __LINE__,
+//ACE_TEXT(__FILE__))
 
 enum {
   error_create_lic = 2, // mybe create process

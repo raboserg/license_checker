@@ -27,10 +27,13 @@ utility::string_t LicenseExtractor::receive_license() {
     if (!json_value[_XPLATSTR("hostStatus")].is_null()) {
       const web::json::object host_status =
           json_value[_XPLATSTR("hostStatus")].as_object();
+
       const int host_state = host_status.at(_XPLATSTR("id")).as_integer();
+
       const utility::string_t host_state_name =
           host_status.at(_XPLATSTR("name")).as_string();
       TRACE_LOG(host_state_name.c_str());
+
       if (lic::host_states::ACTIVE == host_state) {
         if (!json_value[_XPLATSTR("hostLicenses")].is_null()) {
           web::json::array licenses =
@@ -102,8 +105,8 @@ LicenseExtractor::make_client_config(const int64_t &attempt) {
 web::http::http_response LicenseExtractor::send_request() {
   const std::chrono::seconds time_try_connection_{attempt_};
   //???	std::chrono::duration_cast<std::chrono::seconds>(attempt_);
-   if (!message_.is_valid())
-     throw std::runtime_error("message for request is empty");
+  if (!message_.is_valid())
+    throw std::runtime_error("message for request is empty");
 
   auto start = std::chrono::steady_clock::now();
   while (1) {
