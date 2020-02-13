@@ -1,4 +1,5 @@
 #include "process_killer_task.h"
+#include "ace/Process.h"
 #include "tracer.h"
 #ifdef _WIN32
 #include <Tlhelp32.h>
@@ -58,14 +59,14 @@ int Process_Killer_Task::svc() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: task started\n")));
   try {
     if (licenseChecker_->check_license_day() &&
-        licenseChecker_->is_license_file(_XPLATSTR("")) &&
+            !licenseChecker_->is_license_file(_XPLATSTR("")) ||
         !licenseChecker_->verify_license_file()) {
 
-      this->schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
+      schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
     } else {
-      this->schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
+      schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
       terminate_process(_XPLATSTR("Notepad2.exe"));
-      // run gui app
+      execute_process(_XPLATSTR("cmd.exe /d /c "));
       // TODO:save state to file check_lic_day ???
       INFO_LOG(TM("Wait next day"));
     }
@@ -108,6 +109,28 @@ int Process_Killer_Task::terminate_process(utility::string_t filename) {
   CloseHandle(hSnapShot);
   return hRes;
 #endif
+}
+
+int Process_Killer_Task::execute_process(utility::string_t process_name) {
+  ACE_Process_Options options;
+  // options.enable_unicode_environment();
+  // options.setenv(ACE_TEXT("ZZ"), ACE_TEXT("1"));
+  options.command_line(process_name.c_str());
+  ACE_Process process;
+  if (process.spawn(options) == -1) {
+    ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: "
+                                         "ERROR: Failed to spawn process\n")),
+                     -1);
+  }
+  ACE_exitcode status;
+  process.wait(&status);
+  if (status != 1) {
+    ACE_ERROR_RETURN(
+        (LM_ERROR, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: "
+                            "ERROR: Failed status of spawn process\n")),
+        -1);
+  }
+  return 0;
 }
 
 int Process_Killer_Task::schedule_handle_timeout(const int &seconds) {

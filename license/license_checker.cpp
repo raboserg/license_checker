@@ -180,9 +180,9 @@ LicenseChecker::extract_license_date(const utility::string_t &lic) {
 #ifdef _WIN32
     swscanf_s(utility::conversions::to_string_t(str).c_str(),
               _XPLATSTR("%d-%d-%d"), &year, &month, &day);
-#else
+#else // !_WIN32
     sscanf(str.c_str(), "%d-%d-%d", &year, &month, &day);
-#endif // !_WIN32
+#endif
     date_time = ACE_Date_Time(day, month, year);
   }
   /*std::string item;
