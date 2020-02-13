@@ -31,13 +31,14 @@ Get_License_Task::~Get_License_Task() {
 }
 
 int Get_License_Task::open(ACE_Time_Value tv1) {
-	this->timerId_ = reactor()->schedule_timer(this, 0, tv1, tv1);
+  this->timerId_ = reactor()->schedule_timer(this, 0, tv1, tv1);
   return 0;
 }
 
 void Get_License_Task::close() {
   reactor()->cancel_timer(this);
-  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: cancel timer\n")));
+  ACE_DEBUG(
+      (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: cancel timer\n")));
 }
 
 int Get_License_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
@@ -52,13 +53,14 @@ int Get_License_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
 }
 
 int Get_License_Task::handle_exception(ACE_HANDLE) {
-  ACE_DEBUG(
-      (LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task::handle_exception()\n")));
+  ACE_DEBUG((LM_DEBUG,
+             ACE_TEXT("%T (%t):\t\tGet_License_Task::handle_exception()\n")));
   return -1;
 }
 
 int Get_License_Task::svc() {
-  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task started\n")));
+  ACE_DEBUG(
+      (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task started\n")));
   try {
     if (licenseChecker_->check_update_day()) {
       const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
@@ -76,7 +78,7 @@ int Get_License_Task::svc() {
               licenseChecker_->extract_license_date(license);
           const ACE_Date_Time current_date;
           if (current_date.month() != license_date.month())
-						licenseChecker_->save_license_to_file(license);
+            licenseChecker_->save_license_to_file(license);
         }
       } else {
         // TODO:save state to file ???
@@ -91,19 +93,21 @@ int Get_License_Task::svc() {
     }
   } catch (const std::runtime_error &err) {
     CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
-		shutdown_service(); //???
-		ACE_ERROR_RETURN((LM_ERROR,
-                      ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"), err.what()),
-                     -1);
+    shutdown_service(); //???
+    ACE_ERROR_RETURN(
+        (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
+         err.what()),
+        -1);
   }
-  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task finished\n")));
+  ACE_DEBUG(
+      (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task finished\n")));
   return 0;
 }
 
 int Get_License_Task::schedule_handle_timeout(const int &seconds) {
   ACE_Time_Value tv1(seconds, 0);
-  /*reactor()->cancel_timer(this);
-  reactor()->schedule_timer(this, 0, tv1, tv1);*/
-	reactor()->reset_timer_interval(this->timerId_, tv1);
+  // reactor()->cancel_timer(this);
+  // reactor()->schedule_timer(this, 0, tv1, tv1);
+  reactor()->reset_timer_interval(this->timerId_, tv1);
   return 0;
 }

@@ -10,22 +10,23 @@ Service::Service(void) : event_(std::make_shared<ACE_Auto_Event>()) {
       SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS;
   // Remember the Reactor instance.
   reactor(ACE_Reactor::instance());
-	notificator_ = std::make_shared<WinNT::Notificator>();
-	get_license_task_ = std::make_unique<Get_License_Task>();
-	process_killer_task_ = std::make_unique<Process_Killer_Task>();
+  notificator_ = std::make_shared<WinNT::Notificator>();
+  get_license_task_ = std::make_unique<Get_License_Task>();
+  process_killer_task_ = std::make_unique<Process_Killer_Task>();
   DEBUG_LOG(TM("Service::Service(void) "));
 }
 
 Service::~Service(void) {
   if (ACE_Reactor::instance()->cancel_timer(this) == -1)
-    ACE_ERROR((LM_ERROR, "%T (%t):\tService::~Service failed to cancel_timer.\n"));
+    ACE_ERROR(
+        (LM_ERROR, "%T (%t):\tService::~Service failed to cancel_timer.\n"));
   DEBUG_LOG(TM("Service::~Service failed to cancel_timer"));
 }
 
 int Service::handle_close(ACE_HANDLE, ACE_Reactor_Mask) {
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tService::handle_close \n")));
-	stop_ = 1;
-	reactor()->end_reactor_event_loop();
+  stop_ = 1;
+  reactor()->end_reactor_event_loop();
   return 0;
 }
 // This method is called when the service gets a control request.  It
@@ -35,7 +36,8 @@ void Service::handle_control(DWORD control_code) {
   if (control_code == SERVICE_CONTROL_SHUTDOWN ||
       control_code == SERVICE_CONTROL_STOP) {
     report_status(SERVICE_STOP_PENDING);
-    ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\tService control stop requested\n")));
+    ACE_DEBUG(
+        (LM_INFO, ACE_TEXT("%T (%t):\tService control stop requested\n")));
     DEBUG_LOG(TM("Service control stop requested"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
     //???reactor()->notify(this->get_license_task_,
@@ -83,7 +85,7 @@ int Service::svc(void) {
 
   // Schedule a timer every two seconds.
   ACE_Time_Value tv(2, 0);
-  //ACE_Reactor::instance()->schedule_wait(this, 0, tv, tv);
+  // ACE_Reactor::instance()->schedule_wait(this, 0, tv, tv);
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -92,12 +94,16 @@ int Service::svc(void) {
   MyActiveTimer atimer;
   const ACE_Time_Value curr_tv = ACE_OS::gettimeofday();
   ACE_Time_Value interval = ACE_Time_Value(1, 100000);
-  //atimer.schedule(&cb1, &arg1, curr_tv + ACE_Time_Value(3L), interval);
+  // atimer.schedule(&cb1, &arg1, curr_tv + ACE_Time_Value(3L), interval);
 
   ////////////////////////////////////////////////////////////////////////
-	this->notificator_->Initialize(this->event_);
+  if (this->notificator_->Initialize(this->event_) == -1) {
+    ACE_ERROR(
+        (LM_ERROR, "%T (%t):\tcannot initialize notificator for event sink\n"));
+    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
+  }
 
-	if (this->reactor()->register_handler(this, event_->handle()) == -1) {
+  if (this->reactor()->register_handler(this, event_->handle()) == -1) {
     ACE_ERROR((LM_ERROR, "%T (%t):\tcannot register handle with Reactor\n",
                "Service::svc"));
     ERROR_LOG(TM("cannot register handle with Reactor"));
@@ -108,22 +114,23 @@ int Service::svc(void) {
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-	//if (this->process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
-	//	ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));
-	//	reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
-	//}
-	
+  if (this->process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
+    ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));
+    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
+  }
 
-	this->reactor()->run_reactor_event_loop();
+  this->reactor()->run_reactor_event_loop();
 
-	// Cleanly terminate connections, terminate threads.
+  // Cleanly terminate connections, terminate threads.
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tShutting down\n")));
-	this->notificator_->Release();
+  this->notificator_->Release();
+
   this->get_license_task_->close();
-	
-	this->reactor()->cancel_timer(this);
-	this->reactor()->remove_handler(this->event_->handle(),
-                            ACE_Event_Handler::DONT_CALL);
+  this->process_killer_task_->close();
+
+  this->reactor()->cancel_timer(this);
+  this->reactor()->remove_handler(this->event_->handle(),
+                                  ACE_Event_Handler::DONT_CALL);
 
   return 0;
 }

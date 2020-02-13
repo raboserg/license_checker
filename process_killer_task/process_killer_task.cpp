@@ -58,13 +58,17 @@ int Process_Killer_Task::svc() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: task started\n")));
   try {
     if (licenseChecker_->check_license_day() &&
+        licenseChecker_->is_license_file(L"") &&
         !licenseChecker_->verify_license_file()) {
-      kill(_XPLATSTR("Notepad2.exe"));
-      this->schedule_handle_timeout(lic::constats::WAIT_NEXT_DAY_SECS);
-    } else {
-      // set timer for next check update day: 24 * 60 * 60
-      this->schedule_handle_timeout(lic::constats::WAIT_NEXT_DAY_SECS);
-      // TODO:save state to file check_lic_day ???
+    
+			kill(_XPLATSTR("Notepad2.exe"));
+			this->schedule_handle_timeout(lic::constats::WAIT_NEXT_TRY_GET_SECS + 3);
+    
+		} else {
+      
+			this->schedule_handle_timeout(lic::constats::WAIT_NEXT_DAY_SECS);
+
+			// TODO:save state to file check_lic_day ???
       INFO_LOG(TM("Wait next day"));
     }
   } catch (const std::runtime_error &err) {
@@ -83,11 +87,9 @@ int Process_Killer_Task::svc() {
 
 int Process_Killer_Task::kill(utility::string_t filename) {
 #ifdef _WIN32
-	BOOL hRes;
-
-WCHAR szPath[20];
-wcscpy_s(szPath, filename.c_str());
-	
+  BOOL hRes;
+  WCHAR szPath[20];
+  wcscpy_s(szPath, filename.c_str());
 
   filename += _XPLATSTR(".exe");
   HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
@@ -95,16 +97,7 @@ wcscpy_s(szPath, filename.c_str());
   pEntry.dwSize = sizeof(pEntry);
   hRes = Process32First(hSnapShot, &pEntry);
   while (hRes) {
-		
-		//utility::string_t sdfdsf(pEntry.szExeFile);
-		//ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):: %s \n"), sdfdsf.c_str()));
-		//ucout << sdfdsf << std::endl;
-    //if (filename.c_str() == pEntry.szExeFile) {
-
-		if (wcscmp(pEntry.szExeFile, szPath) == 0){
-
-//		if (szPath == pEntry.szExeFile) {
-			
+    if (wcscmp(pEntry.szExeFile, szPath) == 0) {
       HANDLE hProcess =
           OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
       if (hProcess != NULL) {
@@ -115,7 +108,7 @@ wcscpy_s(szPath, filename.c_str());
     hRes = Process32Next(hSnapShot, &pEntry);
   }
   CloseHandle(hSnapShot);
-	return hRes;
+  return hRes;
 #endif
 }
 
@@ -123,4 +116,9 @@ int Process_Killer_Task::schedule_handle_timeout(const int &seconds) {
   ACE_Time_Value tv1(seconds, 0);
   reactor()->reset_timer_interval(this->timerId_, tv1);
   return 0;
+}
+
+int Process_Killer_Task::shutdown_service() {
+  reactor()->cancel_timer(this);
+  return reactor()->end_reactor_event_loop();
 }

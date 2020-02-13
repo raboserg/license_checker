@@ -26,9 +26,5 @@ private:
   ACE_Array<ACE_CString> state_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
 	int kill(utility::string_t filename);
-
-	int shutdown_service() {
-    reactor()->cancel_timer(this);
-    return reactor()->end_reactor_event_loop();
-  }
+	int shutdown_service();
 };
