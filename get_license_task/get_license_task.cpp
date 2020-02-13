@@ -44,7 +44,7 @@ void Get_License_Task::close() {
 int Get_License_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
   ACE_UNUSED_ARG(tv);
   ACE_DEBUG(
-      (LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task::handle_timeout\n")));
+      (LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: handle timeout\n")));
   if (this->activate(THR_NEW_LWP) == -1)
     ACE_ERROR_RETURN(
         (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: activate failed")),
@@ -72,7 +72,7 @@ int Get_License_Task::svc() {
         const utility::string_t license = result.license;
         if (license.empty()) {
           // SHEDULE TIME FOR NEXT TRY GET LICENSE
-          this->schedule_handle_timeout(lic::constats::WAIT_NEXT_TRY_GET_SECS);
+          schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
         } else {
           const ACE_Date_Time license_date =
               licenseChecker_->extract_license_date(license);
@@ -83,11 +83,11 @@ int Get_License_Task::svc() {
       } else {
         // TODO:save state to file ???
         // SHADULE TIME FOR NEXT GET LICENSE STATE - 5 minutes
-        this->schedule_handle_timeout(lic::constats::WAIT_NEXT_TRY_GET_SECS);
+        schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
       }
     } else {
       // set timer for next check update day: 24 * 60 * 60
-      this->schedule_handle_timeout(lic::constats::WAIT_NEXT_DAY_SECS);
+      schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
       // TODO:save state to file ???
       INFO_LOG(TM("Wait next day"));
     }

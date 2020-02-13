@@ -14,7 +14,7 @@ Process_Killer_Task::Process_Killer_Task()
 Process_Killer_Task::Process_Killer_Task(ACE_Thread_Manager *thr_mgr,
                                          const int n_threads)
     : ACE_Task<ACE_MT_SYNCH>(thr_mgr), n_threads_(n_threads) {
-  reactor(ACE_Reactor::instance());
+  this->reactor(ACE_Reactor::instance());
 }
 
 Process_Killer_Task::~Process_Killer_Task() {
@@ -58,17 +58,15 @@ int Process_Killer_Task::svc() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: task started\n")));
   try {
     if (licenseChecker_->check_license_day() &&
-        licenseChecker_->is_license_file(L"") &&
+        licenseChecker_->is_license_file(_XPLATSTR("")) &&
         !licenseChecker_->verify_license_file()) {
-    
-			kill(_XPLATSTR("Notepad2.exe"));
-			this->schedule_handle_timeout(lic::constats::WAIT_NEXT_TRY_GET_SECS + 3);
-    
-		} else {
-      
-			this->schedule_handle_timeout(lic::constats::WAIT_NEXT_DAY_SECS);
 
-			// TODO:save state to file check_lic_day ???
+      this->schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
+    } else {
+      this->schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
+      terminate_process(_XPLATSTR("Notepad2.exe"));
+      // run gui app
+      // TODO:save state to file check_lic_day ???
       INFO_LOG(TM("Wait next day"));
     }
   } catch (const std::runtime_error &err) {
@@ -85,7 +83,7 @@ int Process_Killer_Task::svc() {
   return 0;
 }
 
-int Process_Killer_Task::kill(utility::string_t filename) {
+int Process_Killer_Task::terminate_process(utility::string_t filename) {
 #ifdef _WIN32
   BOOL hRes;
   WCHAR szPath[20];

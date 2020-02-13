@@ -19,7 +19,7 @@ struct host_states {
 #undef DAT
 };
 
-struct constats {
+struct constants {
 #define _CONSTANTS
 #define DAT(a, b, c) const static unsigned short a = b;
 #include "../resources/constants.dat"

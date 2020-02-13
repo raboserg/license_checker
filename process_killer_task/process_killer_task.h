@@ -25,6 +25,6 @@ private:
 	int n_threads_;
   ACE_Array<ACE_CString> state_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
-	int kill(utility::string_t filename);
+	int terminate_process(utility::string_t filename);
 	int shutdown_service();
 };

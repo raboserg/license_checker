@@ -22,10 +22,9 @@ utility::string_t LicenseChecker::run_proc(const utility::string_t &command) {
 }
 
 bool LicenseChecker::is_license_file(const utility::string_t &file_name) {
-	bool result = false;
-	const utility::string_t license_file_name =
-		PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
-
+  bool result = false;
+  const utility::string_t license_file_name =
+      PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
   utility::ifstream_t file(license_file_name, std::ios::out);
   if (file.is_open()) {
     file.close();
@@ -35,7 +34,7 @@ bool LicenseChecker::is_license_file(const utility::string_t &file_name) {
 }
 bool LicenseChecker::verify_license_file() {
   bool result = false;
-	utility::string_t line = run_proc(make_verify_license_cmd());
+  utility::string_t line = run_proc(make_verify_license_cmd());
   if (line.empty()) {
     throw std::runtime_error("lic of output is empty");
   } else {
@@ -62,7 +61,7 @@ utility::string_t LicenseChecker::generate_machine_uid() {
   if (len && (line.c_str()[len - 1] == 0x0D))
     line.erase(len - 1);
 
-  if (line.length() != lic::constats::UID_SIZE)
+  if (line.length() != lic::constants::UID_SIZE)
     throw std::runtime_error("size of UID isn't valid: " +
                              std::to_string(line.length()));
 
@@ -149,14 +148,14 @@ bool LicenseChecker::check_update_day() {
     throw std::runtime_error("Key of LICENSE.day_for_update is failed");
   const long day = ACE_OS::atol(license_update_day.c_str());
   return (date_time.day() >= day &&
-          date_time.day() <= day + lic::constats::CHECK_DAYS);
+          date_time.day() <= day + lic::constants::CHECK_DAYS);
 }
 
 bool LicenseChecker::check_license_day() {
   ACE_Date_Time date_time;
   // ACE_DEBUG(
   //	(LM_DEBUG, ACE_TEXT("%T (%t):\t\tLicenseChecker: Day of today - %d\n"),
-  //date_time.day()));
+  // date_time.day()));
   const utility::string_t license_check_day = PARSER::instance()->get_value(
       lic::config_keys::LICENSE_DAY_FOR_CHECK_LIC);
   if (license_check_day.empty())
