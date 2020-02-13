@@ -59,14 +59,13 @@ int Process_Killer_Task::svc() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: task started\n")));
   try {
     if (licenseChecker_->check_license_day() &&
-            !licenseChecker_->is_license_file(_XPLATSTR("")) ||
-        !licenseChecker_->verify_license_file()) {
-
+        (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
+         !licenseChecker_->verify_license_file())) {
+      terminate_process(_XPLATSTR("Notepad2.exe"));
+      execute_process(_XPLATSTR("cmd.exe /d /c "));
       schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
     } else {
       schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
-      terminate_process(_XPLATSTR("Notepad2.exe"));
-      execute_process(_XPLATSTR("cmd.exe /d /c "));
       // TODO:save state to file check_lic_day ???
       INFO_LOG(TM("Wait next day"));
     }
@@ -117,19 +116,17 @@ int Process_Killer_Task::execute_process(utility::string_t process_name) {
   // options.setenv(ACE_TEXT("ZZ"), ACE_TEXT("1"));
   options.command_line(process_name.c_str());
   ACE_Process process;
-  if (process.spawn(options) == -1) {
+  if (process.spawn(options) == -1)
     ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: "
                                          "ERROR: Failed to spawn process\n")),
                      -1);
-  }
   ACE_exitcode status;
   process.wait(&status);
-  if (status != 1) {
+  if (status != 1)
     ACE_ERROR_RETURN(
         (LM_ERROR, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: "
                             "ERROR: Failed status of spawn process\n")),
         -1);
-  }
   return 0;
 }
 
