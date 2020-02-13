@@ -22,6 +22,7 @@ class LicenseChecker {
 public:
   LicenseChecker();
   bool check_update_day();
+	bool check_license_day();
   bool verify_license_file();
   utility::string_t generate_machine_uid();
   void save_license_to_file(const utility::string_t &command);

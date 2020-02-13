@@ -14,6 +14,7 @@
 #include "notificator.h"
 
 #include "get_license_task.h"
+#include "process_killer_task.h"
 
 class Service : public ACE_NT_Service {
 public:
@@ -57,6 +58,7 @@ private:
 	std::shared_ptr<ACE_Auto_Event> event_;
 	std::shared_ptr<WinNT::Notificator> notificator_;
 	std::unique_ptr<Get_License_Task> get_license_task_;
+	std::unique_ptr<Process_Killer_Task> process_killer_task_;
 };
 
 // Define a singleton class as a way to insure that there's only one

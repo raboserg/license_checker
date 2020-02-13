@@ -19,7 +19,7 @@ int EventSink_Task::svc() {
         const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
             licenseChecker_->make_license_extractor(5);
 
-        const utility::string_t lic = licenseExtractor_->receive_license();
+        const utility::string_t lic = licenseExtractor_->processing_license();
 
         if (!lic.empty()) {
           licenseChecker_->save_license_to_file(lic);

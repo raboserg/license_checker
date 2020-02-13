@@ -2,9 +2,11 @@
 #include "ace/Date_Time.h"
 #include "client_license.h"
 #include "constants.h"
+#include "parser_ini.h"
 #include "tracer.h"
 
-/// const uint64_t dsfds = utility::datetime::from_days(1); //???
+// dsfds/10000/1000 = seconds
+// const uint64_t dsfds = utility::datetime::from_days(1);
 
 // const utility::string_t LIC =
 //    L"Mg==.MDAwMQ==.MjAyMC0xMi0wN1QxMzoxNjoyN1o=."
@@ -25,38 +27,38 @@ Get_License_Task::Get_License_Task(ACE_Thread_Manager *thr_mgr,
 
 Get_License_Task::~Get_License_Task() {
   close();
-  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t~Get_License_Task()\n")));
+  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\t~Get_License_Task()\n")));
 }
 
 int Get_License_Task::open(ACE_Time_Value tv1) {
-  reactor()->schedule_timer(this, 0, tv1, tv1);
+	this->timerId_ = reactor()->schedule_timer(this, 0, tv1, tv1);
   return 0;
 }
 
 void Get_License_Task::close() {
   reactor()->cancel_timer(this);
-  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\tGet_License_Task: cancel timer\n")));
+  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: cancel timer\n")));
 }
 
 int Get_License_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
   ACE_UNUSED_ARG(tv);
   ACE_DEBUG(
-      (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task::handle_timeout\n")));
+      (LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task::handle_timeout\n")));
   if (this->activate(THR_NEW_LWP) == -1)
     ACE_ERROR_RETURN(
-        (LM_ERROR, ACE_TEXT("%T (%t):\tGet_License_Task: activate failed")),
+        (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: activate failed")),
         -1);
   return 0;
 }
 
 int Get_License_Task::handle_exception(ACE_HANDLE) {
   ACE_DEBUG(
-      (LM_DEBUG, ACE_TEXT("%T (%t):\tGet_License_Task::handle_exception()\n")));
+      (LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task::handle_exception()\n")));
   return -1;
 }
 
 int Get_License_Task::svc() {
-  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\tGet_License_Task: task started\n")));
+  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task started\n")));
   try {
     if (licenseChecker_->check_update_day()) {
       const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
@@ -68,18 +70,18 @@ int Get_License_Task::svc() {
         const utility::string_t license = result.license;
         if (license.empty()) {
           // SHEDULE TIME FOR NEXT TRY GET LICENSE
-          this->schedule_handle_timeout(5 * 60);
+          this->schedule_handle_timeout(lic::constats::WAIT_NEXT_TRY_GET_SECS);
         } else {
           const ACE_Date_Time license_date =
               licenseChecker_->extract_license_date(license);
           const ACE_Date_Time current_date;
-          if (current_date.month() = license_date.month())
-            licenseChecker_->save_license_to_file(license);
+          if (current_date.month() != license_date.month())
+						licenseChecker_->save_license_to_file(license);
         }
       } else {
         // TODO:save state to file ???
-        // SHADULE TIME FOR NEXT GET LICENSE STATE
-        this->schedule_handle_timeout(5 * 60); // 5 minutes
+        // SHADULE TIME FOR NEXT GET LICENSE STATE - 5 minutes
+        this->schedule_handle_timeout(lic::constats::WAIT_NEXT_TRY_GET_SECS);
       }
     } else {
       // set timer for next check update day: 24 * 60 * 60
@@ -89,19 +91,19 @@ int Get_License_Task::svc() {
     }
   } catch (const std::runtime_error &err) {
     CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
-    ACE_ERROR_RETURN((LM_ERROR,
-                      ACE_TEXT("%T (%t):\tGet_License_Task: kill task #\n"),
-                      err.what()),
+		shutdown_service(); //???
+		ACE_ERROR_RETURN((LM_ERROR,
+                      ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"), err.what()),
                      -1);
-    shutdown_service(); //???
   }
-  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\tGet_License_Task: task finished\n")));
+  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task finished\n")));
   return 0;
 }
 
 int Get_License_Task::schedule_handle_timeout(const int &seconds) {
   ACE_Time_Value tv1(seconds, 0);
-  reactor()->cancel_timer(this);
-  reactor()->schedule_timer(this, 0, tv1, tv1);
+  /*reactor()->cancel_timer(this);
+  reactor()->schedule_timer(this, 0, tv1, tv1);*/
+	reactor()->reset_timer_interval(this->timerId_, tv1);
   return 0;
 }

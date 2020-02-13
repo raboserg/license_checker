@@ -11,6 +11,7 @@ DAT(LICENSE_FILE_NAME,      U("FILES.lic_file_name"))
 DAT(LICENSE_SRV_URI,	    U("LICENSE.license_manager_uri"))
 
 DAT(LICENSE_DAY_FOR_UPDATE,		U("LICENSE.day_for_update"))
+DAT(LICENSE_DAY_FOR_CHECK_LIC	,U("LICENSE.day_for_check_lic"))
 DAT(LICENSE_TIMEOUT_TRY,		U("LICENSE.timeout_try_sec"))
 DAT(LICENSE_TIMEOUT_CHECK_DAY,  U("LICENSE.timeout_check_day_hours"))
 DAT(LICENSE_TIMEOUT_TRY_GET_LIC,U("LICENSE.timeout_try_get_lic_min"))
@@ -24,7 +25,8 @@ DAT(SUSPENDED,	2, U("suspended"))
 #endif
 
 #ifdef _CONSTANTS
-DAT(UID_SIZE,		58, U("uid size"))
-DAT(CHECK_DAYS,		5, U("check days"))
-DAT(WAIT_NEXT_DAY_SECS,	86400, U("check days"))
+DAT(UID_SIZE,				58, U("uid size"))
+DAT(CHECK_DAYS,				5, U("check days"))
+DAT(WAIT_NEXT_DAY_SECS,		86400, U("wait next day seconds"))
+DAT(WAIT_NEXT_TRY_GET_SECS,	10, U("wait next try get seconds"))
 #endif

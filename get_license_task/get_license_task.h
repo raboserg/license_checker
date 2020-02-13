@@ -61,10 +61,15 @@ public:
   virtual int schedule_handle_timeout(const int &seconds);
 
 private:
-  int n_threads_;
+	long timerId_;
+	int n_threads_;
   ACE_Array<ACE_CString> results_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
-  int shutdown_service() { reactor()->end_reactor_event_loop(); }
+  
+	int shutdown_service() {
+    reactor()->cancel_timer(this);
+    return reactor()->end_reactor_event_loop();
+  }
   // the Bridge/Strategy patterns.
   //???ACE_Reactor_Notification_Strategy notification_strategy_;
 };

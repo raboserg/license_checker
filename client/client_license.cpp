@@ -1,7 +1,6 @@
 ﻿#include "client_license.h"
 #include <constants.h>
 #include <cpprest/asyncrt_utils.h>
-#include <tracer.h>
 
 LicenseExtractor::LicenseExtractor(const web::http::uri &address,
                                    const Message &message,
@@ -15,7 +14,7 @@ LicenseExtractor::LicenseExtractor(const web::http::uri &address,
 
 utility::string_t LicenseExtractor::processing_license() {
   const web::http::http_response response = send_request();
-  ucout << response.to_string() << std::endl;
+
   utility::string_t license;
   if (response.status_code() == web::http::status_codes::OK) {
     response.content_ready().wait();
@@ -114,8 +113,12 @@ web::http::http_response LicenseExtractor::send_request() {
   if (!message_.is_valid())
     throw std::runtime_error("message for request is empty");
 
+  std::shared_ptr<web::http::http_pipeline_stage> countStage =
+      std::make_shared<stage_handler>();
+  client_.add_handler(countStage);
+
   auto start = std::chrono::steady_clock::now();
-  while (1) {
+  while (true) {
     try {
       return client_.request(request_).get();
       break;

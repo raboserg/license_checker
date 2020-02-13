@@ -128,8 +128,8 @@ utility::string_t LicenseChecker::make_machine_uid_cmd() {
 
 bool LicenseChecker::check_update_day() {
   ACE_Date_Time date_time;
-  ACE_DEBUG(
-      (LM_DEBUG, ACE_TEXT("%T (%t):\tDay of today %d day\n"), date_time.day()));
+  //ACE_DEBUG(
+  //    (LM_DEBUG, ACE_TEXT("%T (%t):\t\tLicenseChecker: Day of today - %d\n"), date_time.day()));
   const utility::string_t license_update_day =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_DAY_FOR_UPDATE);
   if (license_update_day.empty())
@@ -137,6 +137,18 @@ bool LicenseChecker::check_update_day() {
   const long day = ACE_OS::atol(license_update_day.c_str());
   return (date_time.day() >= day &&
           date_time.day() <= day + lic::constats::CHECK_DAYS);
+}
+
+bool LicenseChecker::check_license_day() {
+	ACE_Date_Time date_time;
+	//ACE_DEBUG(
+	//	(LM_DEBUG, ACE_TEXT("%T (%t):\t\tLicenseChecker: Day of today - %d\n"), date_time.day()));
+	const utility::string_t license_check_day =
+		PARSER::instance()->get_value(lic::config_keys::LICENSE_DAY_FOR_CHECK_LIC);
+	if (license_check_day.empty())
+		throw std::runtime_error("Key of LICENSE.day_for_check_lic is failed");
+	const long day = ACE_OS::atol(license_check_day.c_str());
+	return (date_time.day() >= day);
 }
 
 ACE_Date_Time

@@ -12,6 +12,7 @@ Service::Service(void) : event_(std::make_shared<ACE_Auto_Event>()) {
   reactor(ACE_Reactor::instance());
 	notificator_ = std::make_shared<WinNT::Notificator>();
 	get_license_task_ = std::make_unique<Get_License_Task>();
+	process_killer_task_ = std::make_unique<Process_Killer_Task>();
   DEBUG_LOG(TM("Service::Service(void) "));
 }
 
@@ -106,6 +107,12 @@ int Service::svc(void) {
     ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
+
+	//if (this->process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
+	//	ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));
+	//	reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
+	//}
+	
 
 	this->reactor()->run_reactor_event_loop();
 
