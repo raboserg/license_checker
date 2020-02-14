@@ -61,9 +61,11 @@ int Process_Killer_Task::svc() {
     if (licenseChecker_->check_license_day() &&
         (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
          !licenseChecker_->verify_license_file())) {
-      terminate_process(_XPLATSTR("Notepad2.exe"));
-      execute_process(_XPLATSTR("cmd.exe /d /c "));
-      schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
+			schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
+			INFO_LOG(TM("Terminate process - Notepad2.exe"));
+			terminate_process(_XPLATSTR("Notepad2.exe"));
+			INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
+			execute_process(_XPLATSTR("D:/project/itagent.exe"));
     } else {
       schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
       // TODO:save state to file check_lic_day ???
@@ -83,13 +85,12 @@ int Process_Killer_Task::svc() {
   return 0;
 }
 
-int Process_Killer_Task::terminate_process(utility::string_t filename) {
+int Process_Killer_Task::terminate_process(const utility::string_t filename) {
 #ifdef _WIN32
   BOOL hRes;
   WCHAR szPath[20];
   wcscpy_s(szPath, filename.c_str());
 
-  filename += _XPLATSTR(".exe");
   HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
   PROCESSENTRY32 pEntry;
   pEntry.dwSize = sizeof(pEntry);
@@ -110,8 +111,8 @@ int Process_Killer_Task::terminate_process(utility::string_t filename) {
 #endif
 }
 
-int Process_Killer_Task::execute_process(utility::string_t process_name) {
-  ACE_Process_Options options;
+int Process_Killer_Task::execute_process(const utility::string_t process_name) {
+	ACE_Process_Options options;
   // options.enable_unicode_environment();
   // options.setenv(ACE_TEXT("ZZ"), ACE_TEXT("1"));
   options.command_line(process_name.c_str());

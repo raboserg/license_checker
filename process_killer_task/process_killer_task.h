@@ -26,6 +26,6 @@ private:
   ACE_Array<ACE_CString> state_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
   int shutdown_service();
-  int terminate_process(utility::string_t filename);
-  int execute_process(utility::string_t filename);
+  int terminate_process(const utility::string_t filename);
+  int execute_process(const utility::string_t filename);
 };

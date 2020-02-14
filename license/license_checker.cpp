@@ -161,7 +161,7 @@ bool LicenseChecker::check_license_day() {
   if (license_check_day.empty())
     throw std::runtime_error("Key of LICENSE.day_for_check_lic is failed");
   const long day = ACE_OS::atol(license_check_day.c_str());
-  return (date_time.day() >= day);
+  return (date_time.day() == day);
 }
 
 ACE_Date_Time

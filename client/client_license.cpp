@@ -7,6 +7,7 @@ LicenseExtractor::LicenseExtractor(const web::http::uri &address,
                                    const int64_t &attempt)
     : client_(address, make_client_config(attempt)), message_(message),
       attempt_(attempt) {
+  result_ = std::make_shared<Result>();
   request_.set_method(web::http::methods::POST);
   request_.set_body(make_request_message(message).serialize(),
                     web::http::details::mime_types::application_json);
@@ -14,49 +15,35 @@ LicenseExtractor::LicenseExtractor(const web::http::uri &address,
 
 utility::string_t LicenseExtractor::processing_license() {
   const web::http::http_response response = send_request();
-
-  utility::string_t license;
-  if (response.status_code() == web::http::status_codes::OK) {
+  result_->status_code(response.status_code());
+  if (result_->status_code() == web::http::status_codes::OK) {
     response.content_ready().wait();
     web::http::http_headers headers = response.headers();
     const utility::string_t content_type =
         headers[web::http::header_names::content_type];
     // text/html;charset=UTF-8
     web::json::value json_value = response.extract_json().get();
+    result_->message(json_value[_XPLATSTR("message")].as_string());
     if (!json_value[_XPLATSTR("hostStatus")].is_null()) {
-      const web::json::object host_status =
+      const web::json::object host_status_json =
           json_value[_XPLATSTR("hostStatus")].as_object();
-
-      const int host_state = host_status.at(_XPLATSTR("id")).as_integer();
-
-      const utility::string_t host_state_name =
-          host_status.at(_XPLATSTR("name")).as_string();
-      TRACE_LOG(host_state_name.c_str());
-
-      result_.state = host_state;
-
-      if (lic::host_states::ACTIVE == host_state) {
-
-        if (!json_value[_XPLATSTR("hostLicenses")].is_null()) {
-          web::json::array licenses =
-              json_value[_XPLATSTR("hostLicenses")].as_array();
-          const size_t size = licenses.size();
-          if (!(size == 0)) {
-            web::json::value license_item = licenses[licenses.size() - 1];
-            license = license_item[_XPLATSTR("license")].as_string();
-
-            result_.license = license;
-
-            const utility::string_t license_exp_date =
-                license_item[_XPLATSTR("licenseExpirationDate")].as_string();
-            utility::string_t license_msg(_XPLATSTR("data: ") +
-                                          license_exp_date +
-                                          _XPLATSTR("; lic: ") + license);
-            TRACE_LOG(license_msg.c_str());
-          }
+      result_->host_status()->id(
+          host_status_json.at(_XPLATSTR("id")).as_integer());
+      result_->host_status()->name(
+          host_status_json.at(_XPLATSTR("name")).as_string());
+      if (result_->host_status()->id() == lic::host_states::ACTIVE) {
+        if (!json_value[_XPLATSTR("hostLicense")].is_null()) {
+          web::json::value license_json = json_value[_XPLATSTR("hostLicense")];
+          result_->host_license()->license(
+              license_json[_XPLATSTR("license")].as_string());
+          result_->host_license()->month(
+              license_json[_XPLATSTR("month")].as_integer());
+          result_->host_license()->year(
+              license_json[_XPLATSTR("year")].as_integer());
         }
-      }
-      return license;
+      } else
+        result_->host_license() = nullptr; //???
+      return result_->host_license()->license();
     }
   } else {
     processing_errors(response);
@@ -69,13 +56,15 @@ void LicenseExtractor::processing_errors(
                       std::to_string(response.status_code());
   ERROR_LOG(utility::conversions::to_string_t(error).c_str());
 
+	const std::shared_ptr<Errors> errors = std::make_shared<Errors>();
+
   if (response.status_code() == web::http::status_codes::UnprocessableEntity) {
     response.content_ready().wait();
     web::json::value json_value = response.extract_json().get();
 
     const utility::string_t user_message =
         json_value[_XPLATSTR("userMessage")].as_string();
-
+		errors->userMessage(json_value[_XPLATSTR("userMessage")].as_string());
     error.append(" ").append(utility::conversions::to_utf8string(user_message));
 
     ERROR_LOG(user_message.c_str());
@@ -89,7 +78,8 @@ void LicenseExtractor::processing_errors(
             field_error.at(_XPLATSTR("message")).as_string();
         const utility::string_t fieldName =
             field_error.at(_XPLATSTR("fieldName")).as_string();
-        ERROR_LOG(utility::string_t(_XPLATSTR("fieldName "))
+        
+				ERROR_LOG(utility::string_t(_XPLATSTR("fieldName "))
                       .append(fieldName)
                       .append(_XPLATSTR(" "))
                       .append(message)
@@ -97,6 +87,7 @@ void LicenseExtractor::processing_errors(
       }
     }
   }
+	result_->errors(errors);
   throw std::runtime_error(error.c_str());
 }
 

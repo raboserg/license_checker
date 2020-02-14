@@ -133,7 +133,7 @@ int Process::run(int argc, char *argv[]) {
     SERVICE::instance()->svc();
   } else {
 
-    ACE_LOG_MSG->open(argv[0], ACE_Log_Msg::SYSLOG, "itVPNAgentSyslogTest");
+    ACE_LOG_MSG->open(argv[0], ACE_Log_Msg::STDERR|ACE_Log_Msg::SYSLOG, "itVPNAgentSyslogTest");
 
     /*static ofstream *output_file = new ofstream("ntsvc.log", ios::out);
     if (output_file && output_file->rdstate() == ios::goodbit)

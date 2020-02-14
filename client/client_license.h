@@ -4,52 +4,102 @@
 #define CLIENT_LICENSE_H
 
 #define _TURN_OFF_PLATFORM_STRING
-
 #include "constants.h"
 #include "tracer.h"
 #include <cpprest/details/basic_types.h>
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
+#include <vector>
 
 /*
-struct hostStatus {
-		int id;//: 3,
-		string name;//: "Подтверждён"
-	};
-
-struct response{
-	string message;//: "Лицензии ещё нет",
-	string hostLicense;//: null,
-	hostStatus hostStatus_;
+{
+        "userMessage": "Не пройдена валидация",
+        "developerMessage": null,
+         "fieldErrors": [
+                {
+                        "validationErrorName": "RELATED_ENTITY_NOT_FOUND",
+                        "message": "unp='9999998881' :
+RELATED_ENTITY_NOT_FOUND", "fieldName": "unp"
+                }
+        ],
+        "nestedError": null
 }
 */
 
-struct Result {
-  int state;
-  utility::string_t license;
-  utility::string_t year_lic;
-  utility::string_t month_lic;
-  utility::string_t errors; //???
+class Errors {
+  utility::string_t code;
+  utility::string_t error_type_;
+  utility::string_t user_message_;
+  utility::string_t developer_message_;
+  std::vector<utility::string_t> fiels_errors;
+public:
+	utility::string_t userMessage() { return user_message_; };
+	void userMessage(utility::string_t user_message) { user_message_ = user_message; };
+};
+
+class HostLicense {
+  int year_;
+  int month_;
+  utility::string_t license_;
+
+public:
+  int year() { return year_; }
+  int month() { return month_; }
+  utility::string_t license() { return license_; }
+
+  void year(const int year) { year_ = year; }
+  void month(const int month) { month_ = month; }
+  void license(const utility::string_t &license) { license_ = license; }
+};
+
+class HostStatus {
+  int id_;
+  utility::string_t name_;
+
+public:
+  int id() { return id_; }
+  void id(const int id) { id_ = id; }
+  utility::string_t name() { return name_; }
+  void name(const utility::string_t &name) { name_ = name; }
+};
+
+class Result {
+  std::shared_ptr<Errors> errors_;
+  unsigned short status_code_;
+  utility::string_t message_;
+  std::shared_ptr<HostLicense> host_license_;
+  std::shared_ptr<HostStatus> host_status_;
+
+public:
+  Result()
+      : host_license_(std::make_shared<HostLicense>()),
+        host_status_(std::make_shared<HostStatus>()) {}
+
+  std::shared_ptr<HostLicense> host_license() { return host_license_; }
+  std::shared_ptr<HostStatus> host_status() { return host_status_; }
+
+  std::shared_ptr<Errors> errors() { return errors_; }
+  void errors(const std::shared_ptr<Errors> errors) { errors_ = errors; }
+
+  utility::string_t message() { return message_; }
+  void message(const utility::string_t &message) { message_ = message; }
+  unsigned short status_code() { return status_code_; }
+  void status_code(unsigned short status_code) { status_code_ = status_code; }
 };
 
 class Message {
+  const utility::string_t uid_;
+  const utility::string_t unp_;
+  const utility::string_t agent_;
+
 public:
   Message(const utility::string_t uid, const utility::string_t unp,
           const utility::string_t agent)
       : uid_(uid), unp_(unp), agent_(agent) {}
-
   utility::string_t get_uid() const { return uid_; }
-
   utility::string_t get_unp() const { return unp_; }
-
   utility::string_t get_agent() const { return agent_; }
-
   bool is_valid() { return !uid_.empty() && !unp_.empty() && !agent_.empty(); }
-
-private:
-  const utility::string_t uid_;
-  const utility::string_t unp_;
-  const utility::string_t agent_;
 };
 
 class stage_handler : public web::http::http_pipeline_stage {
@@ -79,10 +129,10 @@ public:
                    const int64_t &attempt);
 
   utility::string_t processing_license();
-  Result get_result() { return result_; }
+  std::shared_ptr<Result> get_result() { return result_; }
 
 private:
-  Result result_;
+  std::shared_ptr<Result> result_;
   Message message_;
   const int64_t attempt_;
   const web::http::uri address_;

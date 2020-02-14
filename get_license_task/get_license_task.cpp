@@ -65,11 +65,13 @@ int Get_License_Task::svc() {
     if (licenseChecker_->check_update_day()) {
       const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
           licenseChecker_->make_license_extractor(1);
-      // TRY GET LICENSE ?????
+      INFO_LOG(TM("Try to get a license"));
       licenseExtractor_->processing_license();
-      const Result result = licenseExtractor_->get_result();
-      if (result.state == lic::host_states::ACTIVE) {
-        const utility::string_t license = result.license;
+      std::shared_ptr<Result> result = licenseExtractor_->get_result();
+			if(result->errors() == nullptr)
+				INFO_LOG(TM("Errors is nullptr"));
+      if (result->host_status()->id() == lic::host_states::ACTIVE) {
+        const utility::string_t license = result->host_license()->license();
         if (license.empty()) {
           // SHEDULE TIME FOR NEXT TRY GET LICENSE
           schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
@@ -79,6 +81,8 @@ int Get_License_Task::svc() {
           const ACE_Date_Time current_date;
           if (current_date.month() != license_date.month())
             licenseChecker_->save_license_to_file(license);
+          // set timer for next check update day: 24 * 60 * 60
+          schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
         }
       } else {
         // TODO:save state to file ???
@@ -106,8 +110,6 @@ int Get_License_Task::svc() {
 
 int Get_License_Task::schedule_handle_timeout(const int &seconds) {
   ACE_Time_Value tv1(seconds, 0);
-  // reactor()->cancel_timer(this);
-  // reactor()->schedule_timer(this, 0, tv1, tv1);
   reactor()->reset_timer_interval(this->timerId_, tv1);
   return 0;
 }
