@@ -67,9 +67,9 @@ int Get_License_Task::svc() {
           licenseChecker_->make_license_extractor(1);
       INFO_LOG(TM("Try to get a license"));
       licenseExtractor_->processing_license();
-      std::shared_ptr<Result> result = licenseExtractor_->get_result();
-			if(result->errors() == nullptr)
-				INFO_LOG(TM("Errors is nullptr"));
+      const std::shared_ptr<Result> result = licenseExtractor_->get_result();
+      if (result->errors() == nullptr)
+        INFO_LOG(TM("Errors is nullptr"));
       if (result->host_status()->id() == lic::host_states::ACTIVE) {
         const utility::string_t license = result->host_license()->license();
         if (license.empty()) {

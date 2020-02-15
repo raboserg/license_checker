@@ -20,13 +20,13 @@ DAT(LICENSE_TIMEOUT_TRY_GET_LIC,U("LICENSE.timeout_try_get_lic_min"))
 #ifdef _LICENSE_STATUSES
 DAT(NEW,		4, U("new"))
 DAT(ACTIVE,		1, U("active"))
-DAT(APPROVED,	3, U("approved"))
-DAT(SUSPENDED,	2, U("suspended"))
+DAT(APPROVED,           3, U("approved"))
+DAT(SUSPENDED,          2, U("suspended"))
 #endif
 
 #ifdef _CONSTANTS
-DAT(UID_SIZE,				58, U("uid size"))
-DAT(CHECK_DAYS,				5, U("check days"))
+DAT(UID_SIZE,			58, U("uid size"))
+DAT(CHECK_DAYS,			5, U("check days"))
 DAT(WAIT_NEXT_DAY_SECS,		86400, U("wait next day seconds"))
 DAT(WAIT_NEXT_TRY_GET_SECS,	10, U("wait next try get seconds"))
 #endif

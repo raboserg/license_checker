@@ -21,7 +21,7 @@ struct host_states {
 
 struct constants {
 #define _CONSTANTS
-#define DAT(a, b, c) const static unsigned short a = b;
+#define DAT(a, b, c) const static unsigned int a = b;
 #include "../resources/constants.dat"
 #undef _CONSTANTS
 #undef DAT

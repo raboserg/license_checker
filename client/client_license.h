@@ -11,30 +11,44 @@
 #include <cpprest/json.h>
 #include <vector>
 
-/*
-{
-        "userMessage": "Не пройдена валидация",
-        "developerMessage": null,
-         "fieldErrors": [
-                {
-                        "validationErrorName": "RELATED_ENTITY_NOT_FOUND",
-                        "message": "unp='9999998881' :
-RELATED_ENTITY_NOT_FOUND", "fieldName": "unp"
-                }
-        ],
-        "nestedError": null
-}
-*/
+using namespace web;
+using namespace http;
+using namespace json;
+
+struct FieldError {
+  utility::string_t message;
+  utility::string_t fieldName;
+  utility::string_t validationErrorName;
+};
 
 class Errors {
-  utility::string_t code;
+  utility::string_t code_;
   utility::string_t error_type_;
   utility::string_t user_message_;
   utility::string_t developer_message_;
-  std::vector<utility::string_t> fiels_errors;
+  std::vector<FieldError> field_errors;
+
 public:
-	utility::string_t userMessage() { return user_message_; };
-	void userMessage(utility::string_t user_message) { user_message_ = user_message; };
+  utility::string_t code() { return code_; }
+  void code(const utility::string_t code) { code_ = code; }
+
+  utility::string_t error_type() { return error_type_; }
+  void error_type(const utility::string_t error_type) {
+    error_type_ = error_type;
+  }
+  utility::string_t userMessage() { return user_message_; }
+  void userMessage(const utility::string_t user_message) {
+    user_message_ = user_message;
+  }
+
+  void developer_message(const utility::string_t developer_message) {
+    developer_message_ = developer_message;
+  }
+  utility::string_t developer_message() { return developer_message_; }
+
+  std::vector<FieldError> fiels_errors() { return field_errors; }
+  void add_error(FieldError error) { field_errors.push_back(error); }
+  FieldError &operator[](const int index) { return field_errors[index]; }
 };
 
 class HostLicense {
@@ -76,6 +90,7 @@ public:
         host_status_(std::make_shared<HostStatus>()) {}
 
   std::shared_ptr<HostLicense> host_license() { return host_license_; }
+
   std::shared_ptr<HostStatus> host_status() { return host_status_; }
 
   std::shared_ptr<Errors> errors() { return errors_; }
@@ -83,6 +98,7 @@ public:
 
   utility::string_t message() { return message_; }
   void message(const utility::string_t &message) { message_ = message; }
+
   unsigned short status_code() { return status_code_; }
   void status_code(unsigned short status_code) { status_code_ = status_code; }
 };
@@ -105,14 +121,12 @@ public:
 class stage_handler : public web::http::http_pipeline_stage {
 public:
   stage_handler() : m_Count(0) {}
-  virtual pplx::task<web::http::http_response>
-  propagate(web::http::http_request request) {
+  virtual pplx::task<web::http::http_response> propagate(http_request request) {
     INFO_LOG(request.to_string().c_str());
     // request.headers().set_content_type(_XPLATSTR("modified content type"));
     auto currentStage = this->shared_from_this();
     return next_stage()->propagate(request).then(
-        [currentStage](
-            web::http::http_response response) -> web::http::http_response {
+        [currentStage](http_response response) -> http_response {
           /*response.headers().add(_XPLATSTR("My Header"), data.str());*/
           INFO_LOG(response.to_string().c_str());
           return response;
@@ -125,7 +139,7 @@ private:
 
 class LicenseExtractor {
 public:
-  LicenseExtractor(const web::http::uri &address_, const Message &message_,
+  LicenseExtractor(const uri &address_, const Message &message_,
                    const int64_t &attempt);
 
   utility::string_t processing_license();
@@ -135,14 +149,13 @@ private:
   std::shared_ptr<Result> result_;
   Message message_;
   const int64_t attempt_;
-  const web::http::uri address_;
-  web::http::http_request request_;
-  web::http::client::http_client client_;
-  web::http::http_response send_request();
-  web::http::client::http_client_config
-  make_client_config(const int64_t &attempt);
-  web::json::value make_request_message(const Message message_);
-  void processing_errors(const web::http::http_response &response);
+  const uri address_;
+  http_request request_;
+  client::http_client client_;
+  http_response send_request();
+  client::http_client_config make_client_config(const int64_t &attempt);
+  value make_request_message(const Message message_);
+  void processing_errors(const http_response &response);
 };
 
 #endif

@@ -61,11 +61,11 @@ int Process_Killer_Task::svc() {
     if (licenseChecker_->check_license_day() &&
         (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
          !licenseChecker_->verify_license_file())) {
-			schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
-			INFO_LOG(TM("Terminate process - Notepad2.exe"));
-			terminate_process(_XPLATSTR("Notepad2.exe"));
-			INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
-			execute_process(_XPLATSTR("D:/project/itagent.exe"));
+      schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
+      INFO_LOG(TM("Terminate process - Notepad2.exe"));
+      terminate_process(_XPLATSTR("Notepad2.exe"));
+      INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
+      execute_process(_XPLATSTR("D:/project/itagent.exe"));
     } else {
       schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
       // TODO:save state to file check_lic_day ???
@@ -85,34 +85,8 @@ int Process_Killer_Task::svc() {
   return 0;
 }
 
-int Process_Killer_Task::terminate_process(const utility::string_t filename) {
-#ifdef _WIN32
-  BOOL hRes;
-  WCHAR szPath[20];
-  wcscpy_s(szPath, filename.c_str());
-
-  HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
-  PROCESSENTRY32 pEntry;
-  pEntry.dwSize = sizeof(pEntry);
-  hRes = Process32First(hSnapShot, &pEntry);
-  while (hRes) {
-    if (wcscmp(pEntry.szExeFile, szPath) == 0) {
-      HANDLE hProcess =
-          OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
-      if (hProcess != NULL) {
-        TerminateProcess(hProcess, 9);
-        CloseHandle(hProcess);
-      }
-    }
-    hRes = Process32Next(hSnapShot, &pEntry);
-  }
-  CloseHandle(hSnapShot);
-  return hRes;
-#endif
-}
-
 int Process_Killer_Task::execute_process(const utility::string_t process_name) {
-	ACE_Process_Options options;
+  ACE_Process_Options options;
   // options.enable_unicode_environment();
   // options.setenv(ACE_TEXT("ZZ"), ACE_TEXT("1"));
   options.command_line(process_name.c_str());
@@ -140,4 +114,30 @@ int Process_Killer_Task::schedule_handle_timeout(const int &seconds) {
 int Process_Killer_Task::shutdown_service() {
   reactor()->cancel_timer(this);
   return reactor()->end_reactor_event_loop();
+}
+
+int Process_Killer_Task::terminate_process(const utility::string_t filename) {
+#ifdef _WIN32
+  BOOL hRes;
+  WCHAR szPath[20];
+  wcscpy_s(szPath, filename.c_str());
+
+  HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
+  PROCESSENTRY32 pEntry;
+  pEntry.dwSize = sizeof(pEntry);
+  hRes = Process32First(hSnapShot, &pEntry);
+  while (hRes) {
+    if (wcscmp(pEntry.szExeFile, szPath) == 0) {
+      HANDLE hProcess =
+          OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
+      if (hProcess != NULL) {
+        TerminateProcess(hProcess, 9);
+        CloseHandle(hProcess);
+      }
+    }
+    hRes = Process32Next(hSnapShot, &pEntry);
+  }
+  CloseHandle(hSnapShot);
+  return hRes;
+#endif
 }

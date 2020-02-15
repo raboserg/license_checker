@@ -64,7 +64,6 @@ utility::string_t LicenseChecker::generate_machine_uid() {
   if (line.length() != lic::constants::UID_SIZE)
     throw std::runtime_error("size of UID isn't valid: " +
                              std::to_string(line.length()));
-
   return line;
 }
 
