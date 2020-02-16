@@ -22,7 +22,7 @@ string_t LicenseExtractor::processing_license() {
   if (result_->status_code() == status_codes::OK) {
     response.content_ready().wait();
     http_headers headers = response.headers();
-    const utility::string_t content_type = headers[header_names::content_type];
+    const string_t content_type = headers[header_names::content_type];
     // text/html;charset=UTF-8
     value json_value = response.extract_json().get();
     result_->message(json_value[_XPLATSTR("message")].as_string());
@@ -33,7 +33,7 @@ string_t LicenseExtractor::processing_license() {
           host_status_json.at(_XPLATSTR("id")).as_integer());
       result_->host_status()->name(
           host_status_json.at(_XPLATSTR("name")).as_string());
-      if (result_->host_status()->id() == lic::host_states::ACTIVE) {
+      if (result_->host_status()->id() == lic::host_status::ACTIVE) {
         if (!json_value[_XPLATSTR("hostLicense")].is_null()) {
           value license_json = json_value[_XPLATSTR("hostLicense")];
           result_->host_license()->license(

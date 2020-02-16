@@ -60,7 +60,7 @@ int Process_Killer_Task::svc() {
   try {
     if (licenseChecker_->check_license_day() &&
         (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
-         !licenseChecker_->verify_license_file())) {
+         !licenseChecker_->verify_license())) {
       schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
       INFO_LOG(TM("Terminate process - Notepad2.exe"));
       terminate_process(_XPLATSTR("Notepad2.exe"));

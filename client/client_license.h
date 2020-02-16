@@ -29,14 +29,14 @@ class Errors {
   std::vector<FieldError> field_errors;
 
 public:
-  utility::string_t code() { return code_; }
+  utility::string_t code() const { return code_; }
   void code(const utility::string_t code) { code_ = code; }
 
-  utility::string_t error_type() { return error_type_; }
+  utility::string_t error_type() const { return error_type_; }
   void error_type(const utility::string_t error_type) {
     error_type_ = error_type;
   }
-  utility::string_t userMessage() { return user_message_; }
+  utility::string_t userMessage() const { return user_message_; }
   void userMessage(const utility::string_t user_message) {
     user_message_ = user_message;
   }
@@ -44,9 +44,9 @@ public:
   void developer_message(const utility::string_t developer_message) {
     developer_message_ = developer_message;
   }
-  utility::string_t developer_message() { return developer_message_; }
+  utility::string_t developer_message() const { return developer_message_; }
 
-  std::vector<FieldError> fiels_errors() { return field_errors; }
+  std::vector<FieldError> fiels_errors() const { return field_errors; }
   void add_error(FieldError error) { field_errors.push_back(error); }
   FieldError &operator[](const int index) { return field_errors[index]; }
 };
@@ -57,9 +57,10 @@ class HostLicense {
   utility::string_t license_;
 
 public:
-  int year() { return year_; }
-  int month() { return month_; }
-  utility::string_t license() { return license_; }
+  HostLicense() : year_(0), month_(0) {}
+  int year() const { return year_; }
+  int month() const { return month_; }
+  utility::string_t license() const { return license_; }
 
   void year(const int year) { year_ = year; }
   void month(const int month) { month_ = month; }
@@ -71,9 +72,9 @@ class HostStatus {
   utility::string_t name_;
 
 public:
-  int id() { return id_; }
+  int id() const { return id_; }
   void id(const int id) { id_ = id; }
-  utility::string_t name() { return name_; }
+  utility::string_t name() const { return name_; }
   void name(const utility::string_t &name) { name_ = name; }
 };
 
@@ -89,17 +90,17 @@ public:
       : host_license_(std::make_shared<HostLicense>()),
         host_status_(std::make_shared<HostStatus>()) {}
 
-  std::shared_ptr<HostLicense> host_license() { return host_license_; }
+  std::shared_ptr<HostLicense> host_license() const { return host_license_; }
 
-  std::shared_ptr<HostStatus> host_status() { return host_status_; }
+  std::shared_ptr<HostStatus> host_status() const { return host_status_; }
 
-  std::shared_ptr<Errors> errors() { return errors_; }
+  std::shared_ptr<Errors> errors() const { return errors_; }
   void errors(const std::shared_ptr<Errors> errors) { errors_ = errors; }
 
-  utility::string_t message() { return message_; }
+  utility::string_t message() const { return message_; }
   void message(const utility::string_t &message) { message_ = message; }
 
-  unsigned short status_code() { return status_code_; }
+  unsigned short status_code() const { return status_code_; }
   void status_code(unsigned short status_code) { status_code_ = status_code; }
 };
 
@@ -143,7 +144,7 @@ public:
                    const int64_t &attempt);
 
   utility::string_t processing_license();
-  std::shared_ptr<Result> get_result() { return result_; }
+  std::shared_ptr<Result> get_result() const { return result_; }
 
 private:
   std::shared_ptr<Result> result_;

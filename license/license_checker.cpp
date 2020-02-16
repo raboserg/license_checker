@@ -12,7 +12,7 @@
 
 LicenseChecker::LicenseChecker() {}
 
-utility::string_t LicenseChecker::run_proc(const utility::string_t &command) {
+utility::string_t LicenseChecker::run_proc(const string_t &command) {
   bp::ipstream is;
   bp::child process(command, bp::std_out > is);
   process.wait();
@@ -21,25 +21,24 @@ utility::string_t LicenseChecker::run_proc(const utility::string_t &command) {
   return utility::conversions::to_string_t(line);
 }
 
-bool LicenseChecker::is_license_file(const utility::string_t &file_name) {
+bool LicenseChecker::is_license_file(const string_t &file_name) {
   bool result = false;
-  const utility::string_t license_file_name =
+  const string_t license_file_name =
       PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
-  utility::ifstream_t file(license_file_name, std::ios::out);
+  ifstream_t file(license_file_name, std::ios::out);
   if (file.is_open()) {
     file.close();
     result = true;
   }
   return result;
 }
-bool LicenseChecker::verify_license_file() {
+bool LicenseChecker::verify_license() {
   bool result = false;
-  utility::string_t line = run_proc(make_verify_license_cmd());
+  string_t line = run_proc(make_verify_license_cmd());
   if (line.empty()) {
     throw std::runtime_error("lic of output is empty");
   } else {
-    const utility::string_t code =
-        line.substr(0, line.find_first_of(_XPLATSTR(":")));
+    const string_t code = line.substr(0, line.find_first_of(_XPLATSTR(":")));
     if (code == _XPLATSTR("ERROR")) {
       result = false;
     } else if (code == _XPLATSTR("SUCCESS")) {
@@ -51,8 +50,8 @@ bool LicenseChecker::verify_license_file() {
   return result;
 }
 
-utility::string_t LicenseChecker::generate_machine_uid() {
-  utility::string_t line = run_proc(make_machine_uid_cmd());
+string_t LicenseChecker::generate_machine_uid() {
+  string_t line = run_proc(make_machine_uid_cmd());
   if (line.empty()) {
     throw std::runtime_error("does not make file by lic");
   }
@@ -67,29 +66,43 @@ utility::string_t LicenseChecker::generate_machine_uid() {
   return line;
 }
 
-void LicenseChecker::save_license_to_file(const utility::string_t &license) {
+void LicenseChecker::save_license_to_file(const string_t &license) {
   // save license to file
-  const utility::string_t lic_file_name =
+  const string_t lic_file_name =
       PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
-  utility::ofstream_t file(lic_file_name, std::ios::out);
+  ofstream_t file(lic_file_name, std::ios::out);
   if (file.is_open()) {
-    file.write(reinterpret_cast<const utility::char_t *>(license.c_str()),
-               sizeof(utility::char_t) * license.size());
+    file.write(reinterpret_cast<const char_t *>(license.c_str()),
+               sizeof(char_t) * license.size());
     file.close();
   } else {
     //?????
   }
 }
 
-utility::string_t LicenseChecker::make_verify_license_cmd() {
+string_t LicenseChecker::read_license_from_file(const string_t &file_name) {
+  // read license to file
+  string_t license;
+  ifstream_t file(file_name, std::ios::out);
+  if (file.is_open()) {
+    // file.read(license.c_str(), sizeof(char_t) * license.size());
+    file >> license;
+    file.close();
+  } else {
+    //?????
+  }
+  return license;
+}
+
+string_t LicenseChecker::make_verify_license_cmd() {
   //[LICENSE] check_lic_cmd = -v --lic
   //[FILES] lic_file_name = license_item.lic
   //[FILES] lic=D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
-  utility::string_t license_process_path =
+  string_t license_process_path =
       PARSER::instance()->get_value(lic::config_keys::FILES_LIC);
-  const utility::string_t check_lic_cmd =
+  const string_t check_lic_cmd =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_CHECK_LIC_CMD);
-  const utility::string_t license_file_name =
+  const string_t license_file_name =
       PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
 
   if (license_process_path.empty() && check_lic_cmd.empty() &&
@@ -107,18 +120,18 @@ utility::string_t LicenseChecker::make_verify_license_cmd() {
   return license_process_path;
 }
 
-utility::string_t LicenseChecker::make_machine_uid_cmd() {
+string_t LicenseChecker::make_machine_uid_cmd() {
   //[LICENSE] prod = 2
   //[LICENSE] make_lic_cmd = -g -s --prod
   //[FILES]	lic = D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
-  utility::string_t license_process_path;
+  string_t license_process_path;
   license_process_path =
       PARSER::instance()->get_value(lic::config_keys::FILES_LIC);
-  const utility::string_t make_lic_cmd =
+  const string_t make_lic_cmd =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_MAKE_LIC_CMD);
-  const utility::string_t license_prod =
+  const string_t license_prod =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_PROD);
-  const utility::string_t license_uid =
+  const string_t license_uid =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_UID);
 
   if (license_process_path.empty() && make_lic_cmd.empty() &&
@@ -141,7 +154,7 @@ bool LicenseChecker::check_update_day() {
   // ACE_DEBUG(
   //    (LM_DEBUG, ACE_TEXT("%T (%t):\t\tLicenseChecker: Day of today - %d\n"),
   //    date_time.day()));
-  const utility::string_t license_update_day =
+  const string_t license_update_day =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_DAY_FOR_UPDATE);
   if (license_update_day.empty())
     throw std::runtime_error("Key of LICENSE.day_for_update is failed");
@@ -155,7 +168,7 @@ bool LicenseChecker::check_license_day() {
   // ACE_DEBUG(
   //	(LM_DEBUG, ACE_TEXT("%T (%t):\t\tLicenseChecker: Day of today - %d\n"),
   // date_time.day()));
-  const utility::string_t license_check_day = PARSER::instance()->get_value(
+  const string_t license_check_day = PARSER::instance()->get_value(
       lic::config_keys::LICENSE_DAY_FOR_CHECK_LIC);
   if (license_check_day.empty())
     throw std::runtime_error("Key of LICENSE.day_for_check_lic is failed");
@@ -163,12 +176,18 @@ bool LicenseChecker::check_license_day() {
   return (date_time.day() == day);
 }
 
-ACE_Date_Time
-LicenseChecker::extract_license_date(const utility::string_t &lic) {
+ACE_Date_Time LicenseChecker::current_license_date() {
+  const string_t lic_file_name =
+      PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
+  const string_t license = read_license_from_file(lic_file_name);
+  return extract_license_date(license);
+}
+
+ACE_Date_Time LicenseChecker::extract_license_date(const string_t &lic) {
   ACE_Date_Time date_time = ACE_Date_Time(0);
-  utility::stringstream_t ss(lic);
-  utility::string_t item;
-  std::vector<utility::string_t> splitted;
+  stringstream_t ss(lic);
+  string_t item;
+  std::vector<string_t> splitted;
   while (std::getline(ss, item, _XPLATSTR('.')))
     splitted.push_back(item);
   if (!splitted[2].empty()) {
@@ -204,13 +223,13 @@ LicenseChecker::make_license_extractor(const int64_t &attempt) {
   const web::http::uri address_ =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_SRV_URI);
   // get unp
-  const utility::string_t unp =
+  const string_t unp =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_UNP);
   // get agent
-  const utility::string_t agent =
+  const string_t agent =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_AGENT_ID);
   // generate machine uid
-  const utility::string_t uid = generate_machine_uid();
+  const string_t uid = generate_machine_uid();
 
   const Message message_ = Message(uid, unp, agent);
 

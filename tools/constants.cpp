@@ -8,10 +8,10 @@ namespace lic {
 #undef _CONFIG_FILE_KEYS
 #undef DAT
 
-#define _LICENSE_STATUSES
-#define DAT(a, b, c) const unsigned short host_states::a;
+#define _HOST_STATUSES
+#define DAT(a, b, c) const unsigned short host_status::a;
 #include "../resources/constants.dat"
-#undef _LICENSE_STATUSES
+#undef _HOST_STATUSES
 #undef DAT
 
 #define _CONSTANTS
