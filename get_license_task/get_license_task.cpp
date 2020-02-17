@@ -74,7 +74,7 @@ int Get_License_Task::svc() {
         ACE_ERROR_RETURN(
             (LM_ERROR,
              ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
-             result->errors()->userMessage()),
+             result->errors()->userMessage().c_str()),
             -1);
       }
 
