@@ -33,7 +33,7 @@ string_t LicenseExtractor::processing_license() {
           host_status_json.at(_XPLATSTR("id")).as_integer());
       result_->host_status()->name(
           host_status_json.at(_XPLATSTR("name")).as_string());
-      if (result_->host_status()->id() == lic::host_status::ACTIVE) {
+      if (result_->host_status()->id() == lic::lic_host_status::ACTIVE) {
         if (!json_value[_XPLATSTR("hostLicense")].is_null()) {
           value license_json = json_value[_XPLATSTR("hostLicense")];
           result_->host_license()->license(
@@ -128,6 +128,7 @@ value LicenseExtractor::make_request_message(const Message message_) {
   message[_XPLATSTR("unp")] = value::string(message_.get_unp());
   message[_XPLATSTR("request")] = value::string(message_.get_uid());
   message[_XPLATSTR("agentId")] = value::string(message_.get_agent());
+	message[_XPLATSTR("hostType")] = value::string(message_.get_host_type());
   INFO_LOG(message.serialize().c_str());
   return message;
 }

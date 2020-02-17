@@ -11,7 +11,7 @@ struct config_keys {
 #undef DAT
 };
 
-struct host_status {
+struct lic_host_status {
 #define _HOST_STATUSES
 #define DAT(a, b, c) const static unsigned short a = b;
 #include "../resources/constants.dat"

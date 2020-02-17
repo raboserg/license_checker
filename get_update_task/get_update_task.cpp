@@ -1,4 +1,4 @@
-#include "get_license_task.h"
+#include "get_update_task.h"
 #include "ace/Date_Time.h"
 #include "client_license.h"
 #include "constants.h"
@@ -7,57 +7,55 @@
 
 using namespace std;
 using namespace utility;
-// const uint64_t dsfds = utility::datetime::from_days(1);
-// dsfds/10000/1000 = seconds
 
-Get_License_Task::Get_License_Task()
+Get_Update_Task::Get_Update_Task()
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), n_threads_(1),
       licenseChecker_(new LicenseChecker()) {
   this->reactor(ACE_Reactor::instance());
 }
 
-Get_License_Task::Get_License_Task(ACE_Thread_Manager *thr_mgr,
+Get_Update_Task::Get_Update_Task(ACE_Thread_Manager *thr_mgr,
                                    const int n_threads)
     : ACE_Task<ACE_MT_SYNCH>(thr_mgr), n_threads_(n_threads) {
   reactor(ACE_Reactor::instance());
 }
 
-Get_License_Task::~Get_License_Task() {
+Get_Update_Task::~Get_Update_Task() {
   close();
-  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\t~Get_License_Task()\n")));
+  ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\t~Get_Update_Task()\n")));
 }
 
-int Get_License_Task::open(ACE_Time_Value tv1) {
+int Get_Update_Task::open(ACE_Time_Value tv1) {
   this->timerId_ = reactor()->schedule_timer(this, 0, tv1, tv1);
   return 0;
 }
 
-void Get_License_Task::close() {
+void Get_Update_Task::close() {
   reactor()->cancel_timer(this);
   ACE_DEBUG(
-      (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: cancel timer\n")));
+      (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_Update_Task: cancel timer\n")));
 }
 
-int Get_License_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
+int Get_Update_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
   ACE_UNUSED_ARG(tv);
   ACE_DEBUG(
-      (LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: handle timeout\n")));
+      (LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_Update_Task: handle timeout\n")));
   if (activate(THR_NEW_LWP) == -1)
     ACE_ERROR_RETURN(
-        (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: activate failed")),
+        (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_Update_Task: activate failed")),
         -1);
   return 0;
 }
 
-int Get_License_Task::handle_exception(ACE_HANDLE) {
+int Get_Update_Task::handle_exception(ACE_HANDLE) {
   ACE_DEBUG((LM_DEBUG,
-             ACE_TEXT("%T (%t):\t\tGet_License_Task::handle_exception()\n")));
+             ACE_TEXT("%T (%t):\t\tGet_Update_Task::handle_exception()\n")));
   return -1;
 }
 
-int Get_License_Task::svc() {
+int Get_Update_Task::svc() {
   ACE_DEBUG(
-      (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task started\n")));
+      (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_Update_Task: task started\n")));
   try {
     if (licenseChecker_->check_update_day()) {
       const shared_ptr<LicenseExtractor> licenseExtractor_ =
@@ -73,7 +71,7 @@ int Get_License_Task::svc() {
                 .c_str());
         ACE_ERROR_RETURN(
             (LM_ERROR,
-             ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
+             ACE_TEXT("%T (%t):\t\tGet_Update_Task: kill task - %s\n"),
              result->errors()->userMessage()),
             -1);
       }
@@ -112,16 +110,16 @@ int Get_License_Task::svc() {
     CRITICAL_LOG(conversions::to_string_t(err.what()).c_str());
     shutdown_service(); //???
     ACE_ERROR_RETURN(
-        (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
+        (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_Update_Task: kill task - %s\n"),
          err.what()),
         -1);
   }
   ACE_DEBUG(
-      (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task finished\n")));
+      (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_Update_Task: task finished\n")));
   return 0;
 }
 
-int Get_License_Task::schedule_handle_timeout(const int &seconds) {
+int Get_Update_Task::schedule_handle_timeout(const int &seconds) {
   ACE_Time_Value tv1(seconds, 0);
   reactor()->reset_timer_interval(this->timerId_, tv1);
   return 0;

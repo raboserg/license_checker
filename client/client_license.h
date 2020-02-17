@@ -108,15 +108,17 @@ class Message {
   const utility::string_t uid_;
   const utility::string_t unp_;
   const utility::string_t agent_;
+	const utility::string_t host_type_;
 
 public:
   Message(const utility::string_t uid, const utility::string_t unp,
-          const utility::string_t agent)
-      : uid_(uid), unp_(unp), agent_(agent) {}
+          const utility::string_t agent, const utility::string_t host_type)
+      : uid_(uid), unp_(unp), agent_(agent),host_type_(host_type) {}
   utility::string_t get_uid() const { return uid_; }
   utility::string_t get_unp() const { return unp_; }
   utility::string_t get_agent() const { return agent_; }
-  bool is_valid() { return !uid_.empty() && !unp_.empty() && !agent_.empty(); }
+	utility::string_t get_host_type() const { return host_type_; }
+  bool is_valid() { return !uid_.empty() && !unp_.empty() && !agent_.empty() && !host_type_.empty(); }
 };
 
 class stage_handler : public web::http::http_pipeline_stage {

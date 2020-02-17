@@ -4,22 +4,25 @@
 #include "license_checker.h"
 #include "tracer.h"
 
+using namespace std;
+using namespace utility;
+
 EventSink_Task::EventSink_Task() { this->open(); }
 
 int EventSink_Task::svc() {
 
-  const std::unique_ptr<LicenseChecker> licenseChecker_ =
-      std::make_unique<LicenseChecker>();
+  const unique_ptr<LicenseChecker> licenseChecker_ =
+      make_unique<LicenseChecker>();
 
   for (ACE_Message_Block *log_blk; getq(log_blk) != -1;) {
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("EventSink_Task::svc()\n")));
 
     try {
-      if (!licenseChecker_->verify_license_file()) {
-        const std::shared_ptr<LicenseExtractor> licenseExtractor_ =
+      if (licenseChecker_->is_license_file(_XPLATSTR("")) || !licenseChecker_->verify_license()) {
+        const shared_ptr<LicenseExtractor> licenseExtractor_ =
             licenseChecker_->make_license_extractor(5);
 
-        const utility::string_t lic = licenseExtractor_->processing_license();
+        const string_t lic = licenseExtractor_->processing_license();
 
         if (!lic.empty()) {
           licenseChecker_->save_license_to_file(lic);
@@ -27,11 +30,11 @@ int EventSink_Task::svc() {
       } else {
         INFO_LOG(TM("License is SUCCESS"));
       }
-    } catch (const std::runtime_error &err) {
-      ERROR_LOG(utility::conversions::to_string_t(err.what()).c_str());
+    } catch (const runtime_error &err) {
+      ERROR_LOG(conversions::to_string_t(err.what()).c_str());
       // raise(SIGSEGV);
     } catch (web::http::http_exception &ex) {
-      ERROR_LOG(utility::conversions::to_string_t(ex.what()).c_str());
+      ERROR_LOG(conversions::to_string_t(ex.what()).c_str());
       // raise(SIGSEGV);
     }
   }

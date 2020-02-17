@@ -117,8 +117,8 @@ int Process_Killer_Task::shutdown_service() {
 }
 
 int Process_Killer_Task::terminate_process(const utility::string_t filename) {
+	int hRes;
 #ifdef _WIN32
-  BOOL hRes;
   WCHAR szPath[20];
   wcscpy_s(szPath, filename.c_str());
 
@@ -138,6 +138,6 @@ int Process_Killer_Task::terminate_process(const utility::string_t filename) {
     hRes = Process32Next(hSnapShot, &pEntry);
   }
   CloseHandle(hSnapShot);
-  return hRes;
 #endif
+	return hRes;
 }

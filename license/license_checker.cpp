@@ -230,8 +230,8 @@ LicenseChecker::make_license_extractor(const int64_t &attempt) {
       PARSER::instance()->get_value(lic::config_keys::LICENSE_AGENT_ID);
   // generate machine uid
   const string_t uid = generate_machine_uid();
-
-  const Message message_ = Message(uid, unp, agent);
-
+	// get host_type
+	const string_t host_type = PARSER::instance()->get_value(lic::config_keys::LICENSE_PROD);
+	const Message message_ = Message(uid, unp, agent, host_type);
   return std::make_shared<LicenseExtractor>(address_, message_, attempt);
 }
