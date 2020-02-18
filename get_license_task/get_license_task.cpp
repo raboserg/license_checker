@@ -38,10 +38,12 @@ void Get_License_Task::close() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: cancel timer\n")));
 }
 
-int Get_License_Task::handle_timeout(const ACE_Time_Value &tv, const void *) {
-  ACE_UNUSED_ARG(tv);
-  ACE_DEBUG(
-      (LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: handle timeout\n")));
+int Get_License_Task::handle_timeout(const ACE_Time_Value &&current_time,
+                                     const void *) {
+  time_t epoch = ((timespec_t)current_time).tv_sec;
+  ACE_DEBUG((LM_INFO,
+             ACE_TEXT("%T (%t):\t\tGet_License_Task: handle timeout: %s\n"),
+             ACE_OS::ctime(&epoch)));
   if (activate(THR_NEW_LWP) == -1)
     ACE_ERROR_RETURN(
         (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: activate failed")),
