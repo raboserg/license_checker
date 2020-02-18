@@ -5,6 +5,8 @@
 #include <Tlhelp32.h>
 #include <process.h>
 #endif // _WIN32
+#include "gason.h"
+#include "parser_ini.h"
 
 Process_Killer_Task::Process_Killer_Task()
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), n_threads_(1),
@@ -62,10 +64,17 @@ int Process_Killer_Task::svc() {
         (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
          !licenseChecker_->verify_license())) {
       schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
-      INFO_LOG(TM("Terminate process - Notepad2.exe"));
-      terminate_process(_XPLATSTR("Notepad2.exe"));
-      INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
+      const string_t file_name =
+          PARSER::instance()->get_value(lic::config_keys::FILES_KILL_FILE_NAME);
+      if (terminate_process(file_name)) {
+        INFO_LOG((file_name + _XPLATSTR(" kill")).c_str());
+      } else {
+        INFO_LOG((TM("Process ") + file_name + TM(" not found")).c_str());
+      }
+
+			INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
       execute_process(_XPLATSTR("D:/project/itagent.exe"));
+
     } else {
       schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
       // TODO:save state to file check_lic_day ???
@@ -117,7 +126,8 @@ int Process_Killer_Task::shutdown_service() {
 }
 
 int Process_Killer_Task::terminate_process(const utility::string_t filename) {
-	int hRes;
+  int hRes;
+  bool founded = false;
 #ifdef _WIN32
   WCHAR szPath[20];
   wcscpy_s(szPath, filename.c_str());
@@ -133,11 +143,12 @@ int Process_Killer_Task::terminate_process(const utility::string_t filename) {
       if (hProcess != NULL) {
         TerminateProcess(hProcess, 9);
         CloseHandle(hProcess);
+        founded = true;
       }
     }
     hRes = Process32Next(hSnapShot, &pEntry);
   }
   CloseHandle(hSnapShot);
 #endif
-	return hRes;
+  return founded;
 }

@@ -15,6 +15,8 @@ DAT(LICENSE_DAY_FOR_CHECK_LIC	,U("LICENSE.day_for_check_lic"))
 DAT(LICENSE_TIMEOUT_TRY,		U("LICENSE.timeout_try_sec"))
 DAT(LICENSE_TIMEOUT_CHECK_DAY,  U("LICENSE.timeout_check_day_hours"))
 DAT(LICENSE_TIMEOUT_TRY_GET_LIC,U("LICENSE.timeout_try_get_lic_min"))
+DAT(FILES_KILL_FILE_NAME,		U("FILES.kill_file_name"))
+
 #endif
 
 #ifdef _HOST_STATUSES
