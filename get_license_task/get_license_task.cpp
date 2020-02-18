@@ -38,7 +38,7 @@ void Get_License_Task::close() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: cancel timer\n")));
 }
 
-int Get_License_Task::handle_timeout(const ACE_Time_Value &&current_time,
+int Get_License_Task::handle_timeout(const ACE_Time_Value &current_time,
                                      const void *) {
   time_t epoch = ((timespec_t)current_time).tv_sec;
   ACE_DEBUG((LM_INFO,

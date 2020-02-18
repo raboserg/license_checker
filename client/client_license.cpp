@@ -108,10 +108,11 @@ http_response LicenseExtractor::send_request() {
   shared_ptr<http_pipeline_stage> countStage = make_shared<stage_handler>();
   client_.add_handler(countStage);
 
+  http_response response;
   auto start = chrono::steady_clock::now();
   while (true) {
     try {
-      return client_.request(request_).get();
+      response = client_.request(request_).get();
       break;
     } catch (http_exception &ex) {
       ucout << ex.error_code().value() << std::endl; // error code = 12029
@@ -121,6 +122,7 @@ http_response LicenseExtractor::send_request() {
       }
     }
   }
+  return response;
 }
 
 value LicenseExtractor::make_request_message(const Message message_) {
@@ -128,7 +130,7 @@ value LicenseExtractor::make_request_message(const Message message_) {
   message[_XPLATSTR("unp")] = value::string(message_.get_unp());
   message[_XPLATSTR("request")] = value::string(message_.get_uid());
   message[_XPLATSTR("agentId")] = value::string(message_.get_agent());
-	message[_XPLATSTR("hostType")] = value::string(message_.get_host_type());
+  message[_XPLATSTR("hostType")] = value::string(message_.get_host_type());
   INFO_LOG(message.serialize().c_str());
   return message;
 }
