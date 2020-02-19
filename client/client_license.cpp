@@ -16,8 +16,8 @@ LicenseExtractor::LicenseExtractor(const uri &address, const Message &message,
                     web::http::details::mime_types::application_json);
 }
 
-string_t LicenseExtractor::processing_license() {
-  const http_response response = send_request();
+shared_ptr<Result> LicenseExtractor::processing_license() {
+	const http_response response = send_request();
   result_->status_code(response.status_code());
   if (result_->status_code() == status_codes::OK) {
     response.content_ready().wait();
@@ -29,23 +29,22 @@ string_t LicenseExtractor::processing_license() {
     if (!json_value[_XPLATSTR("hostStatus")].is_null()) {
       const object host_status_json =
           json_value[_XPLATSTR("hostStatus")].as_object();
-      result_->host_status()->id(
-          host_status_json.at(_XPLATSTR("id")).as_integer());
-      result_->host_status()->name(
-          host_status_json.at(_XPLATSTR("name")).as_string());
+      const shared_ptr<HostStatus> host_status = make_shared<HostStatus>();
+      host_status->id(host_status_json.at(_XPLATSTR("id")).as_integer());
+      host_status->name(host_status_json.at(_XPLATSTR("name")).as_string());
+      result_->host_status(host_status);
       if (result_->host_status()->id() == lic::lic_host_status::ACTIVE) {
         if (!json_value[_XPLATSTR("hostLicense")].is_null()) {
+          const shared_ptr<HostLicense> host_license =
+              make_shared<HostLicense>();
           value license_json = json_value[_XPLATSTR("hostLicense")];
-          result_->host_license()->license(
-              license_json[_XPLATSTR("license")].as_string());
-          result_->host_license()->month(
-              license_json[_XPLATSTR("month")].as_integer());
-          result_->host_license()->year(
-              license_json[_XPLATSTR("year")].as_integer());
+          host_license->license(license_json[_XPLATSTR("license")].as_string());
+          host_license->month(license_json[_XPLATSTR("month")].as_integer());
+          host_license->year(license_json[_XPLATSTR("year")].as_integer());
+          result_->host_license(host_license);
         }
-      } else
-        result_->host_license() = nullptr; //???
-      return result_->host_license()->license();
+      }
+      return result_;
     }
   } else {
     processing_errors(response);
@@ -53,9 +52,9 @@ string_t LicenseExtractor::processing_license() {
 }
 
 void LicenseExtractor::processing_errors(const http_response &response) {
-  string error =
-      "Fault connection: status code - " + to_string(response.status_code());
-  ERROR_LOG(to_string_t(error).c_str());
+
+  string_t error = utility::conversions::to_string_t(
+      "Fault connection: status code - " + to_string(response.status_code()));
 
   const shared_ptr<Errors> errors = make_shared<Errors>();
 
@@ -64,9 +63,7 @@ void LicenseExtractor::processing_errors(const http_response &response) {
     value json_value = response.extract_json().get();
 
     errors->userMessage(json_value[_XPLATSTR("userMessage")].as_string());
-    error.append(" ").append(to_utf8string(errors->userMessage()));
-
-    ERROR_LOG(errors->userMessage().c_str());
+    error.append(_XPLATSTR(" ")).append(errors->userMessage());
 
     if (!json_value[_XPLATSTR("fieldErrors")].is_null()) {
       auto field_errors = json_value[_XPLATSTR("fieldErrors")].as_array();
@@ -80,16 +77,16 @@ void LicenseExtractor::processing_errors(const http_response &response) {
             field_error.at(_XPLATSTR("fieldName")).as_string();
         errors->add_error(field_error_);
 
-        ERROR_LOG(string_t(_XPLATSTR("fieldName "))
-                      .append(field_error_.fieldName)
-                      .append(_XPLATSTR(" "))
-                      .append(field_error_.message)
-                      .c_str());
+        error.append(_XPLATSTR(", fieldName: "))
+            .append(field_error_.fieldName)
+            .append(_XPLATSTR(" "))
+            .append(field_error_.message);
       }
+      ERROR_LOG(error.c_str());
     }
   }
   result_->errors(errors);
-  throw runtime_error(error.c_str());
+  throw runtime_error(to_utf8string(error).c_str());
 }
 
 client::http_client_config
@@ -130,7 +127,7 @@ value LicenseExtractor::make_request_message(const Message message_) {
   message[_XPLATSTR("unp")] = value::string(message_.get_unp());
   message[_XPLATSTR("request")] = value::string(message_.get_uid());
   message[_XPLATSTR("agentId")] = value::string(message_.get_agent());
-  message[_XPLATSTR("hostType")] = value::string(message_.get_host_type());
+  message[_XPLATSTR("hostTypeId")] = value::string(message_.get_host_type());
   INFO_LOG(message.serialize().c_str());
   return message;
 }

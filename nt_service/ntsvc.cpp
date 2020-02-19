@@ -13,7 +13,7 @@ Service::Service(void) : event_(std::make_shared<ACE_Auto_Event>()) {
   notificator_ = std::make_shared<WinNT::Notificator>();
   get_license_task_ = std::make_unique<Get_License_Task>();
   process_killer_task_ = std::make_unique<Process_Killer_Task>();
-  DEBUG_LOG(TM("Service::Service(void) "));
+  //???DEBUG_LOG(TM("Service::Service(void) "));
 }
 
 Service::~Service(void) {
@@ -57,7 +57,7 @@ int Service::handle_signal(int, siginfo_t *siginfo, ucontext_t *) {
 // and causing a drop out of handle_events.
 int Service::handle_exception(ACE_HANDLE) {
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tService::handle_exception()\n")));
-  DEBUG_LOG(TM("int Service::handle_exception(ACE_HANDLE)"));
+//???  DEBUG_LOG(TM("int Service::handle_exception(ACE_HANDLE)"));
   return -1;
 }
 
@@ -120,6 +120,8 @@ int Service::svc(void) {
   }
 
   this->reactor()->run_reactor_event_loop();
+	
+	//this->msg_queue();
 
   // Cleanly terminate connections, terminate threads.
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tShutting down\n")));

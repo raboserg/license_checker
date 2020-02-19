@@ -5,7 +5,7 @@
 WinNT::Notificator::Notificator()
     : app_name(applicationName), is_cencel(false) {
   // Initialize();
-  DEBUG_LOG(TM("Notificator::Notificator()"));
+  //????DEBUG_LOG(TM("Notificator::Notificator()"));
 }
 
 WinNT::Notificator::Notificator(const _bstr_t name)

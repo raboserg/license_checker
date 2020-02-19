@@ -18,11 +18,11 @@ class Parser {
   prop_tree root_;
   const utility::string_t file_name_;
 
-  utility::string_t get_path();
   void create_root(const utility::string_t &file_name);
 
 public:
 	Parser(void);
+	utility::string_t get_path();
   Parser(const utility::string_t &file_name);
   utility::string_t get_value(const utility::string_t &key) const;
   prop_tree get_tree() { return this->root_; }

@@ -66,14 +66,18 @@ string_t LicenseChecker::generate_machine_uid() {
   return line;
 }
 
-void LicenseChecker::save_license_to_file(const string_t &license) {
+void LicenseChecker::save_license_to_file(string_t &license) {
+
+  const size_t len = license.length();
+  if (len && (license.c_str()[len - 1] == 0x00))
+    license.erase(len - 1);
+
   // save license to file
   const string_t lic_file_name =
       PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
   ofstream_t file(lic_file_name, std::ios::out);
   if (file.is_open()) {
-    file.write(reinterpret_cast<const char_t *>(license.c_str()),
-               sizeof(char_t) * license.size());
+		file << license;
     file.close();
   } else {
     //?????
@@ -83,9 +87,8 @@ void LicenseChecker::save_license_to_file(const string_t &license) {
 string_t LicenseChecker::read_license_from_file(const string_t &file_name) {
   // read license to file
   string_t license;
-  ifstream_t file(file_name, std::ios::out);
+  ifstream_t file(file_name, std::ios::in);
   if (file.is_open()) {
-    // file.read(license.c_str(), sizeof(char_t) * license.size());
     file >> license;
     file.close();
   } else {
@@ -230,8 +233,9 @@ LicenseChecker::make_license_extractor(const int64_t &attempt) {
       PARSER::instance()->get_value(lic::config_keys::LICENSE_AGENT_ID);
   // generate machine uid
   const string_t uid = generate_machine_uid();
-	// get host_type
-	const string_t host_type = PARSER::instance()->get_value(lic::config_keys::LICENSE_PROD);
-	const Message message_ = Message(uid, unp, agent, host_type);
+  // get host_type
+  const string_t host_type =
+      PARSER::instance()->get_value(lic::config_keys::LICENSE_PROD);
+  const Message message_ = Message(uid, unp, agent, host_type);
   return std::make_shared<LicenseExtractor>(address_, message_, attempt);
 }

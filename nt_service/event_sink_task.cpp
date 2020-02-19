@@ -22,11 +22,13 @@ int EventSink_Task::svc() {
         const shared_ptr<LicenseExtractor> licenseExtractor_ =
             licenseChecker_->make_license_extractor(5);
 
-        const string_t lic = licenseExtractor_->processing_license();
-
-        if (!lic.empty()) {
-          licenseChecker_->save_license_to_file(lic);
-        }
+				const shared_ptr<Result> result = licenseExtractor_->processing_license();
+				if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
+					string_t license = result->host_license()->license();
+					if (!license.empty()) {
+						licenseChecker_->save_license_to_file(license);
+					}
+				}
       } else {
         INFO_LOG(TM("License is SUCCESS"));
       }

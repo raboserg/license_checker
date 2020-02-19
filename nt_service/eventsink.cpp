@@ -28,11 +28,8 @@ HRESULT __stdcall EventSink::Indicate(LONG lObjectCount,
     // printf("Event: openvpn is opening\n");
 
     ACE_Message_Block *mblk = 0;
-    ACE_Message_Block *log_blk = 0;
-    ACE_NEW_RETURN(log_blk, ACE_Message_Block(reinterpret_cast<char *>(this)),
-                   -1);
+		ACE_Message_Block *log_blk = new ACE_Message_Block(reinterpret_cast<char *>(this));
     log_blk->cont(mblk);
-
     LICENSE_WORKER_TASK::instance()->put(log_blk);
 
     TRACE_LOG(TM("Event: openvpn is opening...\n"));

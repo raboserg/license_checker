@@ -27,7 +27,7 @@ public:
   bool check_license_day();
   bool verify_license();
   utility::string_t generate_machine_uid();
-  void save_license_to_file(const utility::string_t &command);
+  void save_license_to_file(utility::string_t &command);
   ACE_Date_Time extract_license_date(const utility::string_t &lic);
   std::shared_ptr<LicenseExtractor>
   make_license_extractor(const int64_t &attemp0t);

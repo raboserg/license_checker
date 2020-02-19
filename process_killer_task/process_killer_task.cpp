@@ -1,4 +1,5 @@
 #include "process_killer_task.h"
+#include "ace/OS_NS_time.h"
 #include "ace/Process.h"
 #include "tracer.h"
 #ifdef _WIN32
@@ -36,11 +37,12 @@ void Process_Killer_Task::close() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: cancel timer\n")));
 }
 
-int Process_Killer_Task::handle_timeout(const ACE_Time_Value &tv,
+int Process_Killer_Task::handle_timeout(const ACE_Time_Value &current_time,
                                         const void *) {
-  ACE_UNUSED_ARG(tv);
-  ACE_DEBUG((LM_DEBUG,
-             ACE_TEXT("%T (%t):\t\tProcess_Killer_Task::handle_timeout\n")));
+  time_t epoch = ((timespec_t)current_time).tv_sec;
+  ACE_DEBUG((LM_INFO,
+             ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: handle timeout: %s\n"),
+             ACE_OS::ctime(&epoch)));
   if (this->activate(THR_NEW_LWP) == -1)
     ACE_ERROR_RETURN(
         (LM_ERROR,
@@ -72,7 +74,7 @@ int Process_Killer_Task::svc() {
         INFO_LOG((TM("Process ") + file_name + TM(" not found")).c_str());
       }
 
-			INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
+      INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
       execute_process(_XPLATSTR("D:/project/itagent.exe"));
 
     } else {

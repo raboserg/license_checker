@@ -86,13 +86,17 @@ class Result {
   std::shared_ptr<HostStatus> host_status_;
 
 public:
-  Result()
-      : host_license_(std::make_shared<HostLicense>()),
-        host_status_(std::make_shared<HostStatus>()) {}
+  Result(){}
 
   std::shared_ptr<HostLicense> host_license() const { return host_license_; }
 
   std::shared_ptr<HostStatus> host_status() const { return host_status_; }
+
+	void host_license(std::shared_ptr<HostLicense> host_license) {
+		host_license_ = host_license;
+	}
+
+	void host_status(std::shared_ptr<HostStatus> host_status){ host_status_= host_status; }
 
   std::shared_ptr<Errors> errors() const { return errors_; }
   void errors(const std::shared_ptr<Errors> errors) { errors_ = errors; }
@@ -126,7 +130,9 @@ public:
   stage_handler() : m_Count(0) {}
   virtual pplx::task<web::http::http_response> propagate(http_request request) {
     INFO_LOG(request.to_string().c_str());
-    // request.headers().set_content_type(_XPLATSTR("modified content type"));
+		//request.headers().add(_XPLATSTR("User-Agent"), _XPLATSTR("itVPNAgent/0.1"));
+		request.headers()[_XPLATSTR("User-Agent")] = (_XPLATSTR("itVPNAgent/0.1"));
+		//request.headers().operator[_XPLATSTR("User - Agent")].set_content_type(_XPLATSTR("modified content type"));
     auto currentStage = this->shared_from_this();
     return next_stage()->propagate(request).then(
         [currentStage](http_response response) -> http_response {
@@ -145,7 +151,7 @@ public:
   LicenseExtractor(const uri &address_, const Message &message_,
                    const int64_t &attempt);
 
-  utility::string_t processing_license();
+	std::shared_ptr<Result> processing_license();
   std::shared_ptr<Result> get_result() const { return result_; }
 
 private:
