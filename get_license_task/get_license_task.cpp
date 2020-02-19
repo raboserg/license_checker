@@ -1,10 +1,10 @@
 #include "get_license_task.h"
 #include "ace/Date_Time.h"
+#include "ace/OS_NS_time.h"
 #include "client_license.h"
 #include "constants.h"
 #include "parser_ini.h"
 #include "tracer.h"
-#include "ace/OS_NS_time.h"
 
 using namespace std;
 using namespace utility;
@@ -61,13 +61,13 @@ int Get_License_Task::handle_exception(ACE_HANDLE) {
 int Get_License_Task::svc() {
   ACE_DEBUG(
       (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task started\n")));
-	shared_ptr<Result> result;
-	try {
+  shared_ptr<Result> result;
+  try {
     if (licenseChecker_->check_update_day()) {
       const shared_ptr<LicenseExtractor> licenseExtractor_ =
           licenseChecker_->make_license_extractor(1);
       INFO_LOG(TM("Try to get a license"));
-			result = licenseExtractor_->processing_license();
+      result = licenseExtractor_->processing_license();
 
       if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
         string_t license = result->host_license()->license();
@@ -85,7 +85,8 @@ int Get_License_Task::svc() {
               licenseChecker_->save_license_to_file(license);
 
           INFO_LOG(TM("Save new license - MONTH, YEAR ???"));
-          // schedule timer to check day for update : 24 * 60 * 60 = WAIT_NEXT_DAY_SECS
+          // schedule timer to check day for update : 24 * 60 * 60 =
+          // WAIT_NEXT_DAY_SECS
           schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
         }
       } else {
@@ -107,21 +108,16 @@ int Get_License_Task::svc() {
          err.what()),
         -1);
 
-		if (result->errors() != nullptr) {
-			INFO_LOG(TM("Errors is nullptr"));
-		}
-		else {
-			INFO_LOG(
-				(TM("Errors is not nullptr: ") + result->errors()->userMessage())
-				.c_str());
-			ACE_ERROR_RETURN(
-				(LM_ERROR,
-					ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
-					result->errors()->userMessage().c_str()),
-				-1);
-		}
-
-
+    if (result->errors() != nullptr) {
+      INFO_LOG(TM("Errors is nullptr"));
+    } else {
+      INFO_LOG((TM("Errors is not nullptr: ") + result->errors()->userMessage())
+                   .c_str());
+      ACE_ERROR_RETURN(
+          (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
+           result->errors()->userMessage().c_str()),
+          -1);
+    }
   }
   ACE_DEBUG(
       (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task finished\n")));
