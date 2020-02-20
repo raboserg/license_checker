@@ -42,6 +42,10 @@ if(CMAKE_HOST_WIN32)
     find_library(P7_LIB NAMES ${P7_LIB_NAME} HINTS ${DEFAULT_LIBP7_LIB_DIR})
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} HINTS ${VCPKG_DIR}/lib)
     find_library(ACE NAMES ${ACE_LIB_NAME} HINTS ${ACE_LIBRARY_DIR})
+	find_library(LICENSE license HINTS "D:/library/vcpkg/installed/x64-windows-static/debug/lib")
+
+	message("LICENSELICENSELICENSELICENSELICENSE ${LICENSE}")
+
 elseif(CMAKE_HOST_UNIX)
     set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
     set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
@@ -86,7 +90,7 @@ add_subdirectory("process_killer_task")
 
 if(CMAKE_HOST_WIN32)
     set(SOURCE_LIST application.cpp application.h ./tools/constants.cpp ./tools/gason.cpp stdafx.h)
-    set(LINK_LIBS tracer NT_Service ${ACE} ${P7_LIB} ${Boost_LIBRARIES} runtimeobject)
+    set(LINK_LIBS tracer NT_Service ${ACE} ${P7_LIB} ${Boost_LIBRARIES} runtimeobject license_checker)
     set(INCLUDE_DIRS client license tracer tools nt_service get_license_task process_killer_task
         ${Boost_INCLUDE_DIRS}
         ${DEFAULT_LIBP7_INCLUDE_DIR})
@@ -98,7 +102,7 @@ if(CMAKE_HOST_WIN32)
     target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST application.cpp ../tools/constants.cpp application.h ../tools/gason.cpp stdafx.h)
-    set(LINK_LIBS client license eventsink tracer pthread get_license_task ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
+    set(LINK_LIBS client license_checker eventsink tracer pthread get_license_task ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
     set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools ../get_license_task ../process_killer_task
         ${Boost_INCLUDE_DIRS}
         ${CPPREST_INCLUDE_DIR}

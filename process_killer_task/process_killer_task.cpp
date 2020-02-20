@@ -9,6 +9,9 @@
 #include "gason.h"
 #include "parser_ini.h"
 
+
+const string_t license = L"Mg==.MDAwMg==.MjAyNS0wMi0xN1QxMjoyNDowMFo=.QWQpsy2ONak8WdX48IDl1YCypDLbkey19hQ7+NcArBk=.1g8mNo5xjzOBdO+4tiaABJtYqgoUgwbzjQwdIM4Yq9ZcLooW8gHVqQmR4lcMCVfT";
+
 Process_Killer_Task::Process_Killer_Task()
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), n_threads_(1),
       licenseChecker_(new LicenseChecker()) {
@@ -62,9 +65,9 @@ int Process_Killer_Task::svc() {
   ACE_DEBUG(
       (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: task started\n")));
   try {
-    if (licenseChecker_->check_license_day() &&
+    if (licenseChecker_->is_license_check_day() &&
         (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
-         !licenseChecker_->verify_license())) {
+         !licenseChecker_->verify_license(license))) {
       schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
       const string_t file_name =
           PARSER::instance()->get_value(lic::config_keys::FILES_KILL_FILE_NAME);

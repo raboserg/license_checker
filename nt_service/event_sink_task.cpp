@@ -18,7 +18,7 @@ int EventSink_Task::svc() {
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("EventSink_Task::svc()\n")));
 
     try {
-      if (licenseChecker_->is_license_file(_XPLATSTR("")) || !licenseChecker_->verify_license()) {
+      if (licenseChecker_->is_license_file(_XPLATSTR("")) || !licenseChecker_->verify_license(L"")) {
         const shared_ptr<LicenseExtractor> licenseExtractor_ =
             licenseChecker_->make_license_extractor(5);
 

@@ -1,4 +1,5 @@
 ﻿#include "license_checker.h"
+#include "license.h"
 #include "parser_ini.h"
 #include <constants.h>
 #include <cpprest/asyncrt_utils.h>
@@ -32,10 +33,63 @@ bool LicenseChecker::is_license_file(const string_t &file_name) {
   }
   return result;
 }
-bool LicenseChecker::verify_license() {
+
+std::string read_pub(const std::string &name) {
+  std::string pub;
+  ifstream file(name, std::ios::in);
+  if (file.is_open()) {
+    file >> pub;
+    file.close();
+  }
+  return pub;
+}
+
+std::vector<unsigned char> read_file(const std::string &fname) {
+  std::ifstream f(fname, std::fstream::binary | std::ios_base::ate);
+  if (!f)
+    return std::vector<unsigned char>();
+  auto sz = f.tellg();
+  std::vector<unsigned char> v;
+  v.resize(static_cast<std::vector<unsigned char>::size_type>(sz));
+  f.seekg(0);
+  f.rdbuf()->sgetn(reinterpret_cast<char *>(v.data()), v.size());
+  return v;
+}
+
+bool LicenseChecker::verify_license(const string_t &license_in) {
   bool result = false;
-  string_t line = run_proc(make_verify_license_cmd());
-  if (line.empty()) {
+  // string_t line = run_proc(make_verify_license_cmd());
+  std::string uid_file = conversions::utf16_to_utf8(
+      PARSER::instance()->get_value(lic::config_keys::LICENSE_UID));
+
+  std::vector<unsigned char> vuid;
+  if (uid_file.size()) {
+    vuid = read_file(uid_file);
+    if (vuid.empty()) {
+      std::cout << "ERROR: Can't read uid file" << std::endl;
+
+      const std::string uid =
+          conversions::utf16_to_utf8(generate_machine_uid());
+      vuid = std::vector<unsigned char>(uid.data(), uid.data() + uid.size());
+      if (vuid.empty()) {
+        std::cout << "ERROR: Can't read uid file" << std::endl;
+        throw std::runtime_error("UID is empty");
+      }
+    }
+  }
+
+  unsigned int prod = _wtoi(
+      PARSER::instance()->get_value(lic::config_keys::LICENSE_PROD).c_str());
+  std::string license = conversions::utf16_to_utf8(license_in);
+  std::vector<unsigned char> vlic = std::vector<unsigned char>(
+      license_in.data(), license_in.data() + license_in.size());
+  std::vector<unsigned char> pub = read_file("lic_test_pub.bin");
+  // std::string pub = read_pub("lic_test_pub.bin");
+
+  int ret = lic_verify(vuid.data(), vuid.size(), pub.data(), pub.size(), prod,
+                       vlic.data(), vlic.size());
+
+  /*if (line.empty()) {
     throw std::runtime_error("lic of output is empty");
   } else {
     const string_t code = line.substr(0, line.find_first_of(_XPLATSTR(":")));
@@ -46,7 +100,7 @@ bool LicenseChecker::verify_license() {
     } else {
       throw std::runtime_error("lic returned invalid responce");
     }
-  }
+  }*/
   return result;
 }
 
@@ -75,9 +129,9 @@ void LicenseChecker::save_license_to_file(string_t &license) {
   // save license to file
   const string_t lic_file_name =
       PARSER::instance()->get_value(lic::config_keys::FILES_LIC_FILE_NAME);
-  ofstream_t file(lic_file_name, std::ios::out);
+  ofstream_t file(lic_file_name, std::ios::out); //|std::ofstream::binary
   if (file.is_open()) {
-		file << license;
+    file << license;
     file.close();
   } else {
     //?????
@@ -152,25 +206,19 @@ string_t LicenseChecker::make_machine_uid_cmd() {
   return license_process_path;
 }
 
-bool LicenseChecker::check_update_day() {
+bool LicenseChecker::is_license_update_day() {
   ACE_Date_Time date_time;
-  // ACE_DEBUG(
-  //    (LM_DEBUG, ACE_TEXT("%T (%t):\t\tLicenseChecker: Day of today - %d\n"),
-  //    date_time.day()));
   const string_t license_update_day =
       PARSER::instance()->get_value(lic::config_keys::LICENSE_DAY_FOR_UPDATE);
   if (license_update_day.empty())
     throw std::runtime_error("Key of LICENSE.day_for_update is failed");
   const long day = ACE_OS::atol(license_update_day.c_str());
   return (date_time.day() >= day &&
-          date_time.day() <= day + lic::constants::CHECK_DAYS);
+          date_time.day() <= (day + lic::constants::CHECK_DAYS));
 }
 
-bool LicenseChecker::check_license_day() {
+bool LicenseChecker::is_license_check_day() {
   ACE_Date_Time date_time;
-  // ACE_DEBUG(
-  //	(LM_DEBUG, ACE_TEXT("%T (%t):\t\tLicenseChecker: Day of today - %d\n"),
-  // date_time.day()));
   const string_t license_check_day = PARSER::instance()->get_value(
       lic::config_keys::LICENSE_DAY_FOR_CHECK_LIC);
   if (license_check_day.empty())

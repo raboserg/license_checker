@@ -23,9 +23,9 @@ class LicenseChecker {
 
 public:
   LicenseChecker();
-  bool check_update_day();
-  bool check_license_day();
-  bool verify_license();
+  bool is_license_update_day();
+  bool is_license_check_day();
+  bool verify_license(const string_t &license);
   utility::string_t generate_machine_uid();
   void save_license_to_file(utility::string_t &command);
   ACE_Date_Time extract_license_date(const utility::string_t &lic);

@@ -63,7 +63,7 @@ int Get_License_Task::svc() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task started\n")));
   shared_ptr<Result> result;
   try {
-    if (licenseChecker_->check_update_day()) {
+    if (licenseChecker_->is_license_update_day()) {
       const shared_ptr<LicenseExtractor> licenseExtractor_ =
           licenseChecker_->make_license_extractor(1);
       INFO_LOG(TM("Try to get a license"));
