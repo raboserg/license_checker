@@ -42,10 +42,7 @@ if(CMAKE_HOST_WIN32)
     find_library(P7_LIB NAMES ${P7_LIB_NAME} HINTS ${DEFAULT_LIBP7_LIB_DIR})
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} HINTS ${VCPKG_DIR}/lib)
     find_library(ACE NAMES ${ACE_LIB_NAME} HINTS ${ACE_LIBRARY_DIR})
-	find_library(LICENSE license HINTS "D:/library/vcpkg/installed/x64-windows-static/debug/lib")
-
-	message("LICENSELICENSELICENSELICENSELICENSE ${LICENSE}")
-
+	#find_library(LICENSE license HINTS "D:/library/vcpkg/installed/x64-windows-static/debug/lib")
 elseif(CMAKE_HOST_UNIX)
     set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
     set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})

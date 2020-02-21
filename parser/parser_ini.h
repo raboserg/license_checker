@@ -17,12 +17,14 @@ typedef pt::ptree prop_tree;
 class Parser {
   prop_tree root_;
   const utility::string_t file_name_;
-
+	utility::string_t service_path_;
+	utility::string_t make_service_path();
   void create_root(const utility::string_t &file_name);
 
 public:
 	Parser(void);
-	utility::string_t get_path();
+	utility::string_t get_config_path();
+	utility::string_t get_service_path();
   Parser(const utility::string_t &file_name);
   utility::string_t get_value(const utility::string_t &key) const;
   prop_tree get_tree() { return this->root_; }

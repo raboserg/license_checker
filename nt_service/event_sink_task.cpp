@@ -18,17 +18,19 @@ int EventSink_Task::svc() {
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("EventSink_Task::svc()\n")));
 
     try {
-      if (licenseChecker_->is_license_file(_XPLATSTR("")) || !licenseChecker_->verify_license(L"")) {
+      if (licenseChecker_->is_license_file(_XPLATSTR("")) ||
+          !licenseChecker_->verify_license()) {
         const shared_ptr<LicenseExtractor> licenseExtractor_ =
             licenseChecker_->make_license_extractor(5);
 
-				const shared_ptr<Result> result = licenseExtractor_->processing_license();
-				if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
-					string_t license = result->host_license()->license();
-					if (!license.empty()) {
-						licenseChecker_->save_license_to_file(license);
-					}
-				}
+        const shared_ptr<Result> result =
+            licenseExtractor_->processing_license();
+        if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
+          string_t license = result->host_license()->license();
+          if (!license.empty()) {
+            licenseChecker_->save_license_to_file(license);
+          }
+        }
       } else {
         INFO_LOG(TM("License is SUCCESS"));
       }

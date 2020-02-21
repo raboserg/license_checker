@@ -7,10 +7,6 @@
 #include <process.h>
 #endif // _WIN32
 #include "gason.h"
-#include "parser_ini.h"
-
-
-const string_t license = L"Mg==.MDAwMg==.MjAyNS0wMi0xN1QxMjoyNDowMFo=.QWQpsy2ONak8WdX48IDl1YCypDLbkey19hQ7+NcArBk=.1g8mNo5xjzOBdO+4tiaABJtYqgoUgwbzjQwdIM4Yq9ZcLooW8gHVqQmR4lcMCVfT";
 
 Process_Killer_Task::Process_Killer_Task()
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), n_threads_(1),
@@ -30,7 +26,9 @@ Process_Killer_Task::~Process_Killer_Task() {
 }
 
 int Process_Killer_Task::open(ACE_Time_Value tv1) {
-  this->timerId_ = reactor()->schedule_timer(this, 0, tv1, tv1);
+  // interval - ???
+  this->timerId_ =
+      reactor()->schedule_timer(this, 0, tv1, ACE_Time_Value::zero);
   return 0;
 }
 
@@ -67,24 +65,19 @@ int Process_Killer_Task::svc() {
   try {
     if (licenseChecker_->is_license_check_day() &&
         (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
-         !licenseChecker_->verify_license(license))) {
-      schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
-      const string_t file_name =
-          PARSER::instance()->get_value(lic::config_keys::FILES_KILL_FILE_NAME);
-      if (terminate_process(file_name)) {
-        INFO_LOG((file_name + _XPLATSTR(" kill")).c_str());
+         !licenseChecker_->verify_license())) {
+      if (terminate_process(this->process_stopping_name())) {
+        INFO_LOG((this->process_stopping_name() + _XPLATSTR(" kill")).c_str());
       } else {
-        INFO_LOG((TM("Process ") + file_name + TM(" not found")).c_str());
+        INFO_LOG(
+            (TM("Process ") + this->process_stopping_name() + TM(" not found"))
+                .c_str());
       }
-
       INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
       execute_process(_XPLATSTR("D:/project/itagent.exe"));
-
-    } else {
-      schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
-      // TODO:save state to file check_lic_day ???
-      INFO_LOG(TM("Wait next day"));
     }
+    // reschedule next day
+    schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING_SECS);
   } catch (const std::runtime_error &err) {
     CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
     shutdown_service(); //???

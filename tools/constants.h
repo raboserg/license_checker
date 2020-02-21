@@ -21,7 +21,7 @@ struct lic_host_status {
 
 struct constants {
 #define _CONSTANTS
-#define DAT(a, b, c) const static unsigned int a = b;
+#define DAT(a, b, c) const static int a = b;
 #include "../resources/constants.dat"
 #undef _CONSTANTS
 #undef DAT

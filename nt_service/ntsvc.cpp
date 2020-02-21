@@ -1,7 +1,7 @@
 #include "ntsvc.h"
-#include "tracer.h"
-
 #include "ace/Date_Time.h"
+#include "parser_ini.h"
+#include "tracer.h"
 
 #if defined(ACE_WIN32) && !defined(ACE_LACKS_WIN32_SERVICES)
 
@@ -10,9 +10,6 @@ Service::Service(void) : event_(std::make_shared<ACE_Auto_Event>()) {
       SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS;
   // Remember the Reactor instance.
   reactor(ACE_Reactor::instance());
-  notificator_ = std::make_shared<WinNT::Notificator>();
-  get_license_task_ = std::make_unique<Get_License_Task>();
-  process_killer_task_ = std::make_unique<Process_Killer_Task>();
   //???DEBUG_LOG(TM("Service::Service(void) "));
 }
 
@@ -57,7 +54,7 @@ int Service::handle_signal(int, siginfo_t *siginfo, ucontext_t *) {
 // and causing a drop out of handle_events.
 int Service::handle_exception(ACE_HANDLE) {
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tService::handle_exception()\n")));
-//???  DEBUG_LOG(TM("int Service::handle_exception(ACE_HANDLE)"));
+  //???  DEBUG_LOG(TM("int Service::handle_exception(ACE_HANDLE)"));
   return -1;
 }
 
@@ -86,7 +83,6 @@ int Service::svc(void) {
   // Schedule a timer every two seconds.
   ACE_Time_Value tv(2, 0);
   // ACE_Reactor::instance()->schedule_wait(this, 0, tv, tv);
-
   //////////////////////////////////////////////////////////////////////////
 
   int arg1 = 1;
@@ -97,6 +93,7 @@ int Service::svc(void) {
   // atimer.schedule(&cb1, &arg1, curr_tv + ACE_Time_Value(3L), interval);
 
   ////////////////////////////////////////////////////////////////////////
+  notificator_ = std::make_shared<WinNT::Notificator>();
   if (this->notificator_->Initialize(this->event_) == -1) {
     ACE_ERROR(
         (LM_ERROR, "%T (%t):\tcannot initialize notificator for event sink\n"));
@@ -109,19 +106,24 @@ int Service::svc(void) {
     ERROR_LOG(TM("cannot register handle with Reactor"));
   }
 
-  if (this->get_license_task_->open(ACE_Time_Value(5, 0)) == -1) {
+  get_license_task_ = std::make_unique<Get_License_Task>();
+  if (this->get_license_task_->open(ACE_Time_Value(5)) == -1) {
     ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
+  process_killer_task_ = std::make_unique<Process_Killer_Task>();
+  const string_t process_stopping_name =
+      PARSER::instance()->get_value(lic::config_keys::FILES_KILL_FILE_NAME);
+  process_killer_task_->process_stopping_name(process_stopping_name);
   if (this->process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
     ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
   this->reactor()->run_reactor_event_loop();
-	
-	//this->msg_queue();
+
+  // this->msg_queue();
 
   // Cleanly terminate connections, terminate threads.
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tShutting down\n")));

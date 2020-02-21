@@ -1,20 +1,18 @@
 #ifdef _CONFIG_FILE_KEYS
 DAT(FILES_LIC,              U("FILES.lic"))
-DAT(LICENSE_CHECK_LIC_CMD,  U("LICENSE.check_lic_cmd"))
 DAT(FILES_LIC_FILE_NAME,    U("FILES.lic_file_name"))
-DAT(LICENSE_MAKE_LIC_CMD,   U("LICENSE.make_lic_cmd"))
+DAT(LICENSE_MAKE_UID_CMD,   U("LICENSE.make_uid_cmd"))
 DAT(LICENSE_PROD,           U("LICENSE.prod"))
-DAT(LICENSE_UID,            U("LICENSE.license_uid"))
+DAT(FILES_UID_FILE_NAME,	U("FILES.uid_file_name"))
 DAT(LICENSE_AGENT_ID,       U("LICENSE.agentId"))
 DAT(LICENSE_UNP,            U("LICENSE.unp"))
 DAT(LICENSE_FILE_NAME,      U("FILES.lic_file_name"))
 DAT(LICENSE_SRV_URI,	    U("LICENSE.license_manager_uri"))
 
-DAT(LICENSE_DAY_FOR_UPDATE,		U("LICENSE.day_for_update"))
-DAT(LICENSE_DAY_FOR_CHECK_LIC	,U("LICENSE.day_for_check_lic"))
-DAT(LICENSE_TIMEOUT_TRY,		U("LICENSE.timeout_try_sec"))
-DAT(LICENSE_TIMEOUT_CHECK_DAY,  U("LICENSE.timeout_check_day_hours"))
-DAT(LICENSE_TIMEOUT_TRY_GET_LIC,U("LICENSE.timeout_try_get_lic_min"))
+DAT(CONFIG_DAY_LICENSE_UPDATE,	U("CONFIG.day_license_update"))
+DAT(CONFIG_DAY_LICENSE_CHECK,	U("CONFIG.day_license_check"))
+DAT(CONFIG_TIMEOUT_CHECK_DAY,	U("CONFIG.timeout_check_day_hours"))
+DAT(CONFIG_NEXT_TRY_GET_LIC,	U("CONFIG.next_try_get_license_mins"))
 DAT(FILES_KILL_FILE_NAME,		U("FILES.kill_file_name"))
 
 #endif
@@ -22,13 +20,13 @@ DAT(FILES_KILL_FILE_NAME,		U("FILES.kill_file_name"))
 #ifdef _HOST_STATUSES
 DAT(NEW,		4, U("new"))
 DAT(ACTIVE,		1, U("active"))
-DAT(APPROVED,           3, U("approved"))
-DAT(SUSPENDED,          2, U("suspended"))
+DAT(APPROVED,   3, U("approved"))
+DAT(SUSPENDED,	2, U("suspended"))
 #endif
 
 #ifdef _CONSTANTS
-DAT(UID_SIZE,			58, U("uid size"))
-DAT(CHECK_DAYS,			5, U("check days"))
-DAT(WAIT_NEXT_DAY_SECS,		86400, U("wait next day seconds"))
-DAT(WAIT_NEXT_TRY_GET_SECS,	10, U("wait next try get seconds"))
+DAT(UID_SIZE,						58, U("uid size"))
+DAT(CHECK_DAYS,						5, U("check days"))
+DAT(NEXT_DAY_WAITING_SECS,			86400, U("next day waiting seconds"))
+DAT(WAIT_NEXT_TRY_GET_SECS,			10, U("wait next try get seconds"))
 #endif

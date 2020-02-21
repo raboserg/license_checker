@@ -10,6 +10,7 @@
 
 namespace bp = boost::process;
 
+using namespace std;
 using namespace utility;
 
 #ifdef _WIN32
@@ -19,17 +20,17 @@ typedef bp::ipstream bp_is;
 #endif
 
 class LicenseChecker {
-  utility::string_t run_proc(const utility::string_t &command);
+  string_t run_proc(const string_t &command);
 
 public:
   LicenseChecker();
   bool is_license_update_day();
   bool is_license_check_day();
-  bool verify_license(const string_t &license);
-  utility::string_t generate_machine_uid();
-  void save_license_to_file(utility::string_t &command);
-  ACE_Date_Time extract_license_date(const utility::string_t &lic);
-  std::shared_ptr<LicenseExtractor>
+  bool verify_license();
+  string_t generate_machine_uid();
+  void save_license_to_file(string_t &command);
+  ACE_Date_Time extract_license_date(const string_t &lic);
+  shared_ptr<LicenseExtractor>
   make_license_extractor(const int64_t &attemp0t);
   bool is_license_file(const utility::string_t &file_name);
   ACE_Date_Time current_license_date();

@@ -20,9 +20,17 @@ public:
   virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg);
   virtual int schedule_handle_timeout(const int &seconds);
 
+  string_t process_stopping_name() { return process_stopping_name_; }
+
+  void process_stopping_name(const string_t process_name) {
+    process_stopping_name_ = process_name;
+  }
+
 private:
   long timerId_;
   int n_threads_;
+  string_t process_stopping_name_;
+
   ACE_Array<ACE_CString> state_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
   int shutdown_service();

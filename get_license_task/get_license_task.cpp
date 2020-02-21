@@ -29,7 +29,8 @@ Get_License_Task::~Get_License_Task() {
 }
 
 int Get_License_Task::open(ACE_Time_Value tv1) {
-  this->timerId_ = reactor()->schedule_timer(this, 0, tv1, tv1);
+  this->timerId_ =
+      reactor()->schedule_timer(this, 0, tv1, ACE_Time_Value::zero);
   return 0;
 }
 
@@ -96,7 +97,7 @@ int Get_License_Task::svc() {
       }
     } else {
       // set timer for next check update day: 24 * 60 * 60
-      schedule_handle_timeout(lic::constants::WAIT_NEXT_DAY_SECS);
+      schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING_SECS);
       // TODO:save state to file ???
       INFO_LOG(TM("Wait next day"));
     }
