@@ -53,7 +53,6 @@ public:
   Get_License_Task(ACE_Thread_Manager *thr_mgr, const int n_threads);
   virtual ~Get_License_Task();
   void close();
-  virtual int svc(void);
   int open(ACE_Time_Value tv1);
   // virtual int handle_signal(int, siginfo_t *siginfo, ucontext_t *);
   virtual int handle_exception(ACE_HANDLE h);
@@ -66,6 +65,7 @@ private:
   ACE_Array<ACE_CString> results_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
 
+  virtual int svc(void);
   int shutdown_service() {
     reactor()->cancel_timer(this);
     return reactor()->end_reactor_event_loop();

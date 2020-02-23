@@ -97,7 +97,7 @@ int Get_License_Task::svc() {
       }
     } else {
       // set timer for next check update day: 24 * 60 * 60
-      schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING_SECS);
+      schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
       // TODO:save state to file ???
       INFO_LOG(TM("Wait next day"));
     }

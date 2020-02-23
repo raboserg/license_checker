@@ -77,7 +77,7 @@ int Process_Killer_Task::svc() {
       execute_process(_XPLATSTR("D:/project/itagent.exe"));
     }
     // reschedule next day
-    schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING_SECS);
+    schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
   } catch (const std::runtime_error &err) {
     CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
     shutdown_service(); //???

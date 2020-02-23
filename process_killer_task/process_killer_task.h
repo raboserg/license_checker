@@ -13,7 +13,6 @@ public:
   Process_Killer_Task(ACE_Thread_Manager *thr_mgr, const int n_threads);
   virtual ~Process_Killer_Task();
   void close();
-  virtual int svc(void);
   int open(ACE_Time_Value tv1);
   // virtual int handle_signal(int, siginfo_t *siginfo, ucontext_t *);
   virtual int handle_exception(ACE_HANDLE h);
@@ -33,6 +32,7 @@ private:
 
   ACE_Array<ACE_CString> state_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
+  virtual int svc(void);
   int shutdown_service();
   int terminate_process(const utility::string_t filename);
   int execute_process(const utility::string_t filename);

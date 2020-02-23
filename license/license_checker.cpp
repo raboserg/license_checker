@@ -84,7 +84,7 @@ bool LicenseChecker::verify_license() {
   // std::vector<unsigned char> vlic = std::vector<unsigned char>(
   //    license_in.data(), license_in.data() + license_in.size());
   // std::vector<unsigned char> pub = read_file("lic_test_pub.bin");
-  //// std::string pub = read_pub("lic_test_pub.bin");
+  // std::string pub = read_pub("lic_test_pub.bin");
 
   // int ret = lic_verify(vuid.data(), vuid.size(), pub.data(), pub.size(),
   // prod,
@@ -223,8 +223,8 @@ string_t LicenseChecker::make_machine_uid_cmd() {
 
 bool LicenseChecker::is_license_update_day() {
   ACE_Date_Time date_time;
-  const string_t license_update_day =
-      PARSER::instance()->get_value(lic::config_keys::CONFIG_DAY_LICENSE_UPDATE);
+  const string_t license_update_day = PARSER::instance()->get_value(
+      lic::config_keys::CONFIG_DAY_LICENSE_UPDATE);
   if (license_update_day.empty())
     throw std::runtime_error("Key of LICENSE.day_for_update is failed");
   const long day = ACE_OS::atol(license_update_day.c_str());
@@ -234,8 +234,8 @@ bool LicenseChecker::is_license_update_day() {
 
 bool LicenseChecker::is_license_check_day() {
   ACE_Date_Time date_time;
-  const string_t license_check_day = PARSER::instance()->get_value(
-      lic::config_keys::CONFIG_DAY_LICENSE_CHECK);
+  const string_t license_check_day =
+      PARSER::instance()->get_value(lic::config_keys::CONFIG_DAY_LICENSE_CHECK);
   if (license_check_day.empty())
     throw std::runtime_error("Key of LICENSE.day_for_check_lic is failed");
   const long day = ACE_OS::atol(license_check_day.c_str());
