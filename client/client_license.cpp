@@ -17,7 +17,7 @@ LicenseExtractor::LicenseExtractor(const uri &address, const Message &message,
 }
 
 shared_ptr<Result> LicenseExtractor::processing_license() {
-	const http_response response = send_request();
+  const http_response response = send_request();
   result_->status_code(response.status_code());
   if (result_->status_code() == status_codes::OK) {
     response.content_ready().wait();
@@ -83,9 +83,9 @@ void LicenseExtractor::processing_errors(const http_response &response) {
             .append(field_error_.message);
       }
       ERROR_LOG(error.c_str());
-	}
+    }
     result_->errors(errors);
-	throw runtime_error(to_utf8string(error).c_str());
+    throw runtime_error(to_utf8string(error).c_str());
   }
 }
 

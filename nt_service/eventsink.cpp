@@ -39,8 +39,7 @@ HRESULT __stdcall EventSink::Indicate(LONG lObjectCount,
     // OutputDebugString(L"Event: openvpn is opening");
     _variant_t varReturnValue;
     hres = (*apObjArray)->Get(strClassProp, 0, &varReturnValue, NULL, 0);
-    BSTR dsfdsf = varReturnValue.bstrVal;
-    if (SUCCEEDED(hres) && (V_VT(&varReturnValue) == VT_BSTR)) {
+  if (SUCCEEDED(hres) && (V_VT(&varReturnValue) == VT_BSTR)) {
       const std::string strFromBstr =
           (const char *)_bstr_t(V_BSTR(&varReturnValue));
 

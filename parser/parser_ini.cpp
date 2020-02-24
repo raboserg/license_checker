@@ -1,5 +1,4 @@
 #include "parser_ini.h"
-#include "ace/Log_Msg.h"
 #include "constants.h"
 #include <cpprest/asyncrt_utils.h>
 #include <tracer.h>
@@ -81,8 +80,6 @@ utility::string_t Parser::get_value(const utility::string_t &key) const {
 }
 
 int Parser::init() {
-  ACE_ERROR(
-      (LM_ERROR, "%T (%t):\tif(PARSER::instance()->init())\n", "Service::svc"));
   try {
     Options options;
     options.unp = get_value(lic::config_keys::LICENSE_UNP);
@@ -103,10 +100,8 @@ int Parser::init() {
     options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
     this->set_options(options);
   } catch (const std::exception &ex) {
-    DEBUG_LOG(TM("} catch (const std::exception &ex) {"));
-    ACE_ERROR((LM_ERROR, "%T (%t):\tif(PARSER::instance()->init())\n",
-               "Service::svc"));
-    // return -1;
+    //???DEBUG_LOG(TM("") + ex.what().c_str());
+    return -1;
   }
   return 0;
 }

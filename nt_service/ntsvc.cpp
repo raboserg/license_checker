@@ -97,10 +97,10 @@ int Service::svc(void) {
   // atimer.schedule(&cb1, &arg1, curr_tv + ACE_Time_Value(3L), interval);
 
   ////////////////////////////////////////////////////////////////////////
-  if (PARSER::instance()->init() == -1)
-    ACE_ERROR((LM_ERROR, "%T (%t):\tif(PARSER::instance()->init())\n",
-               "Service::svc"));
+  if (PARSER::instance()->init() == -1){
+    ACE_ERROR((LM_ERROR, "%T (%t):\t) \n", "Service::svc"));
   // raise(SIGINT);
+    }
 
   notificator_ = std::make_shared<WinNT::Notificator>();
   if (this->notificator_->Initialize(this->event_) == -1) {

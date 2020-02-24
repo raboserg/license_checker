@@ -5,6 +5,7 @@
 
 #include "ace/Timer_Heap.h"
 #include "ace/Timer_Queue_Adapters.h"
+#include "common_task.h"
 #include "license_checker.h"
 //#include "ace/Reactor_Notification_Strategy.h"
 //#include "event_sink_task.h"
