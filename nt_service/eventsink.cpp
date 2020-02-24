@@ -1,6 +1,6 @@
 ﻿#include "eventsink.h"
-#include "tracer.h"
 #include "event_sink_task.h"
+#include "tracer.h"
 
 ULONG __stdcall EventSink::AddRef() { return InterlockedIncrement(&m_lRef); }
 
@@ -27,22 +27,29 @@ HRESULT __stdcall EventSink::Indicate(LONG lObjectCount,
   for (int i = 0; i < lObjectCount; i++) {
     // printf("Event: openvpn is opening\n");
 
-    ACE_Message_Block *mblk = 0;
-		ACE_Message_Block *log_blk = new ACE_Message_Block(reinterpret_cast<char *>(this));
+    /*ACE_Message_Block *mblk = 0;
+    ACE_Message_Block *log_blk =
+        new ACE_Message_Block(reinterpret_cast<char *>(this));
     log_blk->cont(mblk);
-    LICENSE_WORKER_TASK::instance()->put(log_blk);
-
+    LICENSE_WORKER_TASK::instance()->put(log_blk);*/
+    LICENSE_WORKER_TASK::instance()->open();
     TRACE_LOG(TM("Event: openvpn is opening...\n"));
-    ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t): Event: openvpn is opening...\n")));
-
+    ACE_DEBUG(
+        (LM_DEBUG, ACE_TEXT("%T (%t):\t\tEvent: openvpn is opening...\n")));
     // OutputDebugString(L"Event: openvpn is opening");
     _variant_t varReturnValue;
     hres = (*apObjArray)->Get(strClassProp, 0, &varReturnValue, NULL, 0);
     BSTR dsfdsf = varReturnValue.bstrVal;
     if (SUCCEEDED(hres) && (V_VT(&varReturnValue) == VT_BSTR)) {
-      wprintf(L"The class name is %s\n.", V_BSTR(&varReturnValue));
+      const std::string strFromBstr =
+          (const char *)_bstr_t(V_BSTR(&varReturnValue));
+
+      ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\t\tThe class name is %s\n"),
+                 (const char *)_bstr_t(V_BSTR(&varReturnValue))));
     } else {
-      wprintf(L"Error in getting specified object\n");
+      ACE_DEBUG((LM_ERROR,
+                 ACE_TEXT("%T (%t):\t\tError in getting specified object\n"),
+                 V_BSTR(&varReturnValue)));
     }
     VariantClear(&varReturnValue);
   }
@@ -53,12 +60,12 @@ HRESULT __stdcall EventSink::SetStatus(LONG lFlags, HRESULT hResult,
                                        BSTR strParam,
                                        IWbemClassObject __RPC_FAR *pObjParam) {
   if (lFlags == WBEM_STATUS_COMPLETE) {
-    printf("Call complete. hResult = 0x%X\n", hResult);
-    OutputDebugString(L"Call complete. hResult");
+    ACE_DEBUG((LM_DEBUG,
+               ACE_TEXT("%T (%t):\t\tCall complete. hResult = 0x%X\n"),
+               hResult));
     in_progress_ = false;
   } else if (lFlags == WBEM_STATUS_PROGRESS) {
-    OutputDebugString(L"Call in progress");
-    printf("Call in progress.\n");
+    ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\t\tCall in progress\n"), hResult));
   }
   return WBEM_S_NO_ERROR;
 }

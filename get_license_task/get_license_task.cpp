@@ -3,7 +3,7 @@
 #include "ace/OS_NS_time.h"
 #include "client_license.h"
 #include "constants.h"
-#include "parser_ini.h"
+//#include "parser_ini.h"
 #include "tracer.h"
 
 using namespace std;
@@ -102,12 +102,16 @@ int Get_License_Task::svc() {
       INFO_LOG(TM("Wait next day"));
     }
   } catch (const runtime_error &err) {
+    //////////////////////////////////////////////////////////////
     CRITICAL_LOG(conversions::to_string_t(err.what()).c_str());
     shutdown_service(); //???
     ACE_ERROR_RETURN(
         (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
          err.what()),
         -1);
+  } catch (web::http::http_exception &ex) {
+    //////////////////////////////////////////////////////////////
+    ERROR_LOG(conversions::to_string_t(ex.what()).c_str());
 
     if (result->errors() != nullptr) {
       INFO_LOG(TM("Errors is nullptr"));
@@ -119,6 +123,8 @@ int Get_License_Task::svc() {
            result->errors()->userMessage().c_str()),
           -1);
     }
+
+    // raise(SIGSEGV);
   }
   ACE_DEBUG(
       (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task finished\n")));

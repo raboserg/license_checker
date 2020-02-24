@@ -1,10 +1,10 @@
 #ifndef PARSER_INI_H
 #define PARSER_INI_H
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-#include <cpprest/details/basic_types.h>
 #include <Singleton.h>
+#include <boost/property_tree/ini_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <cpprest/details/basic_types.h>
 
 namespace pt = boost::property_tree;
 
@@ -14,17 +14,38 @@ typedef pt::wptree prop_tree;
 typedef pt::ptree prop_tree;
 #endif
 
+using namespace utility;
+
+struct Options {
+  string_t lic_app_verify;
+  string_t lic_file_name;
+  string_t make_uid_cmd;
+  string_t prod;
+  string_t uid_file_name;
+  string_t agentId;
+  string_t unp;
+  string_t license_manager_uri;
+  string_t day_license_update;
+  string_t day_license_check;
+  string_t next_try_get_license_mins;
+  string_t kill_file_name;
+};
+
 class Parser {
   prop_tree root_;
+  Options options_;
   const utility::string_t file_name_;
-	utility::string_t service_path_;
-	utility::string_t make_service_path();
+  utility::string_t service_path_;
+  utility::string_t make_service_path();
   void create_root(const utility::string_t &file_name);
+  void set_options(Options options) { options_ = options; }
 
 public:
-	Parser(void);
-	utility::string_t get_config_path();
-	utility::string_t get_service_path();
+  Parser(void);
+  utility::string_t get_config_path();
+  utility::string_t get_service_path();
+  int init();
+  Options options() { return options_; }
   Parser(const utility::string_t &file_name);
   utility::string_t get_value(const utility::string_t &key) const;
   prop_tree get_tree() { return this->root_; }

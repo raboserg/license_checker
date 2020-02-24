@@ -1,4 +1,6 @@
 #include "parser_ini.h"
+#include "ace/Log_Msg.h"
+#include "constants.h"
 #include <cpprest/asyncrt_utils.h>
 #include <tracer.h>
 
@@ -8,9 +10,7 @@ const utility::string_t LIC_INI_FILE = U("lic_check_w.ini");
 const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
 #endif
 
-utility::string_t Parser::get_service_path() {
-  return service_path_;
-}
+utility::string_t Parser::get_service_path() { return service_path_; }
 
 utility::string_t Parser::make_service_path() {
   utility::string_t service_path;
@@ -20,8 +20,9 @@ utility::string_t Parser::make_service_path() {
     wprintf(L"Cannot get service file name, error %u\n", GetLastError());
   }
   const utility::string_t module_path(szPath);
-	service_path = module_path.substr(0, module_path.find_last_of(_XPLATSTR("\\")))
-                    .append(_XPLATSTR("\\"));
+  service_path =
+      module_path.substr(0, module_path.find_last_of(_XPLATSTR("\\")))
+          .append(_XPLATSTR("\\"));
 #endif
   INFO_LOG((TM("Current service path: ") + service_path).c_str());
   return service_path;
@@ -29,10 +30,11 @@ utility::string_t Parser::make_service_path() {
 
 utility::string_t Parser::get_config_path() {
   utility::string_t path_;
-  if (service_path_.empty())
-    path_ = this->service_path_.append(this->file_name_);
+  if (!service_path_.empty())
+    path_ = this->service_path_ + this->file_name_;
   else
     path_ = this->file_name_;
+  INFO_LOG((TM("Current config path: ") + path_).c_str());
   return path_;
 }
 
@@ -78,4 +80,34 @@ utility::string_t Parser::get_value(const utility::string_t &key) const {
   return value;
 }
 
+int Parser::init() {
+  ACE_ERROR(
+      (LM_ERROR, "%T (%t):\tif(PARSER::instance()->init())\n", "Service::svc"));
+  try {
+    Options options;
+    options.unp = get_value(lic::config_keys::LICENSE_UNP);
+    options.prod = get_value(lic::config_keys::LICENSE_PROD);
+    options.agentId = get_value(lic::config_keys::LICENSE_AGENT_ID);
+    options.lic_app_verify = get_value(lic::config_keys::FILES_LIC);
+    options.lic_file_name = get_value(lic::config_keys::FILES_LIC_FILE_NAME);
+    options.make_uid_cmd = get_value(lic::config_keys::LICENSE_MAKE_UID_CMD);
+    options.uid_file_name = get_value(lic::config_keys::FILES_UID_FILE_NAME);
+    options.lic_file_name = get_value(lic::config_keys::LICENSE_FILE_NAME);
+    options.license_manager_uri = get_value(lic::config_keys::LICENSE_SRV_URI);
+    options.day_license_update =
+        get_value(lic::config_keys::CONFIG_DAY_LICENSE_UPDATE);
+    options.day_license_check =
+        get_value(lic::config_keys::CONFIG_DAY_LICENSE_CHECK);
+    options.next_try_get_license_mins =
+        get_value(lic::config_keys::CONFIG_NEXT_TRY_GET_LIC);
+    options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
+    this->set_options(options);
+  } catch (const std::exception &ex) {
+    DEBUG_LOG(TM("} catch (const std::exception &ex) {"));
+    ACE_ERROR((LM_ERROR, "%T (%t):\tif(PARSER::instance()->init())\n",
+               "Service::svc"));
+    // return -1;
+  }
+  return 0;
+}
 Parser::~Parser() {}

@@ -7,8 +7,9 @@
 #include "ace/Event_Handler.h"
 #include "ace/Mutex.h"
 #include "ace/NT_Service.h"
-#include "ace/Singleton.h"
 #include "ace/Reactor.h"
+#include "ace/Sig_Adapter.h"
+#include "ace/Singleton.h"
 #include "ace/WFMO_Reactor.h"
 #include "event_sink_task.h"
 #include "notificator.h"
@@ -22,16 +23,16 @@ public:
 
   ~Service(void);
 
-	//???int open(void *args);
+  //???int open(void *args);
 
-	virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
+  virtual int handle_close(ACE_HANDLE, ACE_Reactor_Mask);
 
   /// We override <handle_control> because it handles stop requests
   /// privately.
   virtual void handle_control(DWORD control_code);
 
-	/// Handle events being signaled by the main thread.
-	int handle_signal(int signum, siginfo_t * = 0, ucontext_t * = 0);
+  /// Handle events being signaled by the main thread.
+  int handle_signal(int signum, siginfo_t * = 0, ucontext_t * = 0);
 
   /// We override <handle_exception> so a 'stop' control code can pop
   /// the reactor off of its wait.
@@ -46,19 +47,20 @@ public:
 private:
   typedef ACE_NT_Service inherited;
 
-	int get_seconds_in_hours(const int days) {
-		const int sec_min = 60;
-		const int min_hour = 60;
-		const int hour_day = 24;
-		return sec_min * min_hour * hour_day * days;
-	}
+  int get_seconds_in_hours(const int days) {
+    const int sec_min = 60;
+    const int min_hour = 60;
+    const int hour_day = 24;
+    return sec_min * min_hour * hour_day * days;
+  }
 
 private:
   int stop_;
-	std::shared_ptr<ACE_Auto_Event> event_;
-	std::shared_ptr<WinNT::Notificator> notificator_;
-	std::unique_ptr<Get_License_Task> get_license_task_;
-	std::unique_ptr<Process_Killer_Task> process_killer_task_;
+  ACE_Sig_Adapter done_handler_;
+  std::shared_ptr<ACE_Auto_Event> event_;
+  std::shared_ptr<WinNT::Notificator> notificator_;
+  std::unique_ptr<Get_License_Task> get_license_task_;
+  std::unique_ptr<Process_Killer_Task> process_killer_task_;
 };
 
 // Define a singleton class as a way to insure that there's only one

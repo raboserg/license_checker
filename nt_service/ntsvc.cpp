@@ -4,13 +4,15 @@
 #include "tracer.h"
 
 #if defined(ACE_WIN32) && !defined(ACE_LACKS_WIN32_SERVICES)
-
-Service::Service(void) : event_(std::make_shared<ACE_Auto_Event>()) {
+/*,done_handler_(ACE_Sig_Handler_Ex(ACE_Reactor::end_event_loop))*/
+Service::Service(void)
+    : event_(std::make_shared<ACE_Auto_Event>()),
+      done_handler_(ACE_Sig_Handler_Ex(ACE_Reactor::end_event_loop)) {
   this->svc_status_.dwServiceType =
       SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS;
   // Remember the Reactor instance.
   reactor(ACE_Reactor::instance());
-  //???DEBUG_LOG(TM("Service::Service(void) "));
+  DEBUG_LOG(TM("Service::Service(void) "));
 }
 
 Service::~Service(void) {
@@ -46,6 +48,7 @@ void Service::handle_control(DWORD control_code) {
 int Service::handle_signal(int, siginfo_t *siginfo, ucontext_t *) {
   DEBUG_LOG(TM("Service::handle_signal..."));
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tService::handle_signal...\n")));
+
   return 0;
 }
 
@@ -70,6 +73,7 @@ int Service::handle_timeout(const ACE_Time_Value &tv, const void *) {
 // the initial configuration and runs the event loop until a close
 // request is received.
 int Service::svc(void) {
+
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tService::svc\n")));
   DEBUG_LOG(TM("Service::svc"));
 
@@ -93,6 +97,11 @@ int Service::svc(void) {
   // atimer.schedule(&cb1, &arg1, curr_tv + ACE_Time_Value(3L), interval);
 
   ////////////////////////////////////////////////////////////////////////
+  if (PARSER::instance()->init() == -1)
+    ACE_ERROR((LM_ERROR, "%T (%t):\tif(PARSER::instance()->init())\n",
+               "Service::svc"));
+  // raise(SIGINT);
+
   notificator_ = std::make_shared<WinNT::Notificator>();
   if (this->notificator_->Initialize(this->event_) == -1) {
     ACE_ERROR(
@@ -106,6 +115,15 @@ int Service::svc(void) {
     ERROR_LOG(TM("cannot register handle with Reactor"));
   }
 
+  ACE_DEBUG((LM_DEBUG,
+             ACE_TEXT("%T (%t):\tif (this->reactor()->register_handler(this, "
+                      "event_->handle()) == -1) {;\n")));
+
+  // Handle signals through the ACE_Reactor.
+  if (this->reactor()->register_handler(SIGINT, &this->done_handler_) == -1)
+    ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("register_handler")),
+                     -1);
+
   get_license_task_ = std::make_unique<Get_License_Task>();
   if (this->get_license_task_->open(ACE_Time_Value(5)) == -1) {
     ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));
@@ -114,7 +132,7 @@ int Service::svc(void) {
 
   process_killer_task_ = std::make_unique<Process_Killer_Task>();
   const string_t process_stopping_name =
-      PARSER::instance()->get_value(lic::config_keys::FILES_KILL_FILE_NAME);
+      PARSER::instance()->options().kill_file_name;
   process_killer_task_->process_stopping_name(process_stopping_name);
   if (this->process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
     ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));

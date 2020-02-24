@@ -57,7 +57,7 @@ void LicenseExtractor::processing_errors(const http_response &response) {
       "Fault connection: status code - " + to_string(response.status_code()));
 
   const shared_ptr<Errors> errors = make_shared<Errors>();
-
+  errors->developer_message(error);
   if (response.status_code() == status_codes::UnprocessableEntity) {
     response.content_ready().wait();
     value json_value = response.extract_json().get();
@@ -83,10 +83,10 @@ void LicenseExtractor::processing_errors(const http_response &response) {
             .append(field_error_.message);
       }
       ERROR_LOG(error.c_str());
-    }
+	}
+    result_->errors(errors);
+	throw runtime_error(to_utf8string(error).c_str());
   }
-  result_->errors(errors);
-  throw runtime_error(to_utf8string(error).c_str());
 }
 
 client::http_client_config
@@ -115,7 +115,8 @@ http_response LicenseExtractor::send_request() {
       ucout << ex.error_code().value() << std::endl; // error code = 12029
       if (chrono::steady_clock::now() > (start + time_try_connection_)) {
         ERROR_LOG(to_string_t(ex.what()).c_str());
-        throw_with_nested(runtime_error(ex.what()));
+        //????? throw_with_nested(runtime_error(ex.what()));
+        throw ex;
       }
     }
   }

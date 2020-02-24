@@ -1,6 +1,7 @@
 #include "notificator.h"
-#include <roapi.h>
+#include "ace/Log_Msg.h"
 #include "tracer.h"
+#include <roapi.h>
 
 WinNT::Notificator::Notificator()
     : app_name(applicationName), is_cencel(false) {
@@ -22,8 +23,13 @@ int WinNT::Notificator::Register_Notification() {
       _bstr_t("WQL"), wql_query_, WBEM_FLAG_SEND_STATUS, NULL,
       this->stub_sink_);
   if (FAILED(hres)) {
-    SvcDebugOut(TEXT("ExecNotificationQueryAsync failed with = 0x%X"), hres);
-    return -1;
+    ERROR_LOG(TM("Register_Notification failed"));
+    ACE_ERROR_RETURN(
+        (LM_ERROR,
+         ACE_TEXT(
+             "%T (%t):\t\tRegister_Notification failed. Error code = 0x%X"),
+         hres),
+        -1);
   }
   return 0;
 }
@@ -33,24 +39,34 @@ int WinNT::Notificator::Create_IWbemServices() {
   HRESULT hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER,
                                   IID_IWbemLocator, (LPVOID *)&locator);
   if (FAILED(hres)) {
-    SvcDebugOut(TEXT("Failed to create IWbemLocator object. Error code = 0x%X"),
-                hres);
-    return -1;
+    ERROR_LOG(TM("Failed to create IWbemLocator object"));
+    ACE_ERROR_RETURN((LM_ERROR,
+                      ACE_TEXT("%T (%t):\t\tFailed to create IWbemLocator "
+                               "object. Error code = 0x%X"),
+                      hres),
+                     -1);
   }
 
   hres = locator->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0,
                                 0, &this->service_);
   if (FAILED(hres)) {
-    SvcDebugOut(TEXT("Could not connect. Error code = 0x%X"), hres);
-    return -1;
+    ERROR_LOG(TM("Could not connect to ROOT\\CIMV2"));
+    ACE_ERROR_RETURN(
+        (LM_ERROR, ACE_TEXT("%T (%t):\t\tCould not connect. Error code = 0x%X"),
+         hres),
+        -1);
   }
   SvcDebugOut(L"Connected to ROOT\\CIMV2 WMI namespace", 0);
   hres = CoSetProxyBlanket(this->service_, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE,
                            NULL, RPC_C_AUTHN_LEVEL_CALL,
                            RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
   if (FAILED(hres)) {
-    SvcDebugOut(TEXT("Could not set proxy blanket. Error code = 0x%X"), hres);
-    return -1;
+    ERROR_LOG(TM("Could not set proxy blanket"));
+    ACE_ERROR_RETURN(
+        (LM_ERROR,
+         ACE_TEXT("%T (%t):\t\tCould not set proxy blanket. Error code = 0x%X"),
+         hres),
+        -1);
   }
   return 0;
 }
@@ -63,29 +79,35 @@ int WinNT::Notificator::Create_IWbemObjectSink(
                        IID_IUnsecuredApartment, (void **)&pUnsecApp);
 
   if (FAILED(hres)) {
-    SvcDebugOut(
-        TEXT("Failed to initialize IUnsecuredApartment. Error code = 0x%X"),
-        hres);
-    return -1;
+    ERROR_LOG(TM("Failed to initialize IUnsecuredApartment"));
+    ACE_ERROR_RETURN((LM_ERROR,
+                      ACE_TEXT("%T (%t):\t\tFailed to initialize "
+                               "IUnsecuredApartment. Error code = 0x%X"),
+                      hres),
+                     -1);
   }
 
   CComPtr<IUnknown> pStubUnk;
   CComPtr<IWbemObjectSink> pSink = new EventSink(sink_event);
   hres = pUnsecApp->CreateObjectStub(pSink, &pStubUnk);
   if (FAILED(hres)) {
-    SvcDebugOut(TEXT("Failed to create CreateObjectStub IWbemObjectSink. Error "
-                     "code = 0x%X"),
-                hres);
-    return -1;
+    ERROR_LOG(TM("Failed to create CreateObjectStub IWbemObjectSink"));
+    ACE_ERROR_RETURN((LM_ERROR,
+                      ACE_TEXT("%T (%t):\t\tFailed to create CreateObjectStub "
+                               "IWbemObjectSink. Error code = 0x%X"),
+                      hres),
+                     -1);
   }
 
   hres =
       pStubUnk->QueryInterface(IID_IWbemObjectSink, (void **)&this->stub_sink_);
   if (FAILED(hres)) {
-    SvcDebugOut(
-        TEXT("Failed to QueryInterface IWbemObjectSink. Error code = 0x%X"),
-        hres);
-    return -1;
+    ERROR_LOG(TM("Failed to QueryInterface IWbemObjectSink"));
+    ACE_ERROR_RETURN((LM_ERROR,
+                      ACE_TEXT("%T (%t):\t\tFailed to QueryInterface "
+                               "IWbemObjectSink. Error code = 0x%X"),
+                      hres),
+                     -1);
   }
   return 0;
 }
@@ -106,10 +128,13 @@ int WinNT::Notificator::Initialize(
 int WinNT::Notificator::Init_Context() {
   HRESULT hres = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
   if (FAILED(hres)) {
-    SvcDebugOut(
-        TEXT("Failed to Windows::Foundation::Initialize. Error code = = 0x%X"),
-        hres);
-    return -1;
+    ERROR_LOG(TM("Failed to Windows::Foundation::Initialize."));
+    ACE_ERROR_RETURN(
+        (LM_ERROR,
+         ACE_TEXT("%T (%t):\t\tFailed to Windows::Foundation::Initialize. "
+                  "Error code = 0x%X"),
+         hres),
+        -1);
   }
 
   hres =
@@ -117,8 +142,12 @@ int WinNT::Notificator::Init_Context() {
                            RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
   if (FAILED(hres)) {
     Windows::Foundation::Uninitialize();
-    SvcDebugOut(TEXT("Failed to initialize security. Error code = 0x%X"), hres);
-    return -1;
+    ERROR_LOG(TM("Failed to initialize security."));
+    ACE_ERROR_RETURN((LM_ERROR,
+                      ACE_TEXT("%T (%t):\t\tFailed to initialize security. "
+                               "Error code = 0x%X"),
+                      hres),
+                     -1);
   }
 
   TRACE_LOG(TM("Notificator::Init_Context"));
