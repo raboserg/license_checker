@@ -104,7 +104,8 @@ int Get_License_Task::svc() {
   } catch (const runtime_error &err) {
     //////////////////////////////////////////////////////////////
     CRITICAL_LOG(conversions::to_string_t(err.what()).c_str());
-    shutdown_service(); //???
+    //shutdown_service(); //???
+	raise(SIGINT); //???
     ACE_ERROR_RETURN(
         (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
          err.what()),

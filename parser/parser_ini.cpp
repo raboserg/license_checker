@@ -100,9 +100,11 @@ int Parser::init() {
     options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
     this->set_options(options);
   } catch (const std::exception &ex) {
-    //???DEBUG_LOG(TM("") + ex.what().c_str());
+    ERROR_LOG((TM("Failed to initialize security options values: ") +
+               conversions::to_string_t(ex.what()))
+                  .c_str());
+
     return -1;
   }
   return 0;
 }
-Parser::~Parser() {}

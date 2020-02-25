@@ -4,7 +4,7 @@
 #include "tracer.h"
 
 #if defined(ACE_WIN32) && !defined(ACE_LACKS_WIN32_SERVICES)
-/*,done_handler_(ACE_Sig_Handler_Ex(ACE_Reactor::end_event_loop))*/
+
 Service::Service(void)
     : event_(std::make_shared<ACE_Auto_Event>()),
       done_handler_(ACE_Sig_Handler_Ex(ACE_Reactor::end_event_loop)) {
@@ -97,36 +97,33 @@ int Service::svc(void) {
   // atimer.schedule(&cb1, &arg1, curr_tv + ACE_Time_Value(3L), interval);
 
   ////////////////////////////////////////////////////////////////////////
-  if (PARSER::instance()->init() == -1){
+  if (PARSER::instance()->init() == -1) {
     ACE_ERROR((LM_ERROR, "%T (%t):\t) \n", "Service::svc"));
-  // raise(SIGINT);
-    }
+    raise(SIGINT);
+  }
 
   notificator_ = std::make_shared<WinNT::Notificator>();
   if (this->notificator_->Initialize(this->event_) == -1) {
-    ACE_ERROR(
-        (LM_ERROR, "%T (%t):\tcannot initialize notificator for event sink\n"));
+    ACE_ERROR((LM_ERROR,
+               "%T (%t) %p:\tcannot to initialize notificator for event sink\n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
   if (this->reactor()->register_handler(this, event_->handle()) == -1) {
-    ACE_ERROR((LM_ERROR, "%T (%t):\tcannot register handle with Reactor\n",
+    ACE_ERROR((LM_ERROR, "%T (%t) %p:\tcannot to register handle with Reactor\n",
                "Service::svc"));
-    ERROR_LOG(TM("cannot register handle with Reactor"));
+    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-  ACE_DEBUG((LM_DEBUG,
-             ACE_TEXT("%T (%t):\tif (this->reactor()->register_handler(this, "
-                      "event_->handle()) == -1) {;\n")));
-
   // Handle signals through the ACE_Reactor.
-  if (this->reactor()->register_handler(SIGINT, &this->done_handler_) == -1)
-    ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("register_handler")),
-                     -1);
+  if (this->reactor()->register_handler(SIGINT, &this->done_handler_) == -1) {
+    ACE_ERROR((LM_ERROR, "%T (%t) %p:\tcannot to register_handler SIGINT \n"));
+    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
+  }
 
   get_license_task_ = std::make_unique<Get_License_Task>();
   if (this->get_license_task_->open(ACE_Time_Value(5)) == -1) {
-    ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));
+    ACE_ERROR((LM_ERROR, "%T (%t) %p:\tcannot to open get_license_task \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
@@ -135,16 +132,13 @@ int Service::svc(void) {
       PARSER::instance()->options().kill_file_name;
   process_killer_task_->process_stopping_name(process_stopping_name);
   if (this->process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
-    ACE_ERROR((LM_ERROR, "%T (%t):\tcannot open get_license_task \n"));
+    ACE_ERROR((LM_ERROR, "%T (%t) %p:\tcannot to open process_killer_task \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
-
-  this->reactor()->run_reactor_event_loop();
-
+  this->reactor()->run_event_loop();
   // this->msg_queue();
-
   // Cleanly terminate connections, terminate threads.
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tShutting down\n")));
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t) %p:\tShutting down\n")));
   this->notificator_->Release();
 
   this->get_license_task_->close();

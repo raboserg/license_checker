@@ -22,15 +22,15 @@ struct FieldError {
 };
 
 class Errors {
-  utility::string_t code_;
+  int code_;
   utility::string_t error_type_;
   utility::string_t user_message_;
   utility::string_t developer_message_;
   std::vector<FieldError> field_errors;
 
 public:
-  utility::string_t code() const { return code_; }
-  void code(const utility::string_t code) { code_ = code; }
+  int code() const { return code_; }
+  void code(const int code) { code_ = code; }
 
   utility::string_t error_type() const { return error_type_; }
   void error_type(const utility::string_t error_type) {
@@ -86,17 +86,19 @@ class Result {
   std::shared_ptr<HostStatus> host_status_;
 
 public:
-  Result(){}
+  Result() {}
 
   std::shared_ptr<HostLicense> host_license() const { return host_license_; }
 
   std::shared_ptr<HostStatus> host_status() const { return host_status_; }
 
-	void host_license(std::shared_ptr<HostLicense> host_license) {
-		host_license_ = host_license;
-	}
+  void host_license(std::shared_ptr<HostLicense> host_license) {
+    host_license_ = host_license;
+  }
 
-	void host_status(std::shared_ptr<HostStatus> host_status){ host_status_= host_status; }
+  void host_status(std::shared_ptr<HostStatus> host_status) {
+    host_status_ = host_status;
+  }
 
   std::shared_ptr<Errors> errors() const { return errors_; }
   void errors(const std::shared_ptr<Errors> errors) { errors_ = errors; }
@@ -112,17 +114,20 @@ class Message {
   const utility::string_t uid_;
   const utility::string_t unp_;
   const utility::string_t agent_;
-	const utility::string_t host_type_;
+  const utility::string_t host_type_;
 
 public:
   Message(const utility::string_t uid, const utility::string_t unp,
           const utility::string_t agent, const utility::string_t host_type)
-      : uid_(uid), unp_(unp), agent_(agent),host_type_(host_type) {}
+      : uid_(uid), unp_(unp), agent_(agent), host_type_(host_type) {}
   utility::string_t get_uid() const { return uid_; }
   utility::string_t get_unp() const { return unp_; }
   utility::string_t get_agent() const { return agent_; }
-	utility::string_t get_host_type() const { return host_type_; }
-  bool is_valid() { return !uid_.empty() && !unp_.empty() && !agent_.empty() && !host_type_.empty(); }
+  utility::string_t get_host_type() const { return host_type_; }
+  bool is_valid() {
+    return !uid_.empty() && !unp_.empty() && !agent_.empty() &&
+           !host_type_.empty();
+  }
 };
 
 class stage_handler : public web::http::http_pipeline_stage {
@@ -130,9 +135,11 @@ public:
   stage_handler() : m_Count(0) {}
   virtual pplx::task<web::http::http_response> propagate(http_request request) {
     INFO_LOG(request.to_string().c_str());
-		//request.headers().add(_XPLATSTR("User-Agent"), _XPLATSTR("itVPNAgent/0.1"));
-		request.headers()[_XPLATSTR("User-Agent")] = (_XPLATSTR("itVPNAgent/0.1"));
-		//request.headers().operator[_XPLATSTR("User - Agent")].set_content_type(_XPLATSTR("modified content type"));
+    // request.headers().add(_XPLATSTR("User-Agent"),
+    // _XPLATSTR("itVPNAgent/0.1"));
+    request.headers()[_XPLATSTR("User-Agent")] = (_XPLATSTR("itVPNAgent/0.1"));
+    // request.headers().operator[_XPLATSTR("User -
+    // Agent")].set_content_type(_XPLATSTR("modified content type"));
     auto currentStage = this->shared_from_this();
     return next_stage()->propagate(request).then(
         [currentStage](http_response response) -> http_response {
@@ -151,8 +158,9 @@ public:
   LicenseExtractor(const uri &address_, const Message &message_,
                    const int64_t &attempt);
 
-	std::shared_ptr<Result> processing_license();
+  std::shared_ptr<Result> processing_license();
   std::shared_ptr<Result> get_result() const { return result_; }
+  uri get_uri() { return address_; }
 
 private:
   std::shared_ptr<Result> result_;
@@ -164,7 +172,7 @@ private:
   http_response send_request();
   client::http_client_config make_client_config(const int64_t &attempt);
   value make_request_message(const Message message_);
-  void processing_errors(const http_response &response);
+  void processing_http_errors(const http_response &response);
 };
 
 #endif

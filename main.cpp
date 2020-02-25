@@ -17,41 +17,45 @@
 #include "ace/Synch.h" // needed for ACE_Event
 
 // ACE_Event timer_;
-ACE_Event *timer_ = new ACE_Event;
+ACE_Event *stop_event_ = new ACE_Event;
 
 class TestEvent : public ACE_Event_Handler {
 public:
-  TestEvent() {}
-
+  TestEvent(ACE_Reactor &reactor_) { this->reactor(&reactor_); }
+  
   int handle_signal(int signum, siginfo_t * = 0, ucontext_t * = 0) {
-    ACE_DEBUG((LM_DEBUG, ACE_TEXT("handle_timeout")));
-    ACE_Reactor::instance()->end_event_loop();
+    ACE_DEBUG((LM_DEBUG, ACE_TEXT("handle_signal\n")));
+    reactor()->end_reactor_event_loop();
     return 0;
   }
 };
 
 class TestTimer : public ACE_Event_Handler {
 public:
+  TestTimer(ACE_Reactor &reactor_) { this->reactor(&reactor_); }
+
   int handle_timeout(const ACE_Time_Value &, const void *arg) {
-    ACE_DEBUG((LM_DEBUG, ACE_TEXT("handle_timeout")));
-    timer_->signal();
+    ACE_DEBUG((LM_DEBUG, ACE_TEXT("handle_timeout\n")));
+    stop_event_->signal();
     return 0;
   }
 };
 
+int test_event() {
+	//  ACE_Event timer_;
+	ACE_Reactor custom_reactor;
+	TestTimer testTimer(custom_reactor);
+	custom_reactor.schedule_timer(&testTimer, 0, ACE_Time_Value(3, 0),
+		ACE_Time_Value::zero);
+	TestEvent testEvent(custom_reactor);
+	custom_reactor.register_handler(&testEvent, stop_event_->handle());
+	custom_reactor.run_reactor_event_loop();
+	// timer_.wait();
+	ACE_DEBUG((LM_DEBUG, ACE_TEXT("After event...")));
+	return 0;
+}
+
 int main(int argc, char *argv[]) {
-
-  //  ACE_Event timer_;
-  TestTimer testTimer;
-  ACE_Reactor::instance()->schedule_timer(&testTimer, 0, ACE_Time_Value(3, 0),
-                                          ACE_Time_Value::zero);
-  TestEvent testEvent;
-  // ACE_Reactor::instance()->register_handler(&testEvent, timer_.handle());
-  ACE_Reactor::instance()->register_handler(&testEvent, timer_->handle());
-
-  ACE_Reactor::instance()->run_event_loop();
-  // timer_.wait();
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("After event...")));
 
 #ifdef _WIN32
   return PROCESS::instance()->run(argc, argv);

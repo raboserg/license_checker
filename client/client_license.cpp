@@ -23,7 +23,15 @@ shared_ptr<Result> LicenseExtractor::processing_license() {
     response.content_ready().wait();
     http_headers headers = response.headers();
     const string_t content_type = headers[header_names::content_type];
-    // text/html;charset=UTF-8
+    if (content_type != http::details::mime_types::application_json) {
+      const shared_ptr<Errors> errors = make_shared<Errors>();
+      errors->error_type(http::details::mime_types::text_plain_utf8);
+      result_->errors(errors);
+      // ADD TO CONSTANTS - 12010, 12002
+	  throw web::http::http_exception(
+		  12010, _XPLATSTR("ERROR: server returned ") +
+                    http::details::mime_types::text_plain_utf8);
+    }
     value json_value = response.extract_json().get();
     result_->message(json_value[_XPLATSTR("message")].as_string());
     if (!json_value[_XPLATSTR("hostStatus")].is_null()) {
@@ -47,11 +55,11 @@ shared_ptr<Result> LicenseExtractor::processing_license() {
       return result_;
     }
   } else {
-    processing_errors(response);
+    processing_http_errors(response);
   }
 }
 
-void LicenseExtractor::processing_errors(const http_response &response) {
+void LicenseExtractor::processing_http_errors(const http_response &response) {
 
   string_t error = utility::conversions::to_string_t(
       "Fault connection: status code - " + to_string(response.status_code()));
@@ -93,6 +101,7 @@ client::http_client_config
 LicenseExtractor::make_client_config(const int64_t &attempt) {
   client::http_client_config config;
   config.set_validate_certificates(false);
+  config.set_timeout(std::chrono::seconds(60));
   return config;
 }
 
@@ -116,6 +125,9 @@ http_response LicenseExtractor::send_request() {
       if (chrono::steady_clock::now() > (start + time_try_connection_)) {
         ERROR_LOG(to_string_t(ex.what()).c_str());
         //????? throw_with_nested(runtime_error(ex.what()));
+        const shared_ptr<Errors> errors = make_shared<Errors>();
+        errors->code(ex.error_code().value());
+        result_->errors(errors);
         throw ex;
       }
     }

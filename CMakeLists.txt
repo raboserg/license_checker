@@ -38,8 +38,6 @@ elseif(CMAKE_HOST_UNIX)
     set(ACE_LIB_NAME "ACE")
 endif()
 
-message(STATUS "ACE_LIBRARY_DIRACE_LIBRARY_DIRACE_LIBRARY_DIRACE_LIBRARY_DIRACE_LIBRARY_DIR - ${ACE_LIBRARY_DIR}")
-
 if(CMAKE_HOST_WIN32)
     find_package(Boost 1.71.0 COMPONENTS filesystem REQUIRED)
     find_library(P7_LIB NAMES ${P7_LIB_NAME} HINTS ${DEFAULT_LIBP7_LIB_DIR})
@@ -70,8 +68,6 @@ elseif(CMAKE_HOST_UNIX)
     set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
 endif()
 
-message(STATUS "ACEACEACEACEACEACEACEACEACEACEACEACEACEACEACEACEACEACEACEACEACE - ${ACE}")
-
 if(NOT DEFINED Boost_FOUND)
 	message(FATAL_ERROR "Boost NOT FOUND")
 endif()
@@ -92,7 +88,7 @@ add_subdirectory("get_license_task")
 add_subdirectory("process_killer_task")
 
 if(CMAKE_HOST_WIN32)
-    set(SOURCE_LIST application.cpp application.h ./tools/constants.cpp ./tools/gason.cpp stdafx.h)
+    set(SOURCE_LIST main.cpp application.cpp application.h ./tools/constants.cpp ./tools/gason.cpp stdafx.h)
     set(LINK_LIBS tracer NT_Service ${ACE} ${P7_LIB} ${Boost_LIBRARIES} runtimeobject license_checker)
     set(INCLUDE_DIRS client license tracer tools nt_service get_license_task process_killer_task
         ${Boost_INCLUDE_DIRS}
@@ -106,7 +102,7 @@ if(CMAKE_HOST_WIN32)
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST main.cpp application.cpp application.h ../tools/constants.cpp ../tools/gason.cpp stdafx.h)
     set(LINK_LIBS client license_checker eventsink tracer pthread get_license_task ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
-    set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools ../get_license_task ../process_killer_task
+    set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools ../get_license_task ../process_killer_task ../common
         ${Boost_INCLUDE_DIRS}
         ${CPPREST_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_PATH}

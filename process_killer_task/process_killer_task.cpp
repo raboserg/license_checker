@@ -80,7 +80,10 @@ int Process_Killer_Task::svc() {
     schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
   } catch (const std::runtime_error &err) {
     CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
-    shutdown_service(); //???
+    //shutdown_service(); //???
+	
+	raise(SIGINT); //???
+
     ACE_ERROR_RETURN(
         (LM_ERROR,
          ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: kill task - %s\n"),
@@ -120,7 +123,7 @@ int Process_Killer_Task::schedule_handle_timeout(const int &seconds) {
 
 int Process_Killer_Task::shutdown_service() {
   reactor()->cancel_timer(this);
-  return reactor()->end_reactor_event_loop();
+  return reactor()->end_event_loop();
 }
 
 int Process_Killer_Task::terminate_process(const utility::string_t filename) {
