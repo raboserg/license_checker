@@ -19,4 +19,10 @@ namespace lic {
 #include "../resources/constants.dat"
 #undef _CONSTANTS
 #undef DAT
+
+#define _ERROR_CODE
+#define DAT(a, b, c) const static int a = b;
+#include "../resources/constants.dat"
+#undef _ERROR_CODE
+#undef DAT
 } // namespace lic

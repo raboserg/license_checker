@@ -26,4 +26,12 @@ struct constants {
 #undef _CONSTANTS
 #undef DAT
 };
+
+struct error_code {
+#define _ERROR_CODE
+#define DAT(a, b, c) const static int a = b;
+#include "../resources/constants.dat"
+#undef _ERROR_CODE
+#undef DAT
+};
 } // namespace lic

@@ -67,10 +67,11 @@ private:
   const std::unique_ptr<LicenseChecker> licenseChecker_;
 
   virtual int svc(void);
-  int shutdown_service() {
-    reactor()->cancel_timer(this);
-    return reactor()->end_reactor_event_loop();
-  }
+
+  //  int shutdown_service() {
+  //    reactor()->cancel_timer(this);
+  //    return reactor()->end_reactor_event_loop();
+  //  }
   // the Bridge/Strategy patterns.
   //???ACE_Reactor_Notification_Strategy notification_strategy_;
 };

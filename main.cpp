@@ -1,4 +1,3 @@
-#pragma once
 #include <iostream>
 
 #ifdef _WIN32
@@ -16,8 +15,7 @@
 #include "ace/Reactor.h"
 #include "ace/Synch.h" // needed for ACE_Event
 
-// ACE_Event timer_;
-ACE_Event *stop_event_ = new ACE_Event;
+// ACE_Event *stop_event_ = new ACE_Event;
 
 class TestEvent : public ACE_Event_Handler {
 public:
@@ -36,7 +34,7 @@ public:
 
   int handle_timeout(const ACE_Time_Value &, const void *arg) {
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("handle_timeout\n")));
-    stop_event_->signal();
+    // stop_event_->signal();
     return 0;
   }
 };
@@ -45,10 +43,10 @@ int test_event() {
   //  ACE_Event timer_;
   ACE_Reactor custom_reactor;
   TestTimer testTimer(custom_reactor);
-  custom_reactor.schedule_timer(&testTimer, 0, ACE_Time_Value(3, 0),
-                                ACE_Time_Value::zero);
-  TestEvent testEvent(custom_reactor);
-  custom_reactor.register_handler(&testEvent, stop_event_->handle());
+  custom_reactor.schedule_timer(&testTimer, 0, ACE_Time_Value(5, 0),
+                                ACE_Time_Value(1, 0));
+  //  TestEvent testEvent(custom_reactor);
+  //  custom_reactor.register_handler(&testEvent, stop_event_->handle());
   custom_reactor.run_reactor_event_loop();
   // timer_.wait();
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("After event...")));
@@ -56,7 +54,7 @@ int test_event() {
 }
 
 int main(int argc, char *argv[]) {
-
+  test_event();
 #ifdef _WIN32
   return PROCESS::instance()->run(argc, argv);
 #else

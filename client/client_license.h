@@ -158,21 +158,22 @@ public:
   LicenseExtractor(const uri &address_, const Message &message_,
                    const int64_t &attempt);
 
+  uri get_uri() { return address_; }
   std::shared_ptr<Result> processing_license();
   std::shared_ptr<Result> get_result() const { return result_; }
-  uri get_uri() { return address_; }
 
 private:
-  std::shared_ptr<Result> result_;
   Message message_;
-  const int64_t attempt_;
   const uri address_;
   http_request request_;
+  const int64_t attempt_;
   client::http_client client_;
+  std::shared_ptr<Result> result_;
+
   http_response send_request();
-  client::http_client_config make_client_config(const int64_t &attempt);
   value make_request_message(const Message message_);
   void processing_http_errors(const http_response &response);
+  client::http_client_config make_client_config(const int64_t &attempt);
 };
 
 #endif

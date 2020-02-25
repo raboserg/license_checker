@@ -67,7 +67,7 @@ int Get_License_Task::svc() {
     if (licenseChecker_->is_license_update_day()) {
       const shared_ptr<LicenseExtractor> licenseExtractor_ =
           licenseChecker_->make_license_extractor(1);
-      INFO_LOG(TM("Try to get a license"));
+      INFO_LOG(TM("Attempt to get a license..."));
       result = licenseExtractor_->processing_license();
 
       if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
@@ -75,17 +75,17 @@ int Get_License_Task::svc() {
         if (license.empty()) {
           // SHEDULE TIME FOR NEXT TRY GET LICENSE
           schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
+          INFO_LOG(TM(
+              "Retrieved license is empty, try to get after five minutes..."));
         } else {
-
+          // read and check the date of current license
           const ACE_Date_Time current_license_date =
               licenseChecker_->current_license_date();
-
           if (result->host_license()->month() != 0 &&
               current_license_date.month() != 0)
             if (result->host_license()->month() > current_license_date.month())
               licenseChecker_->save_license_to_file(license);
-
-          INFO_LOG(TM("Save new license - MONTH, YEAR ???"));
+          INFO_LOG(TM("Save new license to file- MONTH, YEAR ???"));
           // schedule timer to check day for update : 24 * 60 * 60 =
           // WAIT_NEXT_DAY_SECS
           schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
@@ -101,31 +101,27 @@ int Get_License_Task::svc() {
       // TODO:save state to file ???
       INFO_LOG(TM("Wait next day"));
     }
+  } catch (const boost::process::process_error &err) {
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: %s \n"),
+               err.what()));
+    std::string str(err.what());
+    const std::string code = str.substr(0, str.find_first_of(":"));
+    ERROR_LOG(conversions::to_string_t(code).c_str());
+    // shutdown service
+    raise(SIGINT);
   } catch (const runtime_error &err) {
-    //////////////////////////////////////////////////////////////
-    CRITICAL_LOG(conversions::to_string_t(err.what()).c_str());
-    //shutdown_service(); //???
-	raise(SIGINT); //???
-    ACE_ERROR_RETURN(
-        (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
-         err.what()),
-        -1);
-  } catch (web::http::http_exception &ex) {
-    //////////////////////////////////////////////////////////////
-    ERROR_LOG(conversions::to_string_t(ex.what()).c_str());
-
-    if (result->errors() != nullptr) {
-      INFO_LOG(TM("Errors is nullptr"));
-    } else {
-      INFO_LOG((TM("Errors is not nullptr: ") + result->errors()->userMessage())
-                   .c_str());
-      ACE_ERROR_RETURN(
-          (LM_ERROR, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task - %s\n"),
-           result->errors()->userMessage().c_str()),
-          -1);
-    }
-
-    // raise(SIGSEGV);
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task\n"),
+               err.what()));
+    ERROR_LOG(conversions::to_string_t(std::string(err.what())).c_str());
+    // shutdown service
+    raise(SIGINT);
+  } catch (web::http::http_exception &err) {
+    ERROR_LOG(conversions::to_string_t(err.what()).c_str());
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task\n"),
+               err.what()));
+    if (err.error_code().value() == lic::error_code::MIME_TYPES)
+      // shutdown service
+      raise(SIGINT);
   }
   ACE_DEBUG(
       (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task finished\n")));

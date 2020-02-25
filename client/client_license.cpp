@@ -27,10 +27,10 @@ shared_ptr<Result> LicenseExtractor::processing_license() {
       const shared_ptr<Errors> errors = make_shared<Errors>();
       errors->error_type(http::details::mime_types::text_plain_utf8);
       result_->errors(errors);
-      // ADD TO CONSTANTS - 12010, 12002
-	  throw web::http::http_exception(
-		  12010, _XPLATSTR("ERROR: server returned ") +
-                    http::details::mime_types::text_plain_utf8);
+      throw web::http::http_exception(
+          lic::error_code::MIME_TYPES,
+          _XPLATSTR("ERROR: server returned ") +
+              http::details::mime_types::text_plain_utf8);
     }
     value json_value = response.extract_json().get();
     result_->message(json_value[_XPLATSTR("message")].as_string());

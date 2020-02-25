@@ -55,7 +55,7 @@ int EventSink_Task::svc() {
     ERROR_LOG(conversions::to_string_t(err.what()).c_str());
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
                err.what()));
-    if (err.error_code().value() == 12010)
+    if (err.error_code().value() == lic::error_code::MIME_TYPES)
       // shutdown service
       raise(SIGINT);
   }
