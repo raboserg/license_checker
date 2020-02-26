@@ -8,6 +8,8 @@
 #endif // _WIN32
 #include "gason.h"
 
+#include "message_sender.h"
+
 Process_Killer_Task::Process_Killer_Task()
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), n_threads_(1),
       licenseChecker_(new LicenseChecker()) {
@@ -67,22 +69,32 @@ int Process_Killer_Task::svc() {
         (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
          !licenseChecker_->verify_license())) {
       if (terminate_process(this->process_stopping_name())) {
-        INFO_LOG((this->process_stopping_name() + _XPLATSTR(" kill")).c_str());
+        const string_t message =
+            this->process_stopping_name() + _XPLATSTR(" was killed");
+        INFO_LOG(message.c_str());
+        const string_t messa =
+            _XPLATSTR("{ \"code\": \"1\", \"disc\": \"" ) + message + _XPLATSTR("\" }");
+
+        MESSAGE_SENDER::instance()->send(messa);
       } else {
-        INFO_LOG(
-            (TM("Process ") + this->process_stopping_name() + TM(" not found"))
-                .c_str());
+        const string_t message = _XPLATSTR("Process ") +
+                                 this->process_stopping_name() +
+                                 _XPLATSTR(" not found");
+		const string_t messa =
+			_XPLATSTR("{ \"code\": \"1\", \"disc\": \"") + message + _XPLATSTR("\" }");
+        INFO_LOG(message.c_str());
+        MESSAGE_SENDER::instance()->send(messa);
       }
-      INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
-      execute_process(_XPLATSTR("D:/project/itagent.exe"));
+      // INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
+      // execute_process(_XPLATSTR("D:/project/itagent.exe"));
     }
     // reschedule next day
     schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
   } catch (const std::runtime_error &err) {
     CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
-    //shutdown_service(); //???
-	
-	raise(SIGINT); //???
+    // shutdown_service(); //???
+
+    raise(SIGINT); //???
 
     ACE_ERROR_RETURN(
         (LM_ERROR,

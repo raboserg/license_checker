@@ -33,7 +33,7 @@ int EventSink_Task::svc() {
       if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
         string_t license = result->host_license()->license();
         if (!license.empty()) {
-          INFO_LOG(TM("Save new license - MONTH, YEAR ???"));
+          INFO_LOG(TM("Save new license - ??? MONTH, YEAR ???"));
           licenseChecker_->save_license_to_file(license);
         }
       }
@@ -44,11 +44,14 @@ int EventSink_Task::svc() {
     std::string str(err.what());
     const std::string code = str.substr(0, str.find_first_of(":"));
     ERROR_LOG(conversions::to_string_t(code).c_str());
+    ERROR_LOG(TM("SERVICE SHUTDOWN"));
+    // shutdown service
     raise(SIGINT);
   } catch (const runtime_error &err) {
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
                err.what()));
     ERROR_LOG(conversions::to_string_t(std::string(err.what())).c_str());
+    ERROR_LOG(TM("SERVICE SHUTDOWN"));
     // shutdown service
     raise(SIGINT);
   } catch (web::http::http_exception &err) {
@@ -56,8 +59,9 @@ int EventSink_Task::svc() {
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
                err.what()));
     if (err.error_code().value() == lic::error_code::MIME_TYPES)
-      // shutdown service
-      raise(SIGINT);
+      ERROR_LOG(TM("SERVICE SHUTDOWN"));
+    // shutdown service
+    raise(SIGINT);
   }
   return 0;
 }

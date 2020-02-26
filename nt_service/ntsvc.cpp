@@ -12,7 +12,7 @@ Service::Service(void)
       SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS;
   // Remember the Reactor instance.
   reactor(ACE_Reactor::instance());
-  DEBUG_LOG(TM("Service::Service(void) "));
+  //???DEBUG_LOG(TM("Service::Service(void) "));
 }
 
 Service::~Service(void) {

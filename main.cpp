@@ -54,7 +54,7 @@ int test_event() {
 }
 
 int main(int argc, char *argv[]) {
-  test_event();
+  //test_event();
 #ifdef _WIN32
   return PROCESS::instance()->run(argc, argv);
 #else

@@ -82,10 +82,10 @@ void LicenseExtractor::processing_http_errors(const http_response &response) {
         field_error_.validationErrorName =
             field_error.at(_XPLATSTR("validationErrorName")).as_string();
         field_error_.fieldName =
-            field_error.at(_XPLATSTR("fieldName")).as_string();
+            field_error.at(_XPLATSTR("fieldPath")).as_string();
         errors->add_error(field_error_);
 
-        error.append(_XPLATSTR(", fieldName: "))
+        error.append(_XPLATSTR(", fieldPath: "))
             .append(field_error_.fieldName)
             .append(_XPLATSTR(" "))
             .append(field_error_.message);
@@ -93,8 +93,11 @@ void LicenseExtractor::processing_http_errors(const http_response &response) {
       ERROR_LOG(error.c_str());
     }
     result_->errors(errors);
-    throw runtime_error(to_utf8string(error).c_str());
   }
+  if (response.status_code() == status_codes::BadGateway) {
+	  result_->errors(errors);
+  }
+  throw runtime_error(to_utf8string(error).c_str());
 }
 
 client::http_client_config
