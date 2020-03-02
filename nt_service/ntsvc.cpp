@@ -102,15 +102,18 @@ int Service::svc(void) {
     raise(SIGINT);
   }
 
-  notificator_ = std::make_shared<WinNT::Notificator>();
-  if (this->notificator_->Initialize(this->event_) == -1) {
-    ACE_ERROR((LM_ERROR,
-               "%T (%t) %p:\tcannot to initialize notificator for event sink\n"));
+  const std::shared_ptr<WinNT::Notificator> notificator_ =
+      std::make_shared<WinNT::Notificator>();
+  if (notificator_->Initialize(this->event_) == -1) {
+    ACE_ERROR(
+        (LM_ERROR,
+         "%T (%t) %p:\tcannot to initialize notificator for event sink\n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
   if (this->reactor()->register_handler(this, event_->handle()) == -1) {
-    ACE_ERROR((LM_ERROR, "%T (%t) %p:\tcannot to register handle with Reactor\n",
+    ACE_ERROR((LM_ERROR,
+               "%T (%t) %p:\tcannot to register handle with Reactor\n",
                "Service::svc"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
@@ -121,17 +124,19 @@ int Service::svc(void) {
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-  get_license_task_ = std::make_unique<Get_License_Task>();
-  if (this->get_license_task_->open(ACE_Time_Value(5)) == -1) {
+  const std::unique_ptr<Get_License_Task> get_license_task_ =
+      std::make_unique<Get_License_Task>();
+  if (get_license_task_->open(ACE_Time_Value(5)) == -1) {
     ACE_ERROR((LM_ERROR, "%T (%t) %p:\tcannot to open get_license_task \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-  process_killer_task_ = std::make_unique<Process_Killer_Task>();
+  const std::unique_ptr<Process_Killer_Task> process_killer_task_ =
+      std::make_unique<Process_Killer_Task>();
   const string_t process_stopping_name =
       PARSER::instance()->options().kill_file_name;
   process_killer_task_->process_stopping_name(process_stopping_name);
-  if (this->process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
+  if (process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
     ACE_ERROR((LM_ERROR, "%T (%t) %p:\tcannot to open process_killer_task \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
@@ -139,15 +144,12 @@ int Service::svc(void) {
   // this->msg_queue();
   // Cleanly terminate connections, terminate threads.
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t) %p:\tShutting down\n")));
-  this->notificator_->Release();
 
-  this->get_license_task_->close();
-  this->process_killer_task_->close();
+  notificator_->Release();
 
   this->reactor()->cancel_timer(this);
   this->reactor()->remove_handler(this->event_->handle(),
                                   ACE_Event_Handler::DONT_CALL);
-
   return 0;
 }
 

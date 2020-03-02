@@ -1,5 +1,4 @@
 ﻿#include "license_checker.h"
-//#include "license.h"
 #include "parser_ini.h"
 #include <constants.h>
 #include <cpprest/asyncrt_utils.h>

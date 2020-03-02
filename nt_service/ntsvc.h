@@ -58,9 +58,9 @@ private:
   int stop_;
   ACE_Sig_Adapter done_handler_;
   std::shared_ptr<ACE_Auto_Event> event_;
-  std::shared_ptr<WinNT::Notificator> notificator_;
-  std::unique_ptr<Get_License_Task> get_license_task_;
-  std::unique_ptr<Process_Killer_Task> process_killer_task_;
+  //std::shared_ptr<WinNT::Notificator> notificator_;
+  //std::unique_ptr<Get_License_Task> get_license_task_;
+  //std::unique_ptr<Process_Killer_Task> process_killer_task_;
 };
 
 // Define a singleton class as a way to insure that there's only one

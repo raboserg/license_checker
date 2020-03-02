@@ -10,9 +10,9 @@
 class Process_Killer_Task : public ACE_Task<ACE_MT_SYNCH> {
 public:
   Process_Killer_Task();
-  Process_Killer_Task(ACE_Thread_Manager *thr_mgr, const int n_threads);
+  Process_Killer_Task(ACE_Thread_Manager *thr_mgr);
   virtual ~Process_Killer_Task();
-  void close();
+  int close(u_long arg);
   int open(ACE_Time_Value tv1);
   // virtual int handle_signal(int, siginfo_t *siginfo, ucontext_t *);
   virtual int handle_exception(ACE_HANDLE h);
@@ -27,7 +27,6 @@ public:
 
 private:
   long timerId_;
-  int n_threads_;
   string_t process_stopping_name_;
 
   ACE_Array<ACE_CString> state_;

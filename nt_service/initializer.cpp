@@ -131,6 +131,7 @@ int Process::run(int argc, char *argv[]) {
   if (opt_debug) {
     SetConsoleCtrlHandler(&ConsoleHandler, 1);
     SERVICE::instance()->svc();
+	SERVICE::close();
   } else {
 
     ACE_LOG_MSG->open(argv[0], ACE_Log_Msg::STDERR|ACE_Log_Msg::SYSLOG, "itVPNAgentSyslogTest");

@@ -11,8 +11,11 @@ elseif(CMAKE_HOST_UNIX)
 endif()
 
 
-set(LINK "STATIC")
-set(VARIANT "RELEASE")
+#set(LINK "STATIC")
+set(LINK "SHARED")
+
+#set(VARIANT "RELEASE")
+set(VARIANT "DEBUG")
 
 set(CMAKE_USER_MAKE_RULES_OVERRIDE "build.cmake")
 include(build.cmake)

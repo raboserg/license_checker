@@ -51,9 +51,9 @@ private:
 class Get_License_Task : public ACE_Task<ACE_MT_SYNCH> {
 public:
   Get_License_Task();
-  Get_License_Task(ACE_Thread_Manager *thr_mgr, const int n_threads);
+  Get_License_Task(ACE_Thread_Manager *thr_mgr);
   virtual ~Get_License_Task();
-  void close();
+  int close(u_long arg);
   int open(ACE_Time_Value tv1);
   // virtual int handle_signal(int, siginfo_t *siginfo, ucontext_t *);
   virtual int handle_exception(ACE_HANDLE h);
@@ -62,7 +62,7 @@ public:
 
 private:
   long timerId_;
-  int n_threads_;
+
   ACE_Array<ACE_CString> results_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
 

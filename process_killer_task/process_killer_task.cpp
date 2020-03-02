@@ -11,19 +11,18 @@
 #include "message_sender.h"
 
 Process_Killer_Task::Process_Killer_Task()
-    : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), n_threads_(1),
+    : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()),
       licenseChecker_(new LicenseChecker()) {
   this->reactor(ACE_Reactor::instance());
 }
 
-Process_Killer_Task::Process_Killer_Task(ACE_Thread_Manager *thr_mgr,
-                                         const int n_threads)
-    : ACE_Task<ACE_MT_SYNCH>(thr_mgr), n_threads_(n_threads) {
+Process_Killer_Task::Process_Killer_Task(ACE_Thread_Manager *thr_mgr)
+    : ACE_Task<ACE_MT_SYNCH>(thr_mgr) {
   this->reactor(ACE_Reactor::instance());
 }
 
 Process_Killer_Task::~Process_Killer_Task() {
-  close();
+  reactor()->cancel_timer(this);
   ACE_DEBUG((LM_INFO, ACE_TEXT("%T (%t):\t\t~Process_Killer_Task()\n")));
 }
 
@@ -34,11 +33,7 @@ int Process_Killer_Task::open(ACE_Time_Value tv1) {
   return 0;
 }
 
-void Process_Killer_Task::close() {
-  reactor()->cancel_timer(this);
-  ACE_DEBUG(
-      (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: cancel timer\n")));
-}
+int Process_Killer_Task::close(u_long arg) { return 0; }
 
 int Process_Killer_Task::handle_timeout(const ACE_Time_Value &current_time,
                                         const void *) {
@@ -72,16 +67,17 @@ int Process_Killer_Task::svc() {
         const string_t message =
             this->process_stopping_name() + _XPLATSTR(" was killed");
         INFO_LOG(message.c_str());
-        const string_t messa =
-            _XPLATSTR("{ \"code\": \"1\", \"disc\": \"" ) + message + _XPLATSTR("\" }");
+        const string_t messa = _XPLATSTR("{ \"code\": \"1\", \"disc\": \"") +
+                               message + _XPLATSTR("\" }");
 
         MESSAGE_SENDER::instance()->send(messa);
+
       } else {
         const string_t message = _XPLATSTR("Process ") +
                                  this->process_stopping_name() +
                                  _XPLATSTR(" not found");
-		const string_t messa =
-			_XPLATSTR("{ \"code\": \"1\", \"disc\": \"") + message + _XPLATSTR("\" }");
+        const string_t messa = _XPLATSTR("{ \"code\": \"1\", \"disc\": \"") +
+                               message + _XPLATSTR("\" }");
         INFO_LOG(message.c_str());
         MESSAGE_SENDER::instance()->send(messa);
       }

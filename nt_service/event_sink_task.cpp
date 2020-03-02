@@ -17,7 +17,7 @@ int EventSink_Task::svc() {
   const unique_ptr<LicenseChecker> licenseChecker_ =
       make_unique<LicenseChecker>();
 
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("EventSink_Task::svc()\n")));
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task::svc()\n")));
 
   shared_ptr<Result> result;
   shared_ptr<LicenseExtractor> licenseExtractor_;
@@ -45,14 +45,14 @@ int EventSink_Task::svc() {
     const std::string code = str.substr(0, str.find_first_of(":"));
     ERROR_LOG(conversions::to_string_t(code).c_str());
     ERROR_LOG(TM("SERVICE SHUTDOWN"));
-    // shutdown service
+    // stop service
     raise(SIGINT);
   } catch (const runtime_error &err) {
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
                err.what()));
     ERROR_LOG(conversions::to_string_t(std::string(err.what())).c_str());
     ERROR_LOG(TM("SERVICE SHUTDOWN"));
-    // shutdown service
+    // stop service
     raise(SIGINT);
   } catch (web::http::http_exception &err) {
     ERROR_LOG(conversions::to_string_t(err.what()).c_str());
@@ -60,7 +60,7 @@ int EventSink_Task::svc() {
                err.what()));
     if (err.error_code().value() == lic::error_code::MIME_TYPES)
       ERROR_LOG(TM("SERVICE SHUTDOWN"));
-    // shutdown service
+    // stop service
     raise(SIGINT);
   }
   return 0;
