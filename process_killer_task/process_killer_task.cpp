@@ -61,7 +61,7 @@ int Process_Killer_Task::svc() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: task started\n")));
   try {
     if (licenseChecker_->is_license_check_day() &&
-        (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
+        (!licenseChecker_->is_license_file() ||
          !licenseChecker_->verify_license())) {
       if (terminate_process(this->process_stopping_name())) {
         const string_t message =

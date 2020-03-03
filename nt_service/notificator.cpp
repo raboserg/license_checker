@@ -1,7 +1,7 @@
 #include "notificator.h"
 #include "ace/Log_Msg.h"
 #include "tracer.h"
-#include <roapi.h>
+//#include <roapi.h>
 
 WinNT::Notificator::Notificator()
     : app_name(applicationName), is_cencel(false) {
@@ -126,7 +126,8 @@ int WinNT::Notificator::Initialize(
 }
 
 int WinNT::Notificator::Init_Context() {
-  HRESULT hres = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
+  //HRESULT hres = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
+  HRESULT hres = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
   if (FAILED(hres)) {
     ERROR_LOG(TM("Failed to Windows::Foundation::Initialize."));
     ACE_ERROR_RETURN(
@@ -141,7 +142,8 @@ int WinNT::Notificator::Init_Context() {
       CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
                            RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
   if (FAILED(hres)) {
-    Windows::Foundation::Uninitialize();
+    //Windows::Foundation::Uninitialize();
+	  ::CoUninitialize();
     ERROR_LOG(TM("Failed to initialize security."));
     ACE_ERROR_RETURN((LM_ERROR,
                       ACE_TEXT("%T (%t):\t\tFailed to initialize security. "
@@ -161,7 +163,8 @@ void WinNT::Notificator::Release() {
   service_->CancelAsyncCall(stub_sink_);
   service_->Release();
   stub_sink_->Release();
-  Windows::Foundation::Uninitialize();
+  ::CoUninitialize();
+  //Windows::Foundation::Uninitialize();
   cout << "release" << endl;
 }
 

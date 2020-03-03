@@ -6,6 +6,8 @@
 //#include "parser_ini.h"
 #include "tracer.h"
 
+#include "message_sender.h"
+
 using namespace std;
 using namespace utility;
 // const uint64_t dsfds = utility::datetime::from_days(1);
@@ -15,7 +17,7 @@ const char_t *module = _XPLATSTR("Get_License_Task");
 
 Get_License_Task::Get_License_Task()
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()),
-      licenseChecker_(new LicenseChecker()) {
+      licenseChecker_(new LicenseChecker()), day_counter_(0) {
   this->reactor(ACE_Reactor::instance());
 }
 
@@ -61,10 +63,16 @@ int Get_License_Task::svc() {
       (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task started\n")));
   shared_ptr<Result> result;
   try {
-    if (licenseChecker_->is_license_update_day()) {
+    if (licenseChecker_->is_license_update_day() &&
+        licenseChecker_->is_license_file()) {
+      ACE_DEBUG(
+          (LM_INFO,
+           ACE_TEXT(
+               "%T (%t):\t\tGet_License_Task: attempt to get a license...\n")));
+      INFO_LOG(TM("Attempt to get a license..."));
+
       const shared_ptr<LicenseExtractor> licenseExtractor_ =
           licenseChecker_->make_license_extractor(1);
-      INFO_LOG(TM("Attempt to get a license..."));
       result = licenseExtractor_->processing_license();
 
       if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
@@ -76,15 +84,19 @@ int Get_License_Task::svc() {
               "Retrieved license is empty, try to get after five minutes..."));
         } else {
           // read and check the date of current license
-          const ACE_Date_Time current_license_date =
-              licenseChecker_->current_license_date();
-          if (result->host_license()->month() != 0 &&
-              current_license_date.month() != 0)
-            if (result->host_license()->month() >
-                current_license_date.month()) {
-              licenseChecker_->save_license_to_file(license);
-			  INFO_LOG(TM("Save new license to file- MONTH, YEAR ???"));
-            }
+          if (result->host_license() != nullptr) {
+            const int month = result->host_license()->month();
+            if (month != 0)
+              if (licenseChecker_->is_check_licenses_months(month)) {
+                licenseChecker_->save_license_to_file(license);
+                INFO_LOG(TM("Save new license to file- MONTH, YEAR ???"));
+              }
+          } else {
+            //?????????
+            MESSAGE_SENDER::instance()->send(
+                _XPLATSTR("1#Host License#Error restponse: retrived host "
+                          "license is wrong"));
+          }
           // schedule timer to check day for update : 24 * 60 * 60 =
           // WAIT_NEXT_DAY_SECS
           schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
@@ -95,6 +107,7 @@ int Get_License_Task::svc() {
         schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
       }
     } else {
+      day_counter_++;
       // set timer for next check update day: 24 * 60 * 60
       schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
       // TODO:save state to file ???
@@ -104,26 +117,34 @@ int Get_License_Task::svc() {
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: %s \n"),
                err.what()));
     std::string str(err.what());
-    const std::string code = str.substr(0, str.find_first_of(":"));
-    ERROR_LOG(conversions::to_string_t(code).c_str());
-    ERROR_LOG(TM("SERVICE SHUTDOWN"));
+    const string_t message =
+        conversions::to_string_t(str.substr(0, str.find_first_of(":")));
+    MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    ERROR_LOG(message.c_str());
     // shutdown service
     raise(SIGINT);
   } catch (const runtime_error &err) {
+    const string_t message = conversions::to_string_t(std::string(err.what()));
+    MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task\n"),
                err.what()));
-    ERROR_LOG(conversions::to_string_t(std::string(err.what())).c_str());
-    ERROR_LOG(TM("SERVICE SHUTDOWN"));
+    ERROR_LOG(message.c_str());
     // shutdown service
     raise(SIGINT);
   } catch (web::http::http_exception &err) {
-    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task\n"),
+    const string_t message = conversions::to_string_t(err.what());
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tGet_License_Task: http error\n"),
                err.what()));
-    ERROR_LOG(conversions::to_string_t(err.what()).c_str());
-    if (err.error_code().value() == lic::error_code::MIME_TYPES)
-      ERROR_LOG(TM("SERVICE SHUTDOWN"));
-    // shutdown service
-    raise(SIGINT);
+    ERROR_LOG(message.c_str());
+    if (err.error_code().value() == lic::error_code::MIME_TYPES) {
+      MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+      ACE_ERROR((LM_DEBUG,
+                 ACE_TEXT("%T (%t):\t\tGet_License_Task: kill task\n"),
+                 err.what()));
+      // shutdown service
+      raise(SIGINT);
+    } else
+      schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
   }
   ACE_DEBUG(
       (LM_INFO, ACE_TEXT("%T (%t):\t\tGet_License_Task: task finished\n")));

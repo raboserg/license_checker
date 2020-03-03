@@ -62,6 +62,7 @@ public:
 
 private:
   long timerId_;
+  int day_counter_;
 
   ACE_Array<ACE_CString> results_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;

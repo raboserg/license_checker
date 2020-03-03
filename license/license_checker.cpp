@@ -21,17 +21,31 @@ utility::string_t LicenseChecker::run_proc(const string_t &command) {
   return utility::conversions::to_string_t(line);
 }
 
-bool LicenseChecker::is_license_file(const string_t &file_name) {
+bool LicenseChecker::find_file(const path &dir_path, const string_t &file_name,
+                               path &path_found) {
   bool result = false;
-  const string_t service_path = PARSER::instance()->get_service_path();
-  const string_t license_file_name =
-      service_path + PARSER::instance()->options().lic_file_name;
-
-  ifstream_t file(license_file_name, std::ios::out);
-  if (file.is_open()) {
-    file.close();
-    result = true;
+  if (!exists(dir_path))
+    return false;
+  directory_iterator end_itr;
+  for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
+    if (is_directory(itr->status())) {
+      if (find_file(itr->path(), file_name, path_found))
+        result = true;
+    } else if (itr->path().leaf() == file_name) {
+      path_found = itr->path();
+      result = true;
+    }
   }
+  return result;
+}
+
+bool LicenseChecker::is_license_file() {
+  path service_path = PARSER::instance()->get_service_path();
+  const string_t license_file_name =
+      PARSER::instance()->options().lic_file_name;
+  const bool result = find_file(service_path, license_file_name, service_path);
+  if (!result)
+    ERROR_LOG(TM("missing license file"));
   return result;
 }
 
@@ -75,10 +89,11 @@ bool LicenseChecker::save_license_to_file(string_t &license) {
   const size_t len = license.length();
   if (len && (license.c_str()[len - 1] == 0x00))
     license.erase(len - 1);
-
   // save license to file
+  string_t service_path = PARSER::instance()->get_service_path();
   const string_t lic_file_name = PARSER::instance()->options().lic_file_name;
-  ofstream_t file(lic_file_name, std::ios::out); //|std::ofstream::binary
+  ofstream_t file(service_path.append(lic_file_name),
+                  std::ios::out); //|std::ofstream::binary
   if (file.is_open()) {
     file << license;
     file.close();
@@ -174,8 +189,10 @@ bool LicenseChecker::is_license_check_day() {
 }
 
 ACE_Date_Time LicenseChecker::current_license_date() {
+  string_t service_path = PARSER::instance()->get_service_path();
   const string_t lic_file_name = PARSER::instance()->options().lic_file_name;
-  const string_t license = read_license_from_file(lic_file_name);
+  const string_t license =
+      read_license_from_file(service_path.append(lic_file_name));
   return extract_license_date(license);
 }
 
@@ -229,4 +246,9 @@ LicenseChecker::make_license_extractor(const int64_t &attempt) {
   const string_t host_type = PARSER::instance()->options().prod;
   const Message message_ = Message(uid, unp, agent, host_type);
   return std::make_shared<LicenseExtractor>(address_, message_, attempt);
+}
+
+bool LicenseChecker::is_check_licenses_months(const int &next_month) {
+  const ACE_Date_Time current_license_date = this->current_license_date();
+  return next_month > current_license_date.month();
 }

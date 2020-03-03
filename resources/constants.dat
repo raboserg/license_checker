@@ -6,7 +6,6 @@ DAT(LICENSE_PROD,           U("LICENSE.prod"))
 DAT(FILES_UID_FILE_NAME,	U("FILES.uid_file_name"))
 DAT(LICENSE_AGENT_ID,       U("LICENSE.agentId"))
 DAT(LICENSE_UNP,            U("LICENSE.unp"))
-DAT(LICENSE_FILE_NAME,      U("FILES.lic_file_name"))
 DAT(LICENSE_SRV_URI,	    U("LICENSE.license_manager_uri"))
 
 DAT(CONFIG_DAY_LICENSE_UPDATE,	U("CONFIG.day_license_update"))

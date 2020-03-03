@@ -4,6 +4,7 @@
 #include "license_checker.h"
 #include "tracer.h"
 
+#include "message_sender.h"
 #include <codecvt>
 #include <locale>
 
@@ -22,7 +23,7 @@ int EventSink_Task::svc() {
   shared_ptr<Result> result;
   shared_ptr<LicenseExtractor> licenseExtractor_;
   try {
-    if (!licenseChecker_->is_license_file(_XPLATSTR("")) ||
+    if (!licenseChecker_->is_license_file() ||
         !licenseChecker_->verify_license()) {
       licenseExtractor_ = licenseChecker_->make_license_extractor(60);
       INFO_LOG(
@@ -42,26 +43,32 @@ int EventSink_Task::svc() {
     ACE_ERROR(
         (LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: %s \n"), err.what()));
     std::string str(err.what());
-    const std::string code = str.substr(0, str.find_first_of(":"));
-    ERROR_LOG(conversions::to_string_t(code).c_str());
-    ERROR_LOG(TM("SERVICE SHUTDOWN"));
+    const string_t message =
+        conversions::to_string_t(str.substr(0, str.find_first_of(":")));
+    MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    ERROR_LOG(message.c_str());
     // stop service
     raise(SIGINT);
   } catch (const runtime_error &err) {
+    const string_t message = conversions::to_string_t(std::string(err.what()));
+    MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
                err.what()));
-    ERROR_LOG(conversions::to_string_t(std::string(err.what())).c_str());
-    ERROR_LOG(TM("SERVICE SHUTDOWN"));
+    ERROR_LOG(message.c_str());
     // stop service
     raise(SIGINT);
   } catch (web::http::http_exception &err) {
-    ERROR_LOG(conversions::to_string_t(err.what()).c_str());
+    const string_t message = conversions::to_string_t(err.what());
+    ERROR_LOG(message.c_str());
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
                err.what()));
-    if (err.error_code().value() == lic::error_code::MIME_TYPES)
-      ERROR_LOG(TM("SERVICE SHUTDOWN"));
-    // stop service
-    raise(SIGINT);
+    if (err.error_code().value() == lic::error_code::MIME_TYPES) {
+      MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+      ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
+                 err.what()));
+      // stop service
+      raise(SIGINT);
+    }
   }
   return 0;
 }
