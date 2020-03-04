@@ -28,6 +28,7 @@ struct Options {
   string_t day_license_check;
   string_t day_license_update;
   string_t license_manager_uri;
+  string_t next_day_waiting_hours;
   string_t next_try_get_license_mins;
 };
 

@@ -39,12 +39,12 @@ int Process_Killer_Task::handle_timeout(const ACE_Time_Value &current_time,
                                         const void *) {
   time_t epoch = ((timespec_t)current_time).tv_sec;
   ACE_DEBUG((LM_INFO,
-             ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: handle timeout: %s\n"),
+             ACE_TEXT("%T Process_Killer_Task: handle timeout: %s :(%t) \n"),
              ACE_OS::ctime(&epoch)));
   if (this->activate(THR_NEW_LWP) == -1)
     ACE_ERROR_RETURN(
         (LM_ERROR,
-         ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: activate failed")),
+         ACE_TEXT("%T \tProcess_Killer_Task: activate failed \t (%t) \n")),
         -1);
   return 0;
 }
@@ -52,13 +52,13 @@ int Process_Killer_Task::handle_timeout(const ACE_Time_Value &current_time,
 int Process_Killer_Task::handle_exception(ACE_HANDLE) {
   ACE_DEBUG(
       (LM_DEBUG,
-       ACE_TEXT("%T (%t):\t\tProcess_Killer_Task::handle_exception()\n")));
+       ACE_TEXT("%T \tProcess_Killer_Task::handle_exception() \t (%t) \n")));
   return -1;
 }
 
 int Process_Killer_Task::svc() {
   ACE_DEBUG(
-      (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: task started\n")));
+      (LM_INFO, ACE_TEXT("%T \tProcess_Killer_Task: task started \t (%t) \n")));
   try {
     if (licenseChecker_->is_license_check_day() &&
         (!licenseChecker_->is_license_file() ||
@@ -94,12 +94,12 @@ int Process_Killer_Task::svc() {
 
     ACE_ERROR_RETURN(
         (LM_ERROR,
-         ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: kill task - %s\n"),
+         ACE_TEXT("%T \tProcess_Killer_Task: kill task - %s \t (%t) \n"),
          err.what()),
         -1);
   }
   ACE_DEBUG(
-      (LM_INFO, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: task finished\n")));
+      (LM_INFO, ACE_TEXT("%T \tProcess_Killer_Task: task finished \t (%t) \n")));
   return 0;
 }
 
@@ -110,22 +110,24 @@ int Process_Killer_Task::execute_process(const utility::string_t process_name) {
   options.command_line(process_name.c_str());
   ACE_Process process;
   if (process.spawn(options) == -1)
-    ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: "
-                                         "ERROR: Failed to spawn process\n")),
+    ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%T \tProcess_Killer_Task: "
+                                         "ERROR: Failed to spawn process \t (%t) \n")),
                      -1);
   ACE_exitcode status;
   process.wait(&status);
   if (status != 1)
     ACE_ERROR_RETURN(
-        (LM_ERROR, ACE_TEXT("%T (%t):\t\tProcess_Killer_Task: "
-                            "ERROR: Failed status of spawn process\n")),
+        (LM_ERROR, ACE_TEXT("%T \tProcess_Killer_Task: "
+                            "ERROR: Failed status of spawn process \t (%t) \n")),
         -1);
   return 0;
 }
 
 int Process_Killer_Task::schedule_handle_timeout(const int &seconds) {
   ACE_Time_Value tv1(seconds, 0);
-  reactor()->reset_timer_interval(this->timerId_, tv1);
+  // reactor()->reset_timer_interval(this->timerId_, tv1);
+  reactor()->cancel_timer(this);
+  timerId_ = reactor()->schedule_timer(this, 0, tv1, ACE_Time_Value::zero);
   return 0;
 }
 
