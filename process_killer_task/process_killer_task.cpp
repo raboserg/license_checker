@@ -6,8 +6,8 @@
 #include <Tlhelp32.h>
 #include <process.h>
 #endif // _WIN32
-#include "gason.h"
-
+//#include "gason.h"
+#include "constants.h"
 #include "message_sender.h"
 
 Process_Killer_Task::Process_Killer_Task()
@@ -98,8 +98,8 @@ int Process_Killer_Task::svc() {
          err.what()),
         -1);
   }
-  ACE_DEBUG(
-      (LM_INFO, ACE_TEXT("%T \tProcess_Killer_Task: task finished \t (%t) \n")));
+  ACE_DEBUG((LM_INFO,
+             ACE_TEXT("%T \tProcess_Killer_Task: task finished \t (%t) \n")));
   return 0;
 }
 
@@ -110,15 +110,17 @@ int Process_Killer_Task::execute_process(const utility::string_t process_name) {
   options.command_line(process_name.c_str());
   ACE_Process process;
   if (process.spawn(options) == -1)
-    ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%T \tProcess_Killer_Task: "
-                                         "ERROR: Failed to spawn process \t (%t) \n")),
-                     -1);
+    ACE_ERROR_RETURN(
+        (LM_ERROR, ACE_TEXT("%T \tProcess_Killer_Task: "
+                            "ERROR: Failed to spawn process \t (%t) \n")),
+        -1);
   ACE_exitcode status;
   process.wait(&status);
   if (status != 1)
     ACE_ERROR_RETURN(
-        (LM_ERROR, ACE_TEXT("%T \tProcess_Killer_Task: "
-                            "ERROR: Failed status of spawn process \t (%t) \n")),
+        (LM_ERROR,
+         ACE_TEXT("%T \tProcess_Killer_Task: "
+                  "ERROR: Failed status of spawn process \t (%t) \n")),
         -1);
   return 0;
 }

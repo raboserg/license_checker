@@ -60,12 +60,12 @@ void Parser::create_root(const utility::string_t &file_name) {
 
 Parser::Parser()
     : file_name_(LIC_INI_FILE), service_path_(make_service_path()) {
-  //create_root(get_config_path());
+  // create_root(get_config_path());
 }
 
 Parser::Parser(const utility::string_t &file_name)
     : file_name_(file_name), service_path_(make_service_path()) {
-  //create_root(get_config_path());
+  // create_root(get_config_path());
 }
 
 utility::string_t Parser::get_value(const utility::string_t &key) const {
@@ -88,7 +88,7 @@ int Parser::init() {
     options.lic_file_name = get_value(lic::config_keys::FILES_LIC_FILE_NAME);
     options.make_uid_cmd = get_value(lic::config_keys::LICENSE_MAKE_UID_CMD);
     options.uid_file_name = get_value(lic::config_keys::FILES_UID_FILE_NAME);
-        options.license_manager_uri = get_value(lic::config_keys::LICENSE_SRV_URI);
+    options.license_manager_uri = get_value(lic::config_keys::LICENSE_SRV_URI);
     options.day_license_update =
         get_value(lic::config_keys::CONFIG_DAY_LICENSE_UPDATE);
     options.day_license_check =

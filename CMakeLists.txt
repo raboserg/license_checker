@@ -53,7 +53,7 @@ elseif(CMAKE_HOST_UNIX)
     set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
     set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
     set(CMAKE_INCLUDE_PATH ${DEFAULT_UNIX_BOOST_DIR})
-    find_package(Boost COMPONENTS system)
+    find_package(Boost COMPONENTS system filesystem)
     set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_LIBP7_DIR}/Binaries)
     find_library(P7_LIB NAMES P7)
     file(COPY ${P7_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -87,6 +87,7 @@ add_subdirectory("client")
 add_subdirectory("license")
 add_subdirectory("parser")
 add_subdirectory("tracer")
+add_subdirectory("constants")
 add_subdirectory("get_license_task")
 add_subdirectory("process_killer_task")
 
@@ -102,19 +103,32 @@ if(CMAKE_HOST_WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS})
     target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
 elseif(CMAKE_HOST_UNIX)
-    set(SOURCES_LIST main.cpp application.cpp application.h ../tools/constants.cpp ../tools/gason.cpp stdafx.h)
-    set(LINK_LIBS client license_checker eventsink tracer pthread get_license_task ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
-    set(INCLUDE_DIRS client license event_sink_linux ../tracer ../tools ../get_license_task ../process_killer_task ../common
+#    set(SOURCES_LIST main.cpp application.cpp application.h ../tools/constants.cpp stdafx.h)
+    set(SOURCES_LIST main.cpp application.cpp application.h stdafx.h)
+
+#    add_library(constants STATIC ../tools/constants.cpp)
+#    target_include_directories(constants PRIVATE ${CPPREST_INCLUDE_DIR})
+
+#    set(LINK_LIBS client constants license_checker nx_service tracer pthread get_license_task process_killer_task
+#        ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} dl)
+#    set(INCLUDE_DIRS client license nx_service ../tracer ../tools get_license_task process_killer_task ../common
+#        ${Boost_INCLUDE_DIRS}
+#        ${CPPREST_INCLUDE_DIR}
+#        ${OPENSSL_INCLUDE_PATH}
+#        ${DEFAULT_LIBP7_INCLUDE_DIR})
+    set(LINK_LIBS nx_service)
+    set(INCLUDE_DIRS client license nx_service tracer tools get_license_task process_killer_task common
         ${Boost_INCLUDE_DIRS}
         ${CPPREST_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_PATH}
+        ${ACE_INCLUDE_DIR}
         ${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCES_LIST})
-    add_subdirectory("event_sink_linux")
+    add_subdirectory("nx_service")
     set(DEPRECATION_FLAG "-Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DEPRECATION_FLAG}")
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS} ${P7_LIB} )
-    target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS})
+    target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
 endif()
 
 if(CMAKE_HOST_WIN32)

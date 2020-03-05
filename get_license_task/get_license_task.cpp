@@ -55,14 +55,13 @@ int Get_License_Task::handle_timeout(const ACE_Time_Value &current_time,
 }
 
 int Get_License_Task::handle_exception(ACE_HANDLE) {
-  ACE_DEBUG((LM_DEBUG,
-             ACE_TEXT("%T Get_License_Task::handle_exception() :(%t) \n")));
+  ACE_DEBUG(
+      (LM_DEBUG, ACE_TEXT("%T Get_License_Task::handle_exception() :(%t) \n")));
   return -1;
 }
 
 int Get_License_Task::svc() {
-  ACE_DEBUG(
-      (LM_INFO, ACE_TEXT("%T Get_License_Task: task started :(%t) \n")));
+  ACE_DEBUG((LM_INFO, ACE_TEXT("%T Get_License_Task: task started :(%t) \n")));
   shared_ptr<Result> result;
   try {
     if (licenseChecker_->is_license_update_day() &&
@@ -83,9 +82,10 @@ int Get_License_Task::svc() {
           // SHEDULE TIME FOR NEXT TRY GET LICENSE
           //???schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
           schedule_handle_timeout(next_try_get_license_secs());
-          ACE_DEBUG((LM_INFO,
-                     ACE_TEXT("%T Get_License_Task: Retrieved license "
-                              "is empty, try to get after five minutes... :(%t) \n")));
+          ACE_DEBUG((
+              LM_INFO,
+              ACE_TEXT("%T Get_License_Task: Retrieved license "
+                       "is empty, try to get after five minutes... :(%t) \n")));
           INFO_LOG(TM(
               "Retrieved license is empty, try to get after five minutes..."));
         } else {
@@ -127,9 +127,9 @@ int Get_License_Task::svc() {
     const string_t message =
         conversions::to_string_t(str.substr(0, str.find_first_of(":")));
     MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
-	ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: %s :(%t) \n"),
-		err.what()));
-	ERROR_LOG(message.c_str());
+    ACE_ERROR(
+        (LM_DEBUG, ACE_TEXT("%T Get_License_Task: %s :(%t) \n"), err.what()));
+    ERROR_LOG(message.c_str());
     // shutdown service
     raise(SIGINT);
   } catch (const runtime_error &err) {
@@ -147,16 +147,14 @@ int Get_License_Task::svc() {
     ERROR_LOG(message.c_str());
     if (err.error_code().value() == lic::error_code::MIME_TYPES) {
       MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
-      ACE_ERROR((LM_DEBUG,
-                 ACE_TEXT("%T Get_License_Task: kill task :(%t) \n"),
+      ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: kill task :(%t) \n"),
                  err.what()));
       // shutdown service
       raise(SIGINT);
     } else
       schedule_handle_timeout(next_try_get_license_secs());
   }
-  ACE_DEBUG(
-      (LM_INFO, ACE_TEXT("%T Get_License_Task: task finished :(%t)\n")));
+  ACE_DEBUG((LM_INFO, ACE_TEXT("%T Get_License_Task: task finished :(%t)\n")));
   return 0;
 }
 

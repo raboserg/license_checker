@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
 add_library(get_license_task STATIC get_license_task.cpp get_license_task.h)
-target_link_libraries(get_license_task PRIVATE ${ACE})
 target_include_directories(get_license_task PRIVATE ../tracer ../tools ../client ../license ../parser ../common
-	${ACE_INCLUDE_DIR} ${CPPREST_INCLUDE_DIR} ${DEFAULT_LIBP7_INCLUDE_DIR})
-target_compile_definitions(get_license_task PRIVATE -D_CRT_SECURE_NO_WARNINGS)
+        ${ACE_INCLUDE_DIR} ${CPPREST_INCLUDE_DIR} ${DEFAULT_LIBP7_INCLUDE_DIR})
+if(CMAKE_HOST_WIN32)
+    target_link_libraries(get_license_task PRIVATE ${ACE})
+    target_compile_definitions(get_license_task PRIVATE -D_CRT_SECURE_NO_WARNINGS)
+elseif(CMAKE_HOST_UNIX)
+    target_link_libraries(get_license_task PRIVATE license_checker ${ACE})
+endif()
