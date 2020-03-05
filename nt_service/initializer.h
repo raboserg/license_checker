@@ -4,10 +4,8 @@
 #include <ace/Init_ACE.h>
 
 #if defined(ACE_WIN32) && !defined(ACE_LACKS_WIN32_SERVICES)
-// FUZZ: disable check_for_streams_include
 #include "ace/OS_NS_errno.h"
 #include "ace/streams.h"
-
 // Default for the -i (install) option
 #define DEFAULT_SERVICE_INIT_STARTUP SERVICE_AUTO_START
 

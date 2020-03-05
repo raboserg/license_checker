@@ -152,7 +152,7 @@ int WinNT::Notificator::Init_Context() {
                      -1);
   }
 
-  TRACE_LOG(TM("Notificator::Init_Context"));
+  DEBUG_LOG(TM("Notificator::Init_Context"));
 
   return 0;
 }

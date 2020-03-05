@@ -91,7 +91,8 @@ add_subdirectory("process_killer_task")
 if(CMAKE_HOST_WIN32)
 	set(SOURCE_LIST main.cpp application.cpp application.h stdafx.h)
 	set(LINK_LIBS NT_Service)
-    set(INCLUDE_DIRS client license tracer tools nt_service get_license_task process_killer_task
+    set(INCLUDE_DIRS client license tracer tools constants nt_service 
+		get_license_task process_killer_task
         ${Boost_INCLUDE_DIRS}
         ${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCE_LIST})
@@ -102,7 +103,8 @@ if(CMAKE_HOST_WIN32)
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST main.cpp application.cpp application.h stdafx.h)
     set(LINK_LIBS nx_service)
-    set(INCLUDE_DIRS client license nx_service tracer tools get_license_task process_killer_task common
+    set(INCLUDE_DIRS client license constants nx_service tracer tools 
+		get_license_task process_killer_task common
         ${Boost_INCLUDE_DIRS}
         ${CPPREST_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_PATH}

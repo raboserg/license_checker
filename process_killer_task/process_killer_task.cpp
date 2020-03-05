@@ -81,8 +81,6 @@ int Process_Killer_Task::svc() {
         INFO_LOG(message.c_str());
         MESSAGE_SENDER::instance()->send(messa);
       }
-      // INFO_LOG(TM("Execute process - D:/project/itagent.exe"));
-      // execute_process(_XPLATSTR("D:/project/itagent.exe"));
     }
     // reschedule next day
     schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);

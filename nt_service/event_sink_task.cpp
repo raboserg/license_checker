@@ -11,31 +11,28 @@
 using namespace std;
 using namespace utility;
 
-EventSink_Task::EventSink_Task() { this->open(); }
+EventSink_Task::EventSink_Task() : licenseChecker_(new LicenseChecker()) {
+  //this->open();
+}
 
 int EventSink_Task::svc() {
 
-  const unique_ptr<LicenseChecker> licenseChecker_ =
-      make_unique<LicenseChecker>();
-
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task::svc()\n")));
-
-  shared_ptr<Result> result;
-  shared_ptr<LicenseExtractor> licenseExtractor_;
   try {
     if (!licenseChecker_->is_license_file() ||
         !licenseChecker_->verify_license()) {
-      licenseExtractor_ = licenseChecker_->make_license_extractor(60);
-      INFO_LOG(
-          (TM("Connect to server...") + licenseExtractor_->get_uri().host())
-              .c_str());
-      result = licenseExtractor_->processing_license();
-
+      const shared_ptr<LicenseExtractor> licenseExtractor_ =
+          licenseChecker_->make_license_extractor(60);
+      ACE_DEBUG(
+          (LM_INFO,
+           ACE_TEXT(
+               "%T Get_License_Task: attempt to get a license... :(%t) \n")));
+      INFO_LOG(TM("Attempt to get a license..."));
+      const shared_ptr<Result> result = licenseExtractor_->processing_license();
       if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
         string_t license = result->host_license()->license();
         if (!license.empty()) {
-          INFO_LOG(TM("Save new license - ??? MONTH, YEAR ???"));
-          licenseChecker_->save_license_to_file(license);
+          write_license(result->host_license());
         }
       }
     }
@@ -73,5 +70,18 @@ int EventSink_Task::svc() {
   return 0;
 }
 
-typedef ACE_Unmanaged_Singleton<EventSink_Task, ACE_Null_Mutex>
-    LICENSE_WORKER_TASK;
+int EventSink_Task::write_license(const shared_ptr<HostLicense> &host_license) {
+  if (!licenseChecker_->save_license_to_file(host_license->license())) {
+    ERROR_LOG(TM("Error: don't save license to file"));
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T %p Get_License_Task: Error: don't save "
+                                  "license to file :(%t) \n")));
+    return -1;
+  } else {
+    char_t log_msg[50];
+    size_t fmt_len = ACE_OS::sprintf(
+        log_msg, _XPLATSTR("Save new license to file: month - %d, year - %d"),
+        host_license->month(), host_license->year());
+    INFO_LOG(log_msg);
+  }
+  return 0;
+}

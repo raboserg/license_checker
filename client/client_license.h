@@ -108,6 +108,7 @@ public:
 
   unsigned short status_code() const { return status_code_; }
   void status_code(unsigned short status_code) { status_code_ = status_code; }
+
 };
 
 class Message {

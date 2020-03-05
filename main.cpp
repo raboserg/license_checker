@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
   return PROCESS::instance()->run(argc, argv);
   // setlocale(LC_ALL, "ru_RU.UTF-8");
 #else
-  SERVICE::instance()->run();
+  return SERVICE::instance()->run();
 #endif
 
   return 0;

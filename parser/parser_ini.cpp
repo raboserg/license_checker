@@ -23,7 +23,7 @@ utility::string_t Parser::make_service_path() {
       module_path.substr(0, module_path.find_last_of(_XPLATSTR("\\")))
           .append(_XPLATSTR("\\"));
 #endif
-  INFO_LOG((TM("Current service path: ") + service_path).c_str());
+  DEBUG_LOG((TM("Current service path: ") + service_path).c_str());
   return service_path;
 }
 
@@ -33,7 +33,7 @@ utility::string_t Parser::get_config_path() {
     path_ = this->service_path_ + this->file_name_;
   else
     path_ = this->file_name_;
-  INFO_LOG((TM("Current config path: ") + path_).c_str());
+  DEBUG_LOG((TM("Current config path: ") + path_).c_str());
   return path_;
 }
 
@@ -96,6 +96,7 @@ int Parser::init() {
     options.next_try_get_license_mins =
         get_value(lic::config_keys::CONFIG_NEXT_TRY_GET_LIC);
     options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
+	options.next_day_waiting_hours = get_value(lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET);
     this->set_options(options);
   } catch (const std::exception &ex) {
     ERROR_LOG((TM("Failed to initialize options values: ") +

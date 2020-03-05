@@ -64,8 +64,7 @@ int Get_License_Task::svc() {
   ACE_DEBUG((LM_INFO, ACE_TEXT("%T Get_License_Task: task started :(%t) \n")));
   shared_ptr<Result> result;
   try {
-    if (licenseChecker_->is_license_update_day() &&
-        licenseChecker_->is_license_file()) {
+    if (licenseChecker_->is_license_update_day()) {
       ACE_DEBUG(
           (LM_INFO,
            ACE_TEXT(
@@ -76,11 +75,14 @@ int Get_License_Task::svc() {
           licenseChecker_->make_license_extractor(1);
       result = licenseExtractor_->processing_license();
 
-      if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
+      MESSAGE_SENDER::instance()->send(_XPLATSTR("2#Host Status#") +
+                                       result->host_status()->name());
+      INFO_LOG((TM("Host Status: ") + result->host_status()->name()).c_str());
+
+      const int host_status = result->host_status()->id();
+      if (host_status == lic::lic_host_status::ACTIVE) {
         string_t license = result->host_license()->license();
         if (license.empty()) {
-          // SHEDULE TIME FOR NEXT TRY GET LICENSE
-          //???schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
           schedule_handle_timeout(next_try_get_license_secs());
           ACE_DEBUG((
               LM_INFO,
@@ -89,32 +91,41 @@ int Get_License_Task::svc() {
           INFO_LOG(TM(
               "Retrieved license is empty, try to get after five minutes..."));
         } else {
-          // read and check the date of current license
           const shared_ptr<HostLicense> host_license = result->host_license();
-          if (host_license != nullptr && host_license->month() != 0) {
-            if (licenseChecker_->is_check_licenses_months(
-                    host_license->month())) {
-              licenseChecker_->save_license_to_file(license);
-              INFO_LOG(TM("Save new license to file- MONTH, YEAR ???"));
+          if (licenseChecker_->is_license_file()) {
+            // read and check the date of current license
+            if (host_license != nullptr && host_license->month() != 0) {
+              if (licenseChecker_->is_check_licenses_months(
+                      host_license->month())) {
+                licenseChecker_->save_license_to_file(license);
+                write_license(host_license);
+              } // schedule timer to check day for update : 24 * 60 * 60
+              ///!!!!!schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
+              schedule_handle_timeout(next_try_get_license_secs());
+            } else {
+              //?????????
+              MESSAGE_SENDER::instance()->send(
+                  _XPLATSTR("1#Host License#Error restponse: retrived host "
+                            "license is wrong"));
+              ERROR_LOG(TM("Host License#Error restponse: retrived host "
+                           "license is wrong"));
+              schedule_handle_timeout(next_try_get_license_secs());
             }
-            // schedule timer to check day for update : 24 * 60 * 60 =
-            //!!!!!schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
-            schedule_handle_timeout(next_try_get_license_secs());
           } else {
-            //?????????
-            MESSAGE_SENDER::instance()->send(
-                _XPLATSTR("1#Host License#Error restponse: retrived host "
-                          "license is wrong"));
-            schedule_handle_timeout(next_try_get_license_secs());
+            /// If don't find file of license , save getted license
+            write_license(host_license);
+            schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
           }
         }
-      } else {
+      } else if (host_status == lic::lic_host_status::SUSPENDED)
+        schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
+      else {
         // TODO:save state to file ???
-        // SHADULE TIME FOR NEXT GET LICENSE STATE - 5 minutes
-        //???schedule_handle_timeout(lic::constants::WAIT_NEXT_TRY_GET_SECS);
+        // SHADULE TIME FOR NEXT GET LICENSE STATE
         schedule_handle_timeout(next_try_get_license_secs());
       }
     } else {
+      // Set Wait next day
       day_counter_++;
       // set timer for next check update day: 24 * 60 * 60
       //!!!!!schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
@@ -163,5 +174,22 @@ int Get_License_Task::schedule_handle_timeout(const int &seconds) {
   // reactor()->reset_timer_interval(this->timerId_, tv1);
   reactor()->cancel_timer(this);
   timerId_ = reactor()->schedule_timer(this, 0, tv1, ACE_Time_Value::zero);
+  return 0;
+}
+
+int Get_License_Task::write_license(
+    const shared_ptr<HostLicense> &host_license) {
+  if (!licenseChecker_->save_license_to_file(host_license->license())) {
+    ERROR_LOG(TM("Error: don't save license to file"));
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T %p Get_License_Task: Error: don't save "
+                                  "license to file :(%t) \n")));
+    return -1;
+  } else {
+    char_t log[50];
+    size_t fmt_len = ACE_OS::sprintf(
+        log, _XPLATSTR("Save new license to file: month - %d, year - %d"),
+        host_license->month(), host_license->year());
+    INFO_LOG(log);
+  }
   return 0;
 }

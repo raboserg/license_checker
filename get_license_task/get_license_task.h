@@ -73,6 +73,7 @@ private:
   int next_try_get_license_secs() {
 	  return this->try_get_license_mins_ * 60;
   }
+  virtual int write_license(const shared_ptr<HostLicense> &host_license);
 
   //  int shutdown_service() {
   //    reactor()->cancel_timer(this);
