@@ -3,13 +3,11 @@ DAT(FILES_LIC,              U("FILES.lic"))
 DAT(FILES_LIC_FILE_NAME,    U("FILES.lic_file_name"))
 DAT(FILES_UID_FILE_NAME,	U("FILES.uid_file_name"))
 DAT(FILES_KILL_FILE_NAME,	U("FILES.kill_file_name"))
-
 DAT(LICENSE_MAKE_UID_CMD,   U("LICENSE.make_uid_cmd"))
 DAT(LICENSE_PROD,           U("LICENSE.prod"))
 DAT(LICENSE_AGENT_ID,       U("LICENSE.agentId"))
 DAT(LICENSE_UNP,            U("LICENSE.unp"))
 DAT(LICENSE_SRV_URI,	    U("LICENSE.license_manager_uri"))
-
 DAT(CONFIG_DAY_LICENSE_UPDATE,	U("CONFIG.day_license_update"))
 DAT(CONFIG_DAY_LICENSE_CHECK,	U("CONFIG.day_license_check"))
 DAT(CONFIG_NEXT_TRY_GET_LIC,	U("CONFIG.next_try_get_license_mins"))
@@ -18,7 +16,7 @@ DAT(CONFIG_NEXT_DAY_WAIT_GET,	U("CONFIG.next_day_waiting_hours"))
 
 #ifdef _HOST_STATUSES
 DAT(NEW,        4, U("new"))
-DAT(ACTIVE,		1, U("active"))
+DAT(ACTIVE,	1, U("active"))
 DAT(APPROVED,   3, U("approved"))
 DAT(SUSPENDED,  2, U("suspended"))
 #endif

@@ -89,10 +89,10 @@ add_subdirectory("get_license_task")
 add_subdirectory("process_killer_task")
 
 if(CMAKE_HOST_WIN32)
-	set(SOURCE_LIST main.cpp application.cpp application.h stdafx.h)
-	set(LINK_LIBS NT_Service)
+    set(SOURCE_LIST main.cpp application.cpp application.h stdafx.h)
+    set(LINK_LIBS NT_Service)
     set(INCLUDE_DIRS client license tracer tools constants nt_service 
-		get_license_task process_killer_task
+        get_license_task process_killer_task
         ${Boost_INCLUDE_DIRS}
         ${DEFAULT_LIBP7_INCLUDE_DIR})
     add_executable(${PROJECT_NAME} ${SOURCE_LIST})
@@ -114,8 +114,20 @@ elseif(CMAKE_HOST_UNIX)
     add_subdirectory("nx_service")
     set(DEPRECATION_FLAG "-Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DEPRECATION_FLAG}")
+    add_definitions(-D_DEBUG)
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS})
     target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
+#    install(TARGETS ${ACE} LIBRARY
+#        DESTINATION bin
+#        COMPONENT Libraries
+#        NAMELINK_COMPONENT Development)
+#    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+#    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+#                 "Debug"
+#                 "Release"
+#                 "MinSizeRel"
+#                 "RelWithDebInfo")
+
 endif()
 
 if(CMAKE_HOST_WIN32)

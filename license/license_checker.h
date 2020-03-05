@@ -30,7 +30,7 @@ public:
   bool is_license_check_day();
   bool verify_license();
   string_t generate_machine_uid();
-  bool save_license_to_file(string_t &command);
+  bool save_license_to_file(string_t &license);
   ACE_Date_Time extract_license_date(const string_t &lic);
   shared_ptr<LicenseExtractor> make_license_extractor(const int64_t &attemp0t);
   bool is_license_file();

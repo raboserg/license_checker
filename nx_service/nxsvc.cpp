@@ -28,7 +28,7 @@ int Service::handle_timeout(const ACE_Time_Value &tv, const void *) {
 }
 
 int Service::run(void) {
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T \tStart Service::svc \t (%t) \n")));
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T Start Service::svc (%t) \n")));
   DEBUG_LOG(TM("Start Service::svc"));
 
   reactor()->owner(ACE_Thread::self());
@@ -77,7 +77,7 @@ int Service::run(void) {
   this->reactor()->run_event_loop();
   // this->msg_queue();
   // Cleanly terminate connections, terminate threads.
-  ACE_DEBUG((LM_SHUTDOWN, ACE_TEXT("%T \tShutting down service\t (%t) \n")));
+  ACE_DEBUG((LM_SHUTDOWN, ACE_TEXT("%T Shutting down service (%t) \n")));
   INFO_LOG(TM("Shutting down service"));
 
   // notificator_->Release();

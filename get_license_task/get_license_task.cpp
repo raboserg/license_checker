@@ -44,8 +44,7 @@ int Get_License_Task::close(u_long arg) { return 0; }
 int Get_License_Task::handle_timeout(const ACE_Time_Value &current_time,
                                      const void *) {
   const time_t epoch = ((timespec_t)current_time).tv_sec;
-  ACE_DEBUG((LM_INFO,
-             ACE_TEXT("%T %I Get_License_Task: handle timeout :(%t) %s"),
+  ACE_DEBUG((LM_INFO, ACE_TEXT("%T Get_License_Task: handle timeout :(%t) %s"),
              ACE_OS::ctime(&epoch)));
   if (activate(THR_NEW_LWP) == -1)
     ACE_ERROR_RETURN(
@@ -179,14 +178,15 @@ int Get_License_Task::schedule_handle_timeout(const int &seconds) {
 
 int Get_License_Task::write_license(
     const shared_ptr<HostLicense> &host_license) {
-  if (!licenseChecker_->save_license_to_file(host_license->license())) {
+  string_t license = host_license->license();
+  if (!licenseChecker_->save_license_to_file(license)) {
     ERROR_LOG(TM("Error: don't save license to file"));
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T %p Get_License_Task: Error: don't save "
                                   "license to file :(%t) \n")));
     return -1;
   } else {
     char_t log[50];
-    size_t fmt_len = ACE_OS::sprintf(
+    const size_t fmt_len = ACE_OS::sprintf(
         log, _XPLATSTR("Save new license to file: month - %d, year - %d"),
         host_license->month(), host_license->year());
     INFO_LOG(log);
