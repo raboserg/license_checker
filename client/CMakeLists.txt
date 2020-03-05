@@ -16,21 +16,6 @@ if(CMAKE_HOST_WIN32)
 elseif(CMAKE_HOST_UNIX)
     set(CPPREST_LIB_NAME cpprest)
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS ${CPPREST_LIBRARY_DIR})
-
-#    set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
-#    set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
-#    set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
-#    set(CMAKE_INCLUDE_PATH ${DEFAULT_UNIX_BOOST_DIR})
-##    set(BOOST_INCLUDEDIR ${DEFAULT_UNIX_BOOST_DIR})
-##    set(BOOST_LIBRARYDIR ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
-#    find_package(Boost COMPONENTS system)
-#    #set(OPENSSL_LIBRARY_PATH "/home/user/projects/library/openssl")
-#    #set(OPENSSL_INCLUDE_PATH "/home/user/projects/library/openssl/include")
-#    find_library(SSL_LIB ssl ${OPENSSL_LIBRARY_PATH})
-#    find_library(CRYPTO_LIB crypto ${OPENSSL_LIBRARY_PATH})
-#    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH_})
-#    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
-   
     target_include_directories(client PRIVATE ../tracer ../tools 
 		${CPPREST_INCLUDE_DIR} 
 		${Boost_INCLUDE_DIRS} 
