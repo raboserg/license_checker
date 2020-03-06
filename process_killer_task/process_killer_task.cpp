@@ -68,9 +68,7 @@ int Process_Killer_Task::svc() {
         INFO_LOG(message.c_str());
         const string_t messa = _XPLATSTR("{ \"code\": \"1\", \"disc\": \"") +
                                message + _XPLATSTR("\" }");
-
         MESSAGE_SENDER::instance()->send(messa);
-
       } else {
         const string_t message = _XPLATSTR("Process ") +
                                  this->process_stopping_name() +

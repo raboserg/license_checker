@@ -78,13 +78,13 @@ static BOOL WINAPI ConsoleHandler(DWORD /*ctrlType*/) {
 ACE_NT_SERVICE_DEFINE(itVPNAgent, Service, ACE_TEXT("itVPNAgent"));
 
 int Process::run(int argc, char *argv[]) {
-  SERVICE::instance()->name(ACE_TEXT("itVPNAgent"), ACE_TEXT("itVPNAgent"));
+  NT_SERVICE->name(ACE_TEXT("itVPNAgent"), ACE_TEXT("itVPNAgent"));
 
   parse_args(argc, argv);
 
   if (opt_install && !opt_remove) {
     // svc_status_
-    if (-1 == SERVICE::instance()->insert(opt_startup)) {
+    if (-1 == NT_SERVICE->insert(opt_startup)) {
       ACE_ERROR((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("insert"),
                  ACE_TEXT("error code = %d, "), GetLastError()));
       return -1;
@@ -93,7 +93,7 @@ int Process::run(int argc, char *argv[]) {
   }
 
   if (opt_remove && !opt_install) {
-    if (-1 == SERVICE::instance()->remove()) {
+    if (-1 == NT_SERVICE->remove()) {
       ACE_ERROR((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("remove")));
       return -1;
     }
@@ -104,7 +104,7 @@ int Process::run(int argc, char *argv[]) {
     print_usage_and_die();
 
   if (opt_start) {
-    if (-1 == SERVICE::instance()->start_svc()) {
+    if (-1 == NT_SERVICE->start_svc()) {
       ACE_ERROR((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("start")));
       return -1;
     }
@@ -112,7 +112,7 @@ int Process::run(int argc, char *argv[]) {
   }
 
   if (opt_kill) {
-    if (-1 == SERVICE::instance()->stop_svc()) {
+    if (-1 == NT_SERVICE->stop_svc()) {
       ACE_ERROR((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("stop")));
       return -1;
     }
@@ -120,7 +120,7 @@ int Process::run(int argc, char *argv[]) {
   }
 
   if (opt_type) {
-    if (-1 == SERVICE::instance()->startup(opt_startup)) {
+    if (-1 == NT_SERVICE->startup(opt_startup)) {
       ACE_ERROR((LM_ERROR, ACE_TEXT("%p\n"), ACE_TEXT("set startup")));
       return -1;
     }
@@ -130,15 +130,15 @@ int Process::run(int argc, char *argv[]) {
   // If we get here, we either run the app in debug mode (-d) or are
   // being called from the service manager to start the service.
   if (opt_debug) {
-    Callback *callback = new Callback;
-    //???ACE_LOG_MSG->set_flags(ACE_Log_Msg::CUSTOM);
-    ACE_LOG_MSG->priority_mask(
-        LM_SHUTDOWN | LM_TRACE | LM_DEBUG | LM_INFO | LM_NOTICE | LM_WARNING |
-            LM_STARTUP | LM_ERROR | LM_CRITICAL | LM_ALERT | LM_EMERGENCY,
-        ACE_Log_Msg::PROCESS);
-    ACE_LOG_MSG->set_flags(ACE_Log_Msg::MSG_CALLBACK);
-    ACE_LOG_MSG->clr_flags(ACE_Log_Msg::OSTREAM);
-    ACE_LOG_MSG->msg_callback(callback);
+    //Callback *callback = new Callback;
+    ////???ACE_LOG_MSG->set_flags(ACE_Log_Msg::CUSTOM);
+    //ACE_LOG_MSG->priority_mask(
+    //    LM_SHUTDOWN | LM_TRACE | LM_DEBUG | LM_INFO | LM_NOTICE | LM_WARNING |
+    //        LM_STARTUP | LM_ERROR | LM_CRITICAL | LM_ALERT | LM_EMERGENCY,
+    //    ACE_Log_Msg::PROCESS);
+    //ACE_LOG_MSG->set_flags(ACE_Log_Msg::MSG_CALLBACK);
+    //ACE_LOG_MSG->clr_flags(ACE_Log_Msg::OSTREAM);
+    //ACE_LOG_MSG->msg_callback(callback);
     //   std::ofstream *output_file = new std::ofstream("ntsvc.log", ios::out);
     // if (output_file && output_file->rdstate() == ios::goodbit) {
     //	ACE_LOG_MSG->msg_ostream(output_file, 1);
@@ -169,7 +169,7 @@ int Process::run(int argc, char *argv[]) {
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t): Starting service.\n")));
     DEBUG_LOG(TM("Starting service"));
 
-    ACE_NT_SERVICE_RUN(itVPNAgent, SERVICE::instance(), ret);
+    ACE_NT_SERVICE_RUN(itVPNAgent, NT_SERVICE, ret);
     if (ret == 0) {
       DEBUG_LOG(TM("Couldn't start service"));
       ACE_ERROR(

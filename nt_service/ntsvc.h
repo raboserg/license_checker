@@ -69,5 +69,5 @@ private:
 // and the ACE_Object_Manager deletes it at run-down.
 
 typedef ACE_Singleton<Service, ACE_Mutex> SERVICE;
-
+#define NT_SERVICE SERVICE::instance ()
 #endif /* ACE_WIN32 && !ACE_LACKS_WIN32_SERVICES */

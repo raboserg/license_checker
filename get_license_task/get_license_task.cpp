@@ -185,7 +185,7 @@ int Get_License_Task::write_license(
                                   "license to file :(%t) \n")));
     return -1;
   } else {
-    char_t log[50];
+    char_t log[100];
     const size_t fmt_len = ACE_OS::sprintf(
         log, _XPLATSTR("Save new license to file: month - %d, year - %d"),
         host_license->month(), host_license->year());

@@ -1,4 +1,5 @@
 ﻿#include "license_checker.h"
+#include "ace/OS_NS_stdio.h"
 #include "parser_ini.h"
 #include <constants.h>
 #include <cpprest/asyncrt_utils.h>
@@ -40,10 +41,10 @@ bool LicenseChecker::find_file(const path &dir_path, const string_t &file_name,
 }
 
 bool LicenseChecker::is_license_file() {
-  path service_path = PARSER::instance()->get_service_path();
-  const string_t license_file_name =
-      PARSER::instance()->options().lic_file_name;
-  const bool result = find_file(service_path, license_file_name, service_path);
+  const string_t license_file_path = PARSER::instance()->options().lic_file;
+  path service_path = PARSER::instance()->options().lic_files_path;
+  const string_t file_name = PARSER::instance()->options().lic_file_name;
+  const bool result = find_file(service_path, file_name, service_path);
   if (!result)
     ERROR_LOG(TM("missing license file"));
   return result;
@@ -90,10 +91,8 @@ bool LicenseChecker::save_license_to_file(string_t &license) {
   if (len && (license.c_str()[len - 1] == 0x00))
     license.erase(len - 1);
   // save license to file
-  string_t service_path = PARSER::instance()->get_service_path();
-  const string_t lic_file_name = PARSER::instance()->options().lic_file_name;
-  ofstream_t file(service_path.append(lic_file_name),
-                  std::ios::out); //|std::ofstream::binary
+  const string_t lic_file_name = PARSER::instance()->options().lic_file;
+  ofstream_t file(lic_file_name, std::ios::out); //|std::ofstream::binary
   if (file.is_open()) {
     file << license;
     file.close();
@@ -125,8 +124,7 @@ string_t LicenseChecker::make_verify_license_cmd() {
   // TODO: lic.exe can be to other folder
   string_t license_process_path = PARSER::instance()->options().lic_app_verify;
   const string_t license_prod = PARSER::instance()->options().prod;
-  const string_t license_file_name =
-      PARSER::instance()->options().lic_file_name;
+  const string_t license_file_name = PARSER::instance()->options().lic_file;
   const string_t uid_file_name = PARSER::instance()->options().uid_file_name;
 
   if (license_prod.empty())
@@ -137,15 +135,22 @@ string_t LicenseChecker::make_verify_license_cmd() {
     throw std::runtime_error("Uid file name is empty");
   if (license_process_path.empty())
     throw std::runtime_error("License process path is empty");
-  //?????????????????????????
-  const string_t check_lic_cmd =
-      _XPLATSTR("-v --uid-file ") + service_path + uid_file_name +
-      _XPLATSTR(" --lic-file ") + service_path + license_file_name +
-      _XPLATSTR(" --pub-file ") + service_path + _XPLATSTR("lic_test_pub.bin") +
-      _XPLATSTR(" --prod ") + license_prod;
-  license_process_path.append(_XPLATSTR(" ")).append(check_lic_cmd);
-  INFO_LOG(license_process_path.c_str());
-  return license_process_path;
+  ///@TODO
+  const string_t key_pub_file = service_path + _XPLATSTR("lic_test_pub.bin");
+  //const string_t check_lic_cmd = _XPLATSTR("-v --uid-file ") + uid_file_name +
+  //                               _XPLATSTR(" --lic-file ") + license_file_name +
+  //                               _XPLATSTR(" --pub-file ") + key_pub_file +
+  //                               _XPLATSTR(" --prod ") + license_prod;
+  //license_process_path.append(_XPLATSTR(" ")).append(check_lic_cmd);
+
+  char_t buffer[BUFSIZ];
+  const size_t fmt_len = ACE_OS::sprintf(
+      buffer,
+      _XPLATSTR("%s -v --uid-file %s  --lic-file %s  --pub-file %s --prod %s"),
+      license_process_path.c_str(), uid_file_name.c_str(),
+      license_file_name.c_str(), key_pub_file.c_str(), license_prod.c_str());
+  INFO_LOG(buffer);
+  return string_t(buffer);
 }
 
 string_t LicenseChecker::make_machine_uid_cmd() {
@@ -189,10 +194,8 @@ bool LicenseChecker::is_license_check_day() {
 }
 
 ACE_Date_Time LicenseChecker::current_license_date() {
-  string_t service_path = PARSER::instance()->get_service_path();
-  const string_t lic_file_name = PARSER::instance()->options().lic_file_name;
-  const string_t license =
-      read_license_from_file(service_path.append(lic_file_name));
+  const string_t lic_file_name = PARSER::instance()->options().lic_file;
+  const string_t license = read_license_from_file(lic_file_name);
   return extract_license_date(license);
 }
 

@@ -21,8 +21,10 @@ struct Options {
   string_t prod;
   string_t agentId;
   string_t make_uid_cmd;
-  string_t lic_file_name;
+  string_t lic_file;
   string_t uid_file_name;
+  string_t lic_file_name;
+  string_t lic_files_path;
   string_t lic_app_verify;
   string_t kill_file_name;
   string_t day_license_check;

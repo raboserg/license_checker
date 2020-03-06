@@ -10,6 +10,7 @@ elseif(CMAKE_HOST_UNIX)
     project ("itvpnagent")
 endif()
 
+set(VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 #set(LINK "STATIC")
 set(LINK "SHARED")

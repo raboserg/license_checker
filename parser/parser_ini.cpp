@@ -4,7 +4,7 @@
 #include <tracer.h>
 
 #ifdef _WIN32
-const utility::string_t LIC_INI_FILE = U("lic_check_w.ini");
+const utility::string_t LIC_INI_FILE = U("itvpnagent.ini");
 #else
 const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
 #endif
@@ -59,14 +59,10 @@ void Parser::create_root(const utility::string_t &file_name) {
 }
 
 Parser::Parser()
-    : file_name_(LIC_INI_FILE), service_path_(make_service_path()) {
-  // create_root(get_config_path());
-}
+    : file_name_(LIC_INI_FILE), service_path_(make_service_path()) {}
 
 Parser::Parser(const utility::string_t &file_name)
-    : file_name_(file_name), service_path_(make_service_path()) {
-  // create_root(get_config_path());
-}
+    : file_name_(file_name), service_path_(make_service_path()) {}
 
 utility::string_t Parser::get_value(const utility::string_t &key) const {
   utility::string_t value;
@@ -85,7 +81,7 @@ int Parser::init() {
     options.prod = get_value(lic::config_keys::LICENSE_PROD);
     options.agentId = get_value(lic::config_keys::LICENSE_AGENT_ID);
     options.lic_app_verify = get_value(lic::config_keys::FILES_LIC);
-    options.lic_file_name = get_value(lic::config_keys::FILES_LIC_FILE_NAME);
+    options.lic_file = get_value(lic::config_keys::FILES_LIC_FILE_NAME);
     options.make_uid_cmd = get_value(lic::config_keys::LICENSE_MAKE_UID_CMD);
     options.uid_file_name = get_value(lic::config_keys::FILES_UID_FILE_NAME);
     options.license_manager_uri = get_value(lic::config_keys::LICENSE_SRV_URI);
@@ -96,7 +92,13 @@ int Parser::init() {
     options.next_try_get_license_mins =
         get_value(lic::config_keys::CONFIG_NEXT_TRY_GET_LIC);
     options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
-	options.next_day_waiting_hours = get_value(lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET);
+    options.next_day_waiting_hours =
+        get_value(lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET);
+    options.lic_files_path = options.lic_file.substr(
+        0, options.lic_file.find_last_of(_XPLATSTR("\\")));
+    options.lic_file_name =
+        options.lic_file.substr(options.lic_file.find_last_of('\\') + 1);
+
     this->set_options(options);
   } catch (const std::exception &ex) {
     ERROR_LOG((TM("Failed to initialize options values: ") +
