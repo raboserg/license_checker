@@ -13,6 +13,9 @@
 #include <unistd.h>
 #endif
 
+#include "ace/Log_Msg.h"
+#include "ace/OS_NS_unistd.h"
+
 #include <cpprest/details/basic_types.h>
 #include <memory>
 
@@ -64,6 +67,16 @@ utility::string_t static current_module_path() {
   service_path =
       module_path.substr(0, module_path.find_last_of(_XPLATSTR("\\")))
           .append(_XPLATSTR("\\"));
+#else
+  char const *buf = getcwd(NULL, 0);
+  utility::char_t original_pathname[MAXPATHLEN + 1];
+  if (ACE_OS::getcwd(original_pathname, MAXPATHLEN + 1) == 0)
+    ACE_ERROR((LM_ERROR, "%p\n%a", "", 1));
+  const utility::string_t fdfds(original_pathname);
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("PATH: %s \n"),
+             utility::string_t(original_pathname).c_str()));
+  service_path = utility::string_t(original_pathname);
+  service_path.append(_XPLATSTR("/"));
 #endif
   return service_path;
 }

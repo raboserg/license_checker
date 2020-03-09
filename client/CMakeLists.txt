@@ -17,10 +17,11 @@ elseif(CMAKE_HOST_UNIX)
     set(CPPREST_LIB_NAME cpprest)
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS ${CPPREST_LIBRARY_DIR})
     target_include_directories(client PRIVATE ../tracer ../tools ../constants
-		${CPPREST_INCLUDE_DIR} 
-		${Boost_INCLUDE_DIRS} 
-		${OPENSSL_INCLUDE_PATH} 
-		${DEFAULT_LIBP7_INCLUDE_DIR})
+        ${ACE_INCLUDE_DIR}
+        ${CPPREST_INCLUDE_DIR}
+        ${Boost_INCLUDE_DIRS}
+        ${OPENSSL_INCLUDE_PATH}
+        ${DEFAULT_LIBP7_INCLUDE_DIR})
     target_link_libraries(client PRIVATE constants ${CPPREST_LIB} ${Boost_LIBRARIES} ${SSL_LIB} ${CRYPTO_LIB} pthread dl)
 
 endif()

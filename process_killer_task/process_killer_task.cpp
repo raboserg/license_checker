@@ -97,7 +97,8 @@ int Process_Killer_Task::svc() {
   return 0;
 }
 
-int Process_Killer_Task::execute_process(const utility::string_t process_name) {
+int Process_Killer_Task::execute_process(
+    const utility::string_t &process_name) {
   ACE_Process_Options options;
   // options.enable_unicode_environment();
   // options.setenv(ACE_TEXT("ZZ"), ACE_TEXT("1"));

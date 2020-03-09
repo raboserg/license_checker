@@ -95,7 +95,7 @@ void LicenseExtractor::processing_http_errors(const http_response &response) {
     result_->errors(errors);
   }
   if (response.status_code() == status_codes::BadGateway) {
-	  result_->errors(errors);
+    result_->errors(errors);
   }
   throw runtime_error(to_utf8string(error).c_str());
 }
@@ -124,7 +124,9 @@ http_response LicenseExtractor::send_request() {
       response = client_.request(request_).get();
       break;
     } catch (http_exception &ex) {
-      ucout << ex.error_code().value() << std::endl; // error code = 12029
+      ucout << _XPLATSTR("Http error code: ") << ex.error_code().value()
+            << std::endl; // error code win = 12029,
+                          // error code lin = 110 - Request canceled by user.
       if (chrono::steady_clock::now() > (start + time_try_connection_)) {
         ERROR_LOG(to_string_t(ex.what()).c_str());
         //????? throw_with_nested(runtime_error(ex.what()));

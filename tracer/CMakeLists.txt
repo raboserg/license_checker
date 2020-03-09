@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.8)
 set(SOURCE_LIST tracer.cpp tracer.h)
 add_library(tracer STATIC ${SOURCE_LIST})
-target_include_directories(tracer PRIVATE ../tools ${ACE_INCLUDE_DIR} ${DEFAULT_LIBP7_INCLUDE_DIR})
+target_include_directories(tracer PRIVATE ${CPPREST_INCLUDE_DIR} ../tools
+    ${ACE_INCLUDE_DIR}
+    ${DEFAULT_LIBP7_INCLUDE_DIR})
 target_link_libraries(tracer PRIVATE ${ACE})
