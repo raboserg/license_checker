@@ -85,7 +85,7 @@ int Parser::init() {
     options.make_uid_cmd = get_value(lic::config_keys::LICENSE_MAKE_UID_CMD);
     options.uid_file_name = get_value(lic::config_keys::FILES_UID_FILE_NAME);
     options.license_manager_uri = get_value(lic::config_keys::LICENSE_SRV_URI);
-    options.day_license_update =
+	options.day_license_update =
         get_value(lic::config_keys::CONFIG_DAY_LICENSE_UPDATE);
     options.day_license_check =
         get_value(lic::config_keys::CONFIG_DAY_LICENSE_CHECK);
@@ -96,9 +96,10 @@ int Parser::init() {
         get_value(lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET);
     options.lic_files_path = options.lic_file.substr(
         0, options.lic_file.find_last_of(_XPLATSTR("\\")));
-    options.lic_file_name =
+	options.lic_file_name =
         options.lic_file.substr(options.lic_file.find_last_of('\\') + 1);
-
+    
+	options.log_files_path = get_service_path() + _XPLATSTR("logs");
     this->set_options(options);
   } catch (const std::exception &ex) {
     ERROR_LOG((TM("Failed to initialize options values: ") +

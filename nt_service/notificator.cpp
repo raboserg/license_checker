@@ -30,6 +30,11 @@ int WinNT::Notificator::Register_Notification() {
              "%T (%t):\t\tRegister_Notification failed. Error code = 0x%X"),
          hres),
         -1);
+	//ACE_ERROR_RETURN((LM_ERROR,
+	//	ACE_TEXT("(%P|%t) Notificator::Register_Notification() - failed: ")
+	//	ACE_TEXT("Error code = 0x%X.\n"), hres),
+	//	-1);
+	//return -1;
   }
   return 0;
 }

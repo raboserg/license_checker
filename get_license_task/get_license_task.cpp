@@ -181,7 +181,7 @@ int Get_License_Task::write_license(
   string_t license = host_license->license();
   if (!licenseChecker_->save_license_to_file(license)) {
     ERROR_LOG(TM("Error: don't save license to file"));
-    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T %p Get_License_Task: Error: don't save "
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: Error: don't save "
                                   "license to file :(%t) \n")));
     return -1;
   } else {

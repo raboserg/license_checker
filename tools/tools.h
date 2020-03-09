@@ -13,6 +13,7 @@
 #include <unistd.h>
 #endif
 
+#include <cpprest/details/basic_types.h>
 #include <memory>
 
 namespace lic {
@@ -51,6 +52,21 @@ struct ip_helper {
     return ip_buffer;
   }
 };
+
+utility::string_t static current_module_path() {
+  utility::string_t service_path;
+#ifdef _WIN32
+  WCHAR szPath[MAX_PATH];
+  if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
+    wprintf(L"Cannot get service file name, error %u\n", GetLastError());
+  }
+  const utility::string_t module_path(szPath);
+  service_path =
+      module_path.substr(0, module_path.find_last_of(_XPLATSTR("\\")))
+          .append(_XPLATSTR("\\"));
+#endif
+  return service_path;
+}
 
 class os_utilities {
 public:

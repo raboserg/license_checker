@@ -73,7 +73,7 @@ int EventSink_Task::svc() {
 int EventSink_Task::write_license(const shared_ptr<HostLicense> &host_license) {
   if (!licenseChecker_->save_license_to_file(host_license->license())) {
     ERROR_LOG(TM("Error: don't save license to file"));
-    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T %p Get_License_Task: Error: don't save "
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: Error: don't save "
                                   "license to file :(%t) \n")));
     return -1;
   } else {

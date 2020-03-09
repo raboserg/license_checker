@@ -100,11 +100,14 @@ if(CMAKE_HOST_WIN32)
     add_subdirectory("nt_service")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS})
     target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
-    target_compile_definitions(${PROJECT_NAME} PUBLIC -D_WIN32_WINNT=0x0601 -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE -D_WIN32 -D_WINDOWS)
+	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+		target_compile_definitions(${PROJECT_NAME} PUBLIC -DCONNEC_CONFIG)
+	endif()
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DCONNEC_CONFIG -D_WIN32_WINNT -D_WIN32_WINNT=0x0601 -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE -D_WIN32 -D_WINDOWS)
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST main.cpp application.cpp application.h stdafx.h)
     set(LINK_LIBS nx_service)
-    set(INCLUDE_DIRS client license constants nx_service tracer tools 
+    set(INCLUDE_DIRS client license constants nx_service tracer tools parser
 		get_license_task process_killer_task common
         ${Boost_INCLUDE_DIRS}
         ${CPPREST_INCLUDE_DIR}
@@ -132,7 +135,7 @@ elseif(CMAKE_HOST_UNIX)
 endif()
 
 if(CMAKE_HOST_WIN32)
-    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/lic_check_w.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/itvpnagent.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 elseif(CMAKE_HOST_UNIX)
     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources/lic_check_l.ini DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
