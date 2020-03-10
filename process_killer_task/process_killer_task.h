@@ -34,5 +34,5 @@ private:
   virtual int svc(void);
   int shutdown_service();
   int terminate_process(const utility::string_t filename);
-  int execute_process(const utility::string_t filename);
+  int execute_process(const utility::string_t &filename);
 };

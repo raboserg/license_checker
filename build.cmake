@@ -136,14 +136,14 @@ message(STATUS "AFTER CMAKE_CXX_FLAGS_DEBUG: [${CMAKE_CXX_FLAGS_DEBUG}]")
 
 #add BUILD FLAGS to compiler flags
 if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
-    set(CMAKE_C_FLAGS_RELEASE     "/${RUNTIME} ${CMAKE_C_FLAGS_RELEASE} -D_UNICODE -DUNICODE")  
+    set(CMAKE_C_FLAGS_RELEASE     "/${RUNTIME} ${CMAKE_C_FLAGS_RELEASE} -D_UNICODE -DUNICODE /wd4996")
     set(CMAKE_C_FLAGS_DEBUG       "/${RUNTIME}d ${CMAKE_C_FLAGS_DEBUG} -D_UNICODE -DUNICODE")
     set(CMAKE_C_FLAGS_COVERAGE    "-O0 -g3 -coverage")
     set(CMAKE_C_FLAGS_ASAN        "-Werror -fsanitize=address -fno-common -O3")
     set(CMAKE_C_FLAGS_ASANDBG     "-Werror -fsanitize=address -fno-common -O1 -g3 -fno-omit-frame-pointer -fno-optimize-sibling-calls ")
     set(CMAKE_C_FLAGS_CHECK       "-Werror -O1 -Wcast-qual")
 
-    set(CMAKE_CXX_FLAGS_RELEASE     "/${RUNTIME} ${CMAKE_CXX_FLAGS_RELEASE} -D_UNICODE -DUNICODE")  
+    set(CMAKE_CXX_FLAGS_RELEASE     "/${RUNTIME} ${CMAKE_CXX_FLAGS_RELEASE} -D_UNICODE -DUNICODE /wd4996")
     set(CMAKE_CXX_FLAGS_DEBUG       "/${RUNTIME}d ${CMAKE_CXX_FLAGS_DEBUG} -D_UNICODE -DUNICODE")
     set(CMAKE_CXX_FLAGS_COVERAGE    "-O0 -g3 -coverage")
     set(CMAKE_CXX_FLAGS_ASAN        "-Werror -fsanitize=address -fno-common -O3")

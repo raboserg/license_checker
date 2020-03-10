@@ -17,7 +17,7 @@ EventSink_Task::EventSink_Task() : licenseChecker_(new LicenseChecker()) {
 
 int EventSink_Task::svc() {
 
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task::svc()\n")));
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T EventSink_Task::svc() (%t) \n")));
   try {
     if (!licenseChecker_->is_license_file() ||
         !licenseChecker_->verify_license()) {

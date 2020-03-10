@@ -13,21 +13,7 @@ const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
 utility::string_t Parser::get_service_path() { return service_path_; }
 
 utility::string_t Parser::make_service_path() {
-  utility::string_t service_path;
-#ifdef _WIN32
-  WCHAR szPath[MAX_PATH];
-  if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
-    wprintf(L"Cannot get service file name, error %u\n", GetLastError());
-  }
-  const utility::string_t module_path(szPath);
-  service_path =
-      module_path.substr(0, module_path.find_last_of(_XPLATSTR("\\")))
-          .append(_XPLATSTR("\\"));
-#else
-
-  service_path = lic::current_module_path();
-
-#endif
+  const utility::string_t service_path = utils::os_utilities::current_module_path();
   DEBUG_LOG((TM("Current service path: ") + service_path).c_str());
   return service_path;
 }

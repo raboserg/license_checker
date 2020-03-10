@@ -1,9 +1,11 @@
 #ifndef TRACER_H
 #define TRACER_H
-#include "tools.h"
+
 #include <P7_Trace.h>
 #include <Singleton.h>
 #include <functional>
+
+#include <cpprest/details/basic_types.h>
 
 #define LOGIN_CONNECT                                                          \
   TM("/P7.Sink=FileTxt /P7.Dir=D:/Logs/ /P7.Format=\" %lv [%tf] %ms\"")
@@ -15,45 +17,15 @@ namespace utils {
 class Logger {
 public:
   tBOOL write(const eP7Trace_Level level, const tXCHAR *text,
-              const tUINT16 line, const char *file, const char *fun, ...) {
-    if (tracer__) {
-      tracer__->Trace(0, level, nullptr, line, file, fun, text);
-      return TRUE;
-    }
-    return FALSE;
-  }
+              const tUINT16 line, const char *file, const char *fun, ...);
 
-  Logger()
-      : client__(P7_Create_Client(make_connect_config().c_str()),
-                 [](IP7_Client *client) { client->Release(); }),
-        tracer__(P7_Create_Trace(client__.get(), TM("TraceChannel")),
-                 [](IP7_Trace *tracer) { tracer->Release(); }) {}
-
-  /*Logger() {
-          const utility::string_t sdfdsfd = make_connect_config();
-    client__ = {P7_Create_Client(TM("/p7.sink=filetxt /p7.dir=D:/logs/
-  /p7.format=\" %lv [%tf] %ms\"")),
-                [](IP7_Client *client) { client->Release(); }};
-    tracer__ = {P7_Create_Trace(client__.get(), TM("TraceChannel")),
-                [](IP7_Trace *tracer) { tracer->Release(); }};
-  }*/
+  Logger();
 
 private:
-  tracer_unique_ptr<IP7_Client> client__;
+  const tracer_unique_ptr<IP7_Client> client__;
   tracer_unique_ptr<IP7_Trace> tracer__;
 
-  utility::string_t make_connect_config() {
-    //#ifdef CONNEC_CONFIG
-    return TM("/P7.Sink=Baical /P7.Pool=32768 /P7.PSize=65536 "
-              "/P7.Addr=127.0.0.1 /P7:Port=9009");
-    //#else
-    //    const utility::string_t dir =
-    //        TM("/P7.Dir=") + lic::current_module_path() + TM("logs");
-    //    utility::string_t connect(TM("/P7.Sink=FileTxt ") + dir +
-    //                              TM(" /P7.Format=\" %lv [%tf] %ms\""));
-    //    return connect;
-    //#endif
-  }
+  utility::string_t make_connect_config();
 };
 
 extern P7_EXPORT tBOOL __cdecl Send(tUINT16 i_wTrace_ID,
