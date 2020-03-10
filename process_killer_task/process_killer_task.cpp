@@ -9,6 +9,10 @@
 //#include "gason.h"
 #include "constants.h"
 #include "message_sender.h"
+#include "tools.h"
+
+#include "ace/OS_NS_signal.h"
+#include "ace/Signal.h"
 
 Process_Killer_Task::Process_Killer_Task()
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()),
@@ -156,6 +160,8 @@ int Process_Killer_Task::terminate_process(const utility::string_t filename) {
     hRes = Process32Next(hSnapShot, &pEntry);
   }
   CloseHandle(hSnapShot);
-#endif
   return founded;
+#else
+  return utils::os_utilities::terminate_process(filename);
+#endif
 }

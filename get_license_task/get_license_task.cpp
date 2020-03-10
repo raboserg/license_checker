@@ -3,7 +3,6 @@
 #include "ace/OS_NS_time.h"
 #include "client_license.h"
 #include "constants.h"
-//#include "parser_ini.h"
 #include "tracer.h"
 
 #include "message_sender.h"

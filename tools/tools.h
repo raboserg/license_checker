@@ -5,17 +5,24 @@
 #ifdef _WIN32
 #include <Windows.h>
 #else
-#include "ace/Log_Msg.h"
-#include "ace/OS_NS_unistd.h"
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string>
 #include <sys/socket.h>
 #include <unistd.h>
-#endif
 
-#include <cpprest/details/basic_types.h>
+#include <dirent.h>
+#include <errno.h>
+#include <fstream>
+#include <iostream>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <sys/types.h>
+#endif
+//#include <cpprest/details/basic_types.h>
 #include <memory>
 
 namespace utils {
@@ -55,6 +62,12 @@ struct ip_helper {
   //  }
 };
 
+#ifdef WIN32
+typedef std::wstring string__;
+#else
+typedef std::string string__;
+#endif
+
 class os_utilities {
 public:
   static void __cdecl sleep(unsigned long ms) {
@@ -65,10 +78,9 @@ public:
 #endif
   }
 
-  utility::string_t static current_module_path() {
-    utility::string_t service_path;
+  string__ static current_module_path() {
+    string__ service_path;
 #ifdef _WIN32
-
     WCHAR szPath[MAX_PATH];
     if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
       wprintf(L"Cannot get service file name, error %u\n", GetLastError());
@@ -78,18 +90,61 @@ public:
         module_path.substr(0, module_path.find_last_of(_XPLATSTR("\\")))
             .append(_XPLATSTR("\\"));
 #else
-    char const *buf = getcwd(NULL, 0);
-    utility::char_t original_pathname[MAXPATHLEN + 1];
-    if (ACE_OS::getcwd(original_pathname, MAXPATHLEN + 1) == 0)
-      ACE_ERROR((LM_ERROR, "%p\n%a", "", 1));
-    const utility::string_t fdfds(original_pathname);
-    ACE_DEBUG((LM_DEBUG, ACE_TEXT("PATH: %s \n"),
-               utility::string_t(original_pathname).c_str()));
-    service_path = utility::string_t(original_pathname);
+    service_path = string__(getcwd(NULL, 0));
     service_path.append(_XPLATSTR("/"));
 #endif
     return service_path;
   }
+
+#ifndef WIN32
+  static bool terminate_process(const std::string &procName) {
+    bool result = false;
+    int pid = getProcIdByName(procName);
+    if (pid > 0) {
+      int ret = kill(pid, SIGTERM); //??? SIGINT
+      if (ret == 0)
+        result = true;
+    }
+    return result;
+  }
+
+  static int getProcIdByName(const std::string &procName) {
+    int pid = -1;
+    // Open the /proc directory
+    DIR *dp = opendir("/proc");
+    if (dp != NULL) {
+      // Enumerate all entries in directory until process found
+      struct dirent *dirp;
+      while (pid < 0 && (dirp = readdir(dp))) {
+        // Skip non-numeric entries
+        int id = atoi(dirp->d_name);
+        if (id > 0) {
+          // Read contents of virtual /proc/{pid}/cmdline file
+          std::string cmdPath =
+              std::string("/proc/") + dirp->d_name + "/cmdline";
+          std::ifstream cmdFile(cmdPath.c_str());
+          std::string cmdLine;
+          std::getline(cmdFile, cmdLine);
+          if (!cmdLine.empty()) {
+            // Keep first cmdline item which contains the program path
+            size_t pos = cmdLine.find('\0');
+            if (pos != std::string::npos)
+              cmdLine = cmdLine.substr(0, pos);
+            // Keep program name only, removing the path
+            pos = cmdLine.rfind('/');
+            if (pos != std::string::npos)
+              cmdLine = cmdLine.substr(pos + 1);
+            // Compare against requested process name
+            if (procName == cmdLine)
+              pid = id;
+          }
+        }
+      }
+    }
+    closedir(dp);
+    return pid;
+  }
+#endif
 };
 } // namespace utils
 #endif

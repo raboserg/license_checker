@@ -13,7 +13,8 @@ const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
 utility::string_t Parser::get_service_path() { return service_path_; }
 
 utility::string_t Parser::make_service_path() {
-  const utility::string_t service_path = utils::os_utilities::current_module_path();
+  const utility::string_t service_path =
+      utils::os_utilities::current_module_path();
   DEBUG_LOG((TM("Current service path: ") + service_path).c_str());
   return service_path;
 }
@@ -31,7 +32,6 @@ utility::string_t Parser::get_config_path() {
 void Parser::create_root(const utility::string_t &file_name) {
   utility::ifstream_t file(file_name, std::ios::in);
   if (!file.is_open()) {
-
     const std::string error_msg(
         std::string("can't open ini file - ")
             .append(utility::conversions::to_utf8string(file_name)));
