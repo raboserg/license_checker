@@ -16,7 +16,7 @@ DAT(CONFIG_NEXT_DAY_WAIT_GET,	U("CONFIG.next_day_waiting_hours"))
 
 #ifdef _HOST_STATUSES
 DAT(NEW,        4, U("new"))
-DAT(ACTIVE,	1, U("active"))
+DAT(ACTIVE,		1, U("active"))
 DAT(APPROVED,   3, U("approved"))
 DAT(SUSPENDED,  2, U("suspended"))
 #endif

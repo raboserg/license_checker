@@ -71,7 +71,7 @@ int Parser::init() {
     options.unp = get_value(lic::config_keys::LICENSE_UNP);
     options.prod = get_value(lic::config_keys::LICENSE_PROD);
     options.agentId = get_value(lic::config_keys::LICENSE_AGENT_ID);
-    options.lic_app_verify = get_value(lic::config_keys::FILES_LIC);
+    options.lic_app = get_value(lic::config_keys::FILES_LIC);
     options.lic_file = get_value(lic::config_keys::FILES_LIC_FILE_NAME);
     options.make_uid_cmd = get_value(lic::config_keys::LICENSE_MAKE_UID_CMD);
     options.uid_file_name = get_value(lic::config_keys::FILES_UID_FILE_NAME);
@@ -85,8 +85,24 @@ int Parser::init() {
     options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
     options.next_day_waiting_hours =
         get_value(lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET);
-    options.lic_files_path = options.lic_file.substr(
-        0, options.lic_file.find_last_of(_XPLATSTR("\\")));
+
+    // int pos = options.lic_app.find_last_of(_XPLATSTR("\\"));
+    //   if (pos != string_t::npos)
+    //     options.lic_files_path = options.lic_app.substr(0, pos);
+    //   else
+    //     options.lic_files_path = _XPLATSTR(".");
+
+    // pos = options.lic_file.find_last_of(_XPLATSTR("\\"));
+    // if (pos != string_t::npos) {
+    //	options.lic_file_name = options.lic_file.substr(0, pos);
+    //
+    //	options.lic_file_name =
+    //		options.lic_file.substr(options.lic_file.find_last_of('\\') +
+    //1);
+    //}
+    // else
+    //	options.lic_file_name = _XPLATSTR(".");
+
     options.lic_file_name =
         options.lic_file.substr(options.lic_file.find_last_of('\\') + 1);
 

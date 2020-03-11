@@ -70,9 +70,18 @@ private:
   const std::unique_ptr<LicenseChecker> licenseChecker_;
 
   virtual int svc(void);
-  int next_try_get_license_secs() {
-	  return this->try_get_license_mins_ * 60;
+  int next_try_get_license_secs() { return this->try_get_license_mins_ * 60; }
+
+  int try_get_license_mins() { return try_get_license_mins_; }
+
+  void inform_next_try_log() {
+    char_t log[100];
+    const size_t fmt_len = ACE_OS::sprintf(
+        log, _XPLATSTR("The next attempt to get a license in %d minutes"),
+        this->try_get_license_mins_);
+    INFO_LOG(log);
   }
+
   virtual int write_license(const shared_ptr<HostLicense> &host_license);
 
   //  int shutdown_service() {

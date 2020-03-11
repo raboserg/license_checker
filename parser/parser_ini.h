@@ -26,7 +26,7 @@ struct Options {
   string_t uid_file_name;
   string_t lic_file_name;
   string_t lic_files_path;
-  string_t lic_app_verify;
+  string_t lic_app;
   string_t kill_file_name;
   string_t log_files_path;
   string_t day_license_check;

@@ -30,8 +30,9 @@ bool LicenseChecker::find_file(const path &dir_path, const string_t &file_name,
   directory_iterator end_itr;
   for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
     if (is_directory(itr->status())) {
-      if (find_file(itr->path(), file_name, path_found))
-        result = true;
+      /// if need to find recurcive in child directories
+      // if (find_file(itr->path(), file_name, path_found))
+      //  result = true;
     } else if (itr->path().leaf() == file_name) {
       path_found = itr->path();
       result = true;
@@ -42,28 +43,40 @@ bool LicenseChecker::find_file(const path &dir_path, const string_t &file_name,
 
 bool LicenseChecker::is_license_file() {
   const string_t license_file_path = PARSER::instance()->options().lic_file;
-  path service_path = PARSER::instance()->options().lic_files_path;
+  // path file_path = PARSER::instance()->options().lic_files_path;
+  path file_path;
+  int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
+  if (pos != string_t::npos)
+    file_path = license_file_path.substr(0, pos);
+  else
+    file_path = _XPLATSTR(".");
   const string_t file_name = PARSER::instance()->options().lic_file_name;
-  const bool result = find_file(service_path, file_name, service_path);
+  const bool result = find_file(file_path, file_name, file_path);
   if (!result)
-    ERROR_LOG(TM("missing license file"));
+    ERROR_LOG((license_file_path + TM(" not found")).c_str());
   return result;
 }
 
 bool LicenseChecker::verify_license() {
   bool result = false;
-  string_t line = run_proc(make_verify_license_cmd());
+  string_t verify_license_cmd = make_verify_license_cmd();
+  string_t line = run_proc(verify_license_cmd);
   if (line.empty()) {
-    throw std::runtime_error("lic of output is empty");
+    const string error_msg = conversions::to_utf8string(verify_license_cmd)
+                                 .append(" of output is empty");
+    throw std::runtime_error(error_msg);
   } else {
     const string_t code = line.substr(0, line.find_first_of(_XPLATSTR(":")));
-    INFO_LOG((TM("State license: ") + line).c_str());
     if (code == _XPLATSTR("ERROR")) {
+      ERROR_LOG((TM("State license: ") + line).c_str());
       result = false;
     } else if (code.compare(_XPLATSTR("SUCCESS"))) {
+      INFO_LOG((TM("State license: ") + line).c_str());
       result = true;
     } else {
-      throw std::runtime_error("lic returned invalid responce");
+      const string error_msg = conversions::to_utf8string(verify_license_cmd)
+                                   .append(" returned invalid responce");
+      throw std::runtime_error(error_msg);
     }
   }
   return result;
@@ -122,7 +135,8 @@ string_t LicenseChecker::make_verify_license_cmd() {
   // COMMAND: -v --uid-file license.uid --lic-file lice.lic --prod 2
   const string_t service_path = PARSER::instance()->get_service_path();
   // TODO: lic.exe can be to other folder
-  string_t license_process_path = PARSER::instance()->options().lic_app_verify;
+  string_t license_process_path = PARSER::instance()->options().lic_app;
+
   const string_t license_prod = PARSER::instance()->options().prod;
   const string_t license_file_name = PARSER::instance()->options().lic_file;
   const string_t uid_file_name = PARSER::instance()->options().uid_file_name;
@@ -137,18 +151,21 @@ string_t LicenseChecker::make_verify_license_cmd() {
     throw std::runtime_error("License process path is empty");
   ///@TODO
   const string_t key_pub_file = service_path + _XPLATSTR("lic_test_pub.bin");
-  //const string_t check_lic_cmd = _XPLATSTR("-v --uid-file ") + uid_file_name +
-  //                               _XPLATSTR(" --lic-file ") + license_file_name +
-  //                               _XPLATSTR(" --pub-file ") + key_pub_file +
+  // const string_t check_lic_cmd = _XPLATSTR("-v --uid-file ") + uid_file_name
+  // +
+  //                               _XPLATSTR(" --lic-file ") + license_file_name
+  //                               + _XPLATSTR(" --pub-file ") + key_pub_file +
   //                               _XPLATSTR(" --prod ") + license_prod;
-  //license_process_path.append(_XPLATSTR(" ")).append(check_lic_cmd);
+  // license_process_path.append(_XPLATSTR(" ")).append(check_lic_cmd);
 
   char_t buffer[BUFSIZ];
   const size_t fmt_len = ACE_OS::sprintf(
       buffer,
-      _XPLATSTR("%s -v --uid-file %s  --lic-file %s  --pub-file %s --prod %s"),
+      _XPLATSTR("%s -v --uid-file %s --lic-file %s --prod %s --pub-file %s"),
+      //_XPLATSTR("%s -v --uid-file %s --lic-file %s --prod %s"),
       license_process_path.c_str(), uid_file_name.c_str(),
-      license_file_name.c_str(), key_pub_file.c_str(), license_prod.c_str());
+      license_file_name.c_str(), license_prod.c_str(), key_pub_file.c_str());
+  // license_file_name.c_str(), license_prod.c_str());
   INFO_LOG(buffer);
   return string_t(buffer);
 }
@@ -158,7 +175,7 @@ string_t LicenseChecker::make_machine_uid_cmd() {
   //[LICENSE] make_lic_cmd = -g -s --prod
   //[FILES]	lic = D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
   string_t license_process_path;
-  license_process_path = PARSER::instance()->options().lic_app_verify;
+  license_process_path = PARSER::instance()->options().lic_app;
   const string_t make_lic_cmd = PARSER::instance()->options().make_uid_cmd;
   const string_t license_prod = PARSER::instance()->options().prod;
   if (license_process_path.empty() && make_lic_cmd.empty() &&

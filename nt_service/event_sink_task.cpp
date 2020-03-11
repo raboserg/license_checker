@@ -12,7 +12,7 @@ using namespace std;
 using namespace utility;
 
 EventSink_Task::EventSink_Task() : licenseChecker_(new LicenseChecker()) {
-  //this->open();
+  // this->open();
 }
 
 int EventSink_Task::svc() {
@@ -29,11 +29,17 @@ int EventSink_Task::svc() {
                "%T Get_License_Task: attempt to get a license... :(%t) \n")));
       INFO_LOG(TM("Attempt to get a license..."));
       const shared_ptr<Result> result = licenseExtractor_->processing_license();
+      MESSAGE_SENDER::instance()->send(_XPLATSTR("2#Host Status#") +
+                                       result->host_status()->name());
+      INFO_LOG((TM("Host Status: ") + result->host_status()->name()).c_str());
       if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
         string_t license = result->host_license()->license();
         if (!license.empty()) {
+          INFO_LOG(TM("Received a license"));
           write_license(result->host_license());
         }
+      } else {
+        INFO_LOG(TM("Try to get license arter 5 minutes"));
       }
     }
   } catch (const boost::process::process_error &err) {
@@ -61,10 +67,10 @@ int EventSink_Task::svc() {
                err.what()));
     if (err.error_code().value() == lic::error_code::MIME_TYPES) {
       MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
-      ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
-                 err.what()));
-      // stop service
-      raise(SIGINT);
+      //ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
+      //           err.what()));
+      //// stop service
+      //raise(SIGINT);
     }
   }
   return 0;
