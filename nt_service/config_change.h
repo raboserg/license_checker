@@ -25,6 +25,7 @@ public:
 
 private:
   bool bStop;
+int count_;
   ACE_HANDLE handle_;
   ACE_Auto_Event *event_;
   virtual int svc(void);

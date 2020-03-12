@@ -64,6 +64,8 @@ utility::string_t Parser::get_value(const utility::string_t &key) const {
   return value;
 }
 
+utility::string_t Parser::get_config_file_name() { return this->file_name_; }
+
 int Parser::init() {
   try {
     create_root(get_config_path());
@@ -98,7 +100,7 @@ int Parser::init() {
     //
     //	options.lic_file_name =
     //		options.lic_file.substr(options.lic_file.find_last_of('\\') +
-    //1);
+    // 1);
     //}
     // else
     //	options.lic_file_name = _XPLATSTR(".");

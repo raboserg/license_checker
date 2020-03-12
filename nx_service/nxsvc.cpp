@@ -1,5 +1,6 @@
 #include "nxsvc.h"
 #include "ace/Date_Time.h"
+#include "config_change.h"
 #include "parser_ini.h"
 #include "tracer.h"
 
@@ -33,6 +34,13 @@ int Service::run(void) {
 
   reactor()->owner(ACE_Thread::self());
 
+  // Handle signals through the ACE_Reactor.
+  if (this->reactor()->register_handler(SIGINT, &this->done_handler_) == -1) {
+    ACE_ERROR(
+        (LM_ERROR, "%T %p:\tcannot to register_handler SIGINT\t (%t) \n"));
+    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
+  }
+
   if (PARSER::instance()->init() == -1) {
     ACE_ERROR((LM_ERROR, "%T (%t) %p: cannot to initialize constants\n",
                "\tService::svc"));
@@ -48,12 +56,8 @@ int Service::run(void) {
   //    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   //  }
 
-  // Handle signals through the ACE_Reactor.
-  if (this->reactor()->register_handler(SIGINT, &this->done_handler_) == -1) {
-    ACE_ERROR(
-        (LM_ERROR, "%T %p:\tcannot to register_handler SIGINT\t (%t) \n"));
-    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
-  }
+  const std::unique_ptr<Config_Handler> config_handler_ =
+      std::make_unique<Config_Handler>(ACE_Reactor::instance());
 
   const int try_get_license_mins = ACE_OS::atoi(
       PARSER::instance()->options().next_try_get_license_mins.c_str());

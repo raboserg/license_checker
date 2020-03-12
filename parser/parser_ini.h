@@ -52,6 +52,7 @@ public:
   int init();
   utility::string_t get_config_path();
   utility::string_t get_service_path();
+  utility::string_t get_config_file_name();
   Options options() { return options_; }
   Parser(const utility::string_t &file_name);
 };
