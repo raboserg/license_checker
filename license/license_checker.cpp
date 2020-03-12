@@ -62,9 +62,9 @@ bool LicenseChecker::verify_license() {
   string_t verify_license_cmd = make_verify_license_cmd();
   string_t line = run_proc(verify_license_cmd);
   if (line.empty()) {
-    const string error_msg = conversions::to_utf8string(verify_license_cmd)
-                                 .append(" of output is empty");
-    throw std::runtime_error(error_msg);
+    string error_msg = conversions::to_utf8string(verify_license_cmd);
+    // error_msg.append(" of output is empty");
+    throw std::runtime_error(error_msg.append(" of output is empty"));
   } else {
     const string_t code = line.substr(0, line.find_first_of(_XPLATSTR(":")));
     if (code == _XPLATSTR("ERROR")) {
@@ -74,9 +74,8 @@ bool LicenseChecker::verify_license() {
       INFO_LOG((TM("State license: ") + line).c_str());
       result = true;
     } else {
-      const string error_msg = conversions::to_utf8string(verify_license_cmd)
-                                   .append(" returned invalid responce");
-      throw std::runtime_error(error_msg);
+      string error_msg = conversions::to_utf8string(verify_license_cmd);
+      throw std::runtime_error(error_msg.append(" returned invalid responce"));
     }
   }
   return result;
