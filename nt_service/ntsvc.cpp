@@ -1,5 +1,6 @@
 #include "ntsvc.h"
 #include "ace/Date_Time.h"
+#include "config_change.h"
 #include "parser_ini.h"
 #include "tracer.h"
 
@@ -104,18 +105,19 @@ int Service::svc(void) {
     raise(SIGINT);
   }
 
+  const std::unique_ptr<Config_Handler> config_handler =
+      std::make_unique<Config_Handler>(ACE_Reactor::instance());
+  
   const std::shared_ptr<WinNT::Notificator> notificator_ =
       std::make_shared<WinNT::Notificator>();
   if (notificator_->Initialize(this->event_) == -1) {
-    ACE_ERROR(
-        (LM_ERROR,
-         "%T (%t) \tcannot to initialize notificator for event sink\n"));
+    ACE_ERROR((LM_ERROR,
+               "%T (%t) \tcannot to initialize notificator for event sink\n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
   if (this->reactor()->register_handler(this, event_->handle()) == -1) {
-    ACE_ERROR((LM_ERROR,
-               "%T (%t) \tcannot to register handle with Reactor\n",
+    ACE_ERROR((LM_ERROR, "%T (%t) \tcannot to register handle with Reactor\n",
                "Service::svc"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
