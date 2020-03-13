@@ -35,7 +35,7 @@ HRESULT __stdcall EventSink::Indicate(LONG lObjectCount,
 
     LICENSE_WORKER_TASK::instance()->open();
 
-    TRACE_LOG(TM("Event: openvpn is opening...\n"));
+    TRACE_LOG(TM("EVENT: openvpn is opening...\n"));
     ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T Event: openvpn is opening... (%t) \n")));
     // OutputDebugString(L"Event: openvpn is opening");
     _variant_t varReturnValue;
@@ -61,11 +61,11 @@ HRESULT __stdcall EventSink::SetStatus(LONG lFlags, HRESULT hResult,
                                        IWbemClassObject __RPC_FAR *pObjParam) {
   if (lFlags == WBEM_STATUS_COMPLETE) {
     ACE_DEBUG((LM_DEBUG,
-               ACE_TEXT("%T (%t):\t\tCall complete. hResult = 0x%X\n"),
+               ACE_TEXT("%T Call complete. (%t) hResult = 0x%X\n"),
                hResult));
     in_progress_ = false;
   } else if (lFlags == WBEM_STATUS_PROGRESS) {
-    ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\t\tCall in progress\n"), hResult));
+    ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T Call in progress (%t)\n"), hResult));
   }
   return WBEM_S_NO_ERROR;
 }

@@ -30,11 +30,11 @@ int WinNT::Notificator::Register_Notification() {
              "%T (%t):\t\tRegister_Notification failed. Error code = 0x%X"),
          hres),
         -1);
-	//ACE_ERROR_RETURN((LM_ERROR,
-	//	ACE_TEXT("(%P|%t) Notificator::Register_Notification() - failed: ")
-	//	ACE_TEXT("Error code = 0x%X.\n"), hres),
-	//	-1);
-	//return -1;
+    // ACE_ERROR_RETURN((LM_ERROR,
+    //	ACE_TEXT("(%P|%t) Notificator::Register_Notification() - failed: ")
+    //	ACE_TEXT("Error code = 0x%X.\n"), hres),
+    //	-1);
+    // return -1;
   }
   return 0;
 }
@@ -131,7 +131,7 @@ int WinNT::Notificator::Initialize(
 }
 
 int WinNT::Notificator::Init_Context() {
-  //HRESULT hres = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
+  // HRESULT hres = Windows::Foundation::Initialize(RO_INIT_MULTITHREADED);
   HRESULT hres = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
   if (FAILED(hres)) {
     ERROR_LOG(TM("Failed to Windows::Foundation::Initialize."));
@@ -147,8 +147,8 @@ int WinNT::Notificator::Init_Context() {
       CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT,
                            RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
   if (FAILED(hres)) {
-    //Windows::Foundation::Uninitialize();
-	  ::CoUninitialize();
+    // Windows::Foundation::Uninitialize();
+    ::CoUninitialize();
     ERROR_LOG(TM("Failed to initialize security."));
     ACE_ERROR_RETURN((LM_ERROR,
                       ACE_TEXT("%T (%t):\t\tFailed to initialize security. "
@@ -169,8 +169,8 @@ void WinNT::Notificator::Release() {
   service_->Release();
   stub_sink_->Release();
   ::CoUninitialize();
-  //Windows::Foundation::Uninitialize();
-  cout << "release" << endl;
+  ACE_DEBUG((LM_INFO, ACE_TEXT("%T WinNT::Notificator::Release (%t) \n")));
+  // Windows::Foundation::Uninitialize();
 }
 
 void WinNT::SvcDebugOut(LPCWSTR message, DWORD status) {

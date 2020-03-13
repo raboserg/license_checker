@@ -4,7 +4,6 @@
 #include <P7_Trace.h>
 #include <Singleton.h>
 #include <functional>
-
 #include <cpprest/details/basic_types.h>
 
 #define LOGIN_CONNECT                                                          \

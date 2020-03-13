@@ -30,9 +30,9 @@ bool LicenseChecker::find_file(const path &dir_path, const string_t &file_name,
   directory_iterator end_itr;
   for (directory_iterator itr(dir_path); itr != end_itr; ++itr) {
     if (is_directory(itr->status())) {
-      /// if need to find recurcive in child directories
+      /// NOTE: if need to find recurcive in child directories
       // if (find_file(itr->path(), file_name, path_found))
-      //  result = true;
+      // result = true;
     } else if (itr->path().leaf() == file_name) {
       path_found = itr->path();
       result = true;
@@ -59,13 +59,12 @@ bool LicenseChecker::is_license_file() {
 
 bool LicenseChecker::verify_license() {
   bool result = false;
-  string_t verify_license_cmd = make_verify_license_cmd();
+  const string_t verify_license_cmd = make_verify_license_cmd();
   string_t line = run_proc(verify_license_cmd);
-  if (line.empty()) {
-    string error_msg = conversions::to_utf8string(verify_license_cmd);
-    // error_msg.append(" of output is empty");
-    throw std::runtime_error(error_msg.append(" of output is empty"));
-  } else {
+  if (line.empty())
+    throw std::runtime_error(conversions::to_utf8string(verify_license_cmd)
+                                 .append(" of output is empty"));
+  else {
     const string_t code = line.substr(0, line.find_first_of(_XPLATSTR(":")));
     if (code == _XPLATSTR("ERROR")) {
       ERROR_LOG((TM("State license: ") + line).c_str());
@@ -73,10 +72,9 @@ bool LicenseChecker::verify_license() {
     } else if (code.compare(_XPLATSTR("SUCCESS"))) {
       INFO_LOG((TM("State license: ") + line).c_str());
       result = true;
-    } else {
-      string error_msg = conversions::to_utf8string(verify_license_cmd);
-      throw std::runtime_error(error_msg.append(" returned invalid responce"));
-    }
+    } else
+      throw std::runtime_error(conversions::to_utf8string(verify_license_cmd)
+                                   .append(" returned invalid responce"));
   }
   return result;
 }
@@ -133,56 +131,32 @@ string_t LicenseChecker::make_verify_license_cmd() {
   //[FILES] uid_file_name = license.uid
   // COMMAND: -v --uid-file license.uid --lic-file lice.lic --prod 2
   const string_t service_path = PARSER::instance()->get_service_path();
-  // TODO: lic.exe can be to other folder
-  string_t license_process_path = PARSER::instance()->options().lic_app;
-
   const string_t license_prod = PARSER::instance()->options().prod;
   const string_t license_file_name = PARSER::instance()->options().lic_file;
   const string_t uid_file_name = PARSER::instance()->options().uid_file_name;
-
-  if (license_prod.empty())
-    throw std::runtime_error("License prod is empty");
-  if (license_file_name.empty())
-    throw std::runtime_error("License file name is empty");
-  if (uid_file_name.empty())
-    throw std::runtime_error("Uid file name is empty");
-  if (license_process_path.empty())
-    throw std::runtime_error("License process path is empty");
+  string_t license_process_path = PARSER::instance()->options().lic_app;
   ///@TODO
-  const string_t key_pub_file = service_path + _XPLATSTR("lic_test_pub.bin");
-  // const string_t check_lic_cmd = _XPLATSTR("-v --uid-file ") + uid_file_name
-  // +
-  //                               _XPLATSTR(" --lic-file ") + license_file_name
-  //                               + _XPLATSTR(" --pub-file ") + key_pub_file +
-  //                               _XPLATSTR(" --prod ") + license_prod;
-  // license_process_path.append(_XPLATSTR(" ")).append(check_lic_cmd);
-
   char_t buffer[BUFSIZ];
   const size_t fmt_len = ACE_OS::sprintf(
       buffer,
-      _XPLATSTR("%s -v --uid-file %s --lic-file %s --prod %s --pub-file %s"),
-      //_XPLATSTR("%s -v --uid-file %s --lic-file %s --prod %s"),
+      //_XPLATSTR("%s -v --uid-file %s --lic-file %s --prod %s --pub-file %s"),
+      _XPLATSTR("%s -v --uid-file %s --lic-file %s --prod %s"),
       license_process_path.c_str(), uid_file_name.c_str(),
-      license_file_name.c_str(), license_prod.c_str(), key_pub_file.c_str());
-  // license_file_name.c_str(), license_prod.c_str());
+      // license_file_name.c_str(), license_prod.c_str(), key_pub_file.c_str());
+      license_file_name.c_str(), license_prod.c_str());
   INFO_LOG(buffer);
   return string_t(buffer);
 }
 
 string_t LicenseChecker::make_machine_uid_cmd() {
   //[LICENSE] prod = 2
-  //[LICENSE] make_lic_cmd = -g -s --prod
+  //[LICENSE] uid_cmd = -g -s --prod
   //[FILES]	lic = D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
-  string_t license_process_path;
-  license_process_path = PARSER::instance()->options().lic_app;
-  const string_t make_lic_cmd = PARSER::instance()->options().make_uid_cmd;
+  string_t license_process_path = PARSER::instance()->options().lic_app;
+  const string_t uid_cmd = PARSER::instance()->options().make_uid_cmd;
   const string_t license_prod = PARSER::instance()->options().prod;
-  if (license_process_path.empty() && make_lic_cmd.empty() &&
-      license_prod.empty()) {
-    throw std::runtime_error("Not create command generate machine uid");
-  }
   const string_t make_uid_cmd =
-      _XPLATSTR(" ") + make_lic_cmd + _XPLATSTR(" ") + license_prod;
+      _XPLATSTR(" ") + uid_cmd + _XPLATSTR(" ") + license_prod;
   license_process_path.append(make_uid_cmd);
   INFO_LOG(license_process_path.c_str());
   return license_process_path;
@@ -190,23 +164,17 @@ string_t LicenseChecker::make_machine_uid_cmd() {
 
 bool LicenseChecker::is_license_update_day() {
   ACE_Date_Time date_time;
-  const string_t day_license_update =
+  const long day_license_update =
       PARSER::instance()->options().day_license_update;
-  if (day_license_update.empty())
-    throw std::runtime_error("Key of LICENSE.day_for_update is failed");
-  const long day = ACE_OS::atol(day_license_update.c_str());
-  return (date_time.day() >= day &&
-          date_time.day() <= (day + lic::constants::CHECK_DAYS));
+  return (date_time.day() >= day_license_update &&
+          date_time.day() <= (day_license_update + lic::constants::CHECK_DAYS));
 }
 
 bool LicenseChecker::is_license_check_day() {
   ACE_Date_Time date_time;
-  const string_t license_check_day =
+  const long license_check_day =
       PARSER::instance()->options().day_license_check;
-  if (license_check_day.empty())
-    throw std::runtime_error("Key of LICENSE.day_for_check_lic is failed");
-  const long day = ACE_OS::atol(license_check_day.c_str());
-  return (date_time.day() == day);
+  return (date_time.day() == license_check_day);
 }
 
 ACE_Date_Time LicenseChecker::current_license_date() {

@@ -29,11 +29,11 @@ struct Options {
   string_t lic_app;
   string_t kill_file_name;
   string_t log_files_path;
-  string_t day_license_check;
-  string_t day_license_update;
+  long day_license_check;
+  long day_license_update;
   string_t license_manager_uri;
-  string_t next_day_waiting_hours;
-  string_t next_try_get_license_mins;
+  int next_day_waiting_hours;
+  int next_try_get_license_mins;
 };
 
 class Parser {
@@ -50,7 +50,7 @@ class Parser {
 public:
   Parser(void);
   int init();
-  utility::string_t get_config_path();
+  utility::string_t get_config_file_path();
   utility::string_t get_service_path();
   utility::string_t get_config_file_name();
   Options options() { return options_; }

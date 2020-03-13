@@ -14,17 +14,19 @@ using namespace utility;
 
 const char_t *module = _XPLATSTR("Get_License_Task");
 
-Get_License_Task::Get_License_Task(const int &try_get_license_mins)
+Get_License_Task::Get_License_Task(const int &license_mins,
+                                   const int &waiting_hours)
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()),
       licenseChecker_(new LicenseChecker()), day_counter_(0),
-      try_get_license_mins_(try_get_license_mins) {
+      try_get_license_mins_(license_mins), day_waiting_hours_(waiting_hours) {
   this->reactor(ACE_Reactor::instance());
 }
 
 Get_License_Task::Get_License_Task(ACE_Thread_Manager *thr_mgr,
-                                   const int &try_get_license_mins)
-    : ACE_Task<ACE_MT_SYNCH>(thr_mgr),
-      try_get_license_mins_(try_get_license_mins) {
+                                   const int &license_mins,
+                                   const int &waiting_hours)
+    : ACE_Task<ACE_MT_SYNCH>(thr_mgr), try_get_license_mins_(license_mins),
+      day_waiting_hours_(waiting_hours) {
   reactor(ACE_Reactor::instance());
 }
 
@@ -86,8 +88,8 @@ int Get_License_Task::svc() {
               LM_INFO,
               ACE_TEXT("%T Get_License_Task: Retrieved license "
                        "is empty, try to get after five minutes... :(%t) \n")));
-		  ERROR_LOG(TM("The license obtained license is empty"));
-		  inform_next_try_log();
+          ERROR_LOG(TM("The license obtained license is empty"));
+          inform_next_try_log();
         } else {
           INFO_LOG(TM("Received a license"));
           const shared_ptr<HostLicense> host_license = result->host_license();
@@ -101,8 +103,7 @@ int Get_License_Task::svc() {
               } else {
                 INFO_LOG(TM("The license obtained is current"));
               }
-              // schedule timer to check day for update : 24 * 60 * 60
-              ///!!!!!schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
+			  ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
               schedule_handle_timeout(next_try_get_license_secs());
               INFO_LOG(TM("Wait next day"));
             } else {
@@ -112,7 +113,7 @@ int Get_License_Task::svc() {
                             "license is wrong"));
               ERROR_LOG(TM("Error restponse: retrived host license is wrong"));
               schedule_handle_timeout(next_try_get_license_secs());
-			  inform_next_try_log();
+              inform_next_try_log();
             }
           } else {
             // If don't find file of license , save getted license
@@ -129,11 +130,11 @@ int Get_License_Task::svc() {
         // TODO:save state to file ???
         // SHADULE TIME FOR NEXT GET LICENSE STATE
         schedule_handle_timeout(next_try_get_license_secs());
-		inform_next_try_log();
+        inform_next_try_log();
       }
     } else {
       day_counter_++;
-      ///!!!!!schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
+	  ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
       schedule_handle_timeout(next_try_get_license_secs());
       // TODO:save state to file ???
       INFO_LOG(TM("Wait next day"));
@@ -163,13 +164,14 @@ int Get_License_Task::svc() {
     ERROR_LOG(message.c_str());
     if (err.error_code().value() == lic::error_code::MIME_TYPES) {
       MESSAGE_SENDER::instance()->send(_XPLATSTR("1#Error#") + message);
-    //  ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: kill task :(%t) \n"),
-    //             err.what()));
-    //  // shutdown service
-    //  raise(SIGINT);
-    //} else {
+      //  ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: kill task :(%t)
+      //  \n"),
+      //             err.what()));
+      //  // shutdown service
+      //  raise(SIGINT);
+      //} else {
       schedule_handle_timeout(next_try_get_license_secs());
-	  inform_next_try_log();
+      inform_next_try_log();
     }
   }
   ACE_DEBUG((LM_INFO, ACE_TEXT("%T Get_License_Task: task finished :(%t)\n")));

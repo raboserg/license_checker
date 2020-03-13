@@ -1,4 +1,5 @@
 #include "parser_ini.h"
+#include "ace/OS_NS_stdlib.h"
 #include "constants.h"
 #include "tools.h"
 #include <cpprest/asyncrt_utils.h>
@@ -19,7 +20,7 @@ utility::string_t Parser::make_service_path() {
   return service_path;
 }
 
-utility::string_t Parser::get_config_path() {
+utility::string_t Parser::get_config_file_path() {
   utility::string_t path_;
   if (!service_path_.empty())
     path_ = this->service_path_ + this->file_name_;
@@ -59,8 +60,13 @@ utility::string_t Parser::get_value(const utility::string_t &key) const {
   utility::string_t value;
   if (!root_.empty()) {
     value = root_.get<utility::string_t>(key);
+    if (value.empty())
+      throw std::runtime_error(
+          utility::conversions::to_utf8string(key) + "is empty. Look at the " +
+          utility::conversions::to_utf8string(this->file_name_));
+    else
+      DEBUG_LOG((key + TM(" - ") + value).c_str());
   }
-  DEBUG_LOG((key + TM(" - ") + value).c_str());
   return value;
 }
 
@@ -68,7 +74,7 @@ utility::string_t Parser::get_config_file_name() { return this->file_name_; }
 
 int Parser::init() {
   try {
-    create_root(get_config_path());
+    create_root(get_config_file_path());
     Options options;
     options.unp = get_value(lic::config_keys::LICENSE_UNP);
     options.prod = get_value(lic::config_keys::LICENSE_PROD);
@@ -78,15 +84,46 @@ int Parser::init() {
     options.make_uid_cmd = get_value(lic::config_keys::LICENSE_MAKE_UID_CMD);
     options.uid_file_name = get_value(lic::config_keys::FILES_UID_FILE_NAME);
     options.license_manager_uri = get_value(lic::config_keys::LICENSE_SRV_URI);
-    options.day_license_update =
-        get_value(lic::config_keys::CONFIG_DAY_LICENSE_UPDATE);
-    options.day_license_check =
-        get_value(lic::config_keys::CONFIG_DAY_LICENSE_CHECK);
-    options.next_try_get_license_mins =
-        get_value(lic::config_keys::CONFIG_NEXT_TRY_GET_LIC);
+
+    options.day_license_update = ACE_OS::atol(
+        get_value(lic::config_keys::CONFIG_DAY_LICENSE_UPDATE).c_str());
+    if (options.day_license_update <= 0 || options.day_license_update > 31)
+      throw std::runtime_error(
+          utility::conversions::to_utf8string(
+              lic::config_keys::CONFIG_DAY_LICENSE_UPDATE) +
+          "isn't correct. Look at the " +
+          utility::conversions::to_utf8string(this->file_name_));
+
+    options.day_license_check = ACE_OS::atol(
+        get_value(lic::config_keys::CONFIG_DAY_LICENSE_CHECK).c_str());
+    if (options.day_license_check <= 0 || options.day_license_check > 31)
+      throw std::runtime_error(
+          utility::conversions::to_utf8string(
+              lic::config_keys::CONFIG_DAY_LICENSE_CHECK) +
+          "isn't correct. Look at the " +
+          utility::conversions::to_utf8string(this->file_name_));
+
+    options.next_try_get_license_mins = ACE_OS::atoi(
+        get_value(lic::config_keys::CONFIG_NEXT_TRY_GET_LIC).c_str());
+    if (options.next_try_get_license_mins <= 0 ||
+        options.next_try_get_license_mins > 60)
+      throw std::runtime_error(
+          utility::conversions::to_utf8string(
+              lic::config_keys::CONFIG_NEXT_TRY_GET_LIC) +
+          " more than 60 secs. Look at the " +
+          utility::conversions::to_utf8string(this->file_name_));
+
+    options.next_day_waiting_hours = ACE_OS::atoi(
+        get_value(lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET).c_str());
+    if (options.next_day_waiting_hours <= 0 ||
+        options.next_day_waiting_hours > 24)
+      throw std::runtime_error(
+          utility::conversions::to_utf8string(
+              lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET) +
+          " more than 60 secs. Look at the " +
+          utility::conversions::to_utf8string(this->file_name_));
+
     options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
-    options.next_day_waiting_hours =
-        get_value(lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET);
 
     // int pos = options.lic_app.find_last_of(_XPLATSTR("\\"));
     //   if (pos != string_t::npos)
@@ -111,7 +148,7 @@ int Parser::init() {
     options.log_files_path = get_service_path() + _XPLATSTR("logs");
     this->set_options(options);
   } catch (const std::exception &ex) {
-    ERROR_LOG((TM("Failed to initialize options values: ") +
+    ERROR_LOG((TM("Failed to initialize values of config: ") +
                conversions::to_string_t(ex.what()))
                   .c_str());
     return -1;

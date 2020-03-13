@@ -99,20 +99,21 @@ int Service::svc(void) {
 
   ////////////////////////////////////////////////////////////////////////
   if (PARSER::instance()->init() == -1) {
-    ACE_ERROR((LM_ERROR, "%T (%t) cannot to initialize constants\n",
-               "\tService::svc"));
-    ACE_OS::sleep(3);
+    ACE_ERROR((LM_ERROR, ACE_TEXT("%T \tCannot to initialize constants\n")));
+    ACE_ERROR((LM_SHUTDOWN, ACE_TEXT("%T \tShutting down service (%t) \n")));
+    INFO_LOG(TM("Shutting down service"));
+    ACE_OS::sleep(2);
     raise(SIGINT);
   }
 
   const std::unique_ptr<Config_Handler> config_handler =
       std::make_unique<Config_Handler>(ACE_Reactor::instance());
-  
+
   const std::shared_ptr<WinNT::Notificator> notificator_ =
       std::make_shared<WinNT::Notificator>();
   if (notificator_->Initialize(this->event_) == -1) {
     ACE_ERROR((LM_ERROR,
-               "%T (%t) \tcannot to initialize notificator for event sink\n"));
+               "%T (%t) \tCannot to initialize notificator for event sink\n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
@@ -124,16 +125,18 @@ int Service::svc(void) {
 
   // Handle signals through the ACE_Reactor.
   if (this->reactor()->register_handler(SIGINT, &this->done_handler_) == -1) {
-    ACE_ERROR((LM_ERROR, "%T \tcannot to register_handler SIGINT\t (%t) \n"));
+    ACE_ERROR((LM_ERROR, "%T \tcannot to register_handler SIGINT (%t) \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-  const int try_get_license_mins = ACE_OS::atoi(
-      PARSER::instance()->options().next_try_get_license_mins.c_str());
+  const int waiting_mins =
+      PARSER::instance()->options().next_try_get_license_mins;
+  const int waiting_hours =
+      PARSER::instance()->options().next_day_waiting_hours;
   const std::unique_ptr<Get_License_Task> get_license_task_ =
-      std::make_unique<Get_License_Task>(try_get_license_mins);
+      std::make_unique<Get_License_Task>(waiting_mins, waiting_hours);
   if (get_license_task_->open(ACE_Time_Value(5)) == -1) {
-    ACE_ERROR((LM_ERROR, "%T \tcannot to open get_license_task\t (%t)\n"));
+    ACE_ERROR((LM_ERROR, "%T \tcannot to open get_license_task (%t)\n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
@@ -156,6 +159,7 @@ int Service::svc(void) {
   // this->reactor()->cancel_timer(this);
   this->reactor()->remove_handler(this->event_->handle(),
                                   ACE_Event_Handler::DONT_CALL);
+  ACE_OS::sleep(3);
   return 0;
 }
 

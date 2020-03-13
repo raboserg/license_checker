@@ -50,9 +50,9 @@ private:
 
 class Get_License_Task : public ACE_Task<ACE_MT_SYNCH> {
 public:
-  Get_License_Task(const int &try_get_license_mins);
-  Get_License_Task(ACE_Thread_Manager *thr_mgr,
-                   const int &try_get_license_mins);
+  Get_License_Task(const int &try_get_license_mins, const int &waiting_hours);
+  Get_License_Task(ACE_Thread_Manager *thr_mgr, const int &try_get_license_mins,
+                   const int &waiting_hours);
   virtual ~Get_License_Task();
   int close(u_long arg);
   int open(const ACE_Time_Value tv1);
@@ -65,6 +65,7 @@ private:
   long timerId_;
   int day_counter_;
   int try_get_license_mins_;
+  int day_waiting_hours_;
 
   ACE_Array<ACE_CString> results_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
@@ -72,7 +73,10 @@ private:
   virtual int svc(void);
   int next_try_get_license_secs() { return this->try_get_license_mins_ * 60; }
 
+  int next_day_waiting_secs() { return this->day_waiting_hours_ * 60 * 60; }
+
   int try_get_license_mins() { return try_get_license_mins_; }
+  int day_waiting_hours() { return this->day_waiting_hours_; }
 
   void inform_next_try_log() {
     char_t log[100];
