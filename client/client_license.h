@@ -10,6 +10,10 @@
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
 #include <vector>
+#ifndef _WIN32
+#include <pplx/threadpool.h>
+// crossplat::threadpool::initialize_with_threads(2);
+#endif
 
 using namespace web;
 using namespace http;

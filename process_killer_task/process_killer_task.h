@@ -25,14 +25,20 @@ public:
     process_stopping_name_ = process_name;
   }
 
+  void set_day_waiting_hours(const int waiting_hours) {
+    day_waiting_hours_ = waiting_hours;
+  }
+
 private:
   long timerId_;
   string_t process_stopping_name_;
-
+  int day_waiting_hours_;
   ACE_Array<ACE_CString> state_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
   virtual int svc(void);
   int shutdown_service();
   int terminate_process(const utility::string_t filename);
   int execute_process(const utility::string_t &filename);
+  int next_day_waiting_secs() { return day_waiting_hours_ * 60 * 60; }
+  int day_waiting_hours() { return day_waiting_hours_; }
 };

@@ -7,13 +7,12 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <sys/inotify.h>
 #include <sys/types.h>
 
 #define EVENT_SIZE (sizeof(struct inotify_event))
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
-static const ACE_TCHAR *file = ACE_TEXT("ittas.ini");
-static const ACE_TCHAR *directory = ACE_TEXT("/home/user/pt");
 
 class Config_Handler : public ACE_Event_Handler {
 public:
@@ -24,8 +23,17 @@ public:
   int handle_close(ACE_HANDLE handle, ACE_Reactor_Mask close_mask);
   ACE_HANDLE get_handle(void) const;
 
+  std::string get_directory();
+  void set_directory(const std::string &directory);
+
+  std::string get_file_name();
+  void set_file_name(const std::string &file_name);
+
 private:
-  int wd_;
+  int watch_;
   ACE_HANDLE handle_;
+  std::string file_name_;
+  std::string directory_;
+
   // ACE_Sig_Adapter done_handler_;
 };

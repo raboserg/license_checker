@@ -6,13 +6,8 @@
 #include "ace/OS_NS_unistd.h"
 #include "ace/Reactor.h"
 #include "ace/Task.h"
-#include <Windows.h>
-
 #include "ace/Thread_Mutex.h"
-
-static int stop_test = 0;
-static const WCHAR *directory = L"D:\\work\\itvpn_setup\\itvpn\\bin\\x64\\";
-static const WCHAR *temp_file = L"itvpnagent.ini";
+#include <Windows.h>
 
 class Config_Handler : public ACE_Task_Base {
 public:
@@ -35,17 +30,16 @@ public:
 private:
   bool bStop;
   int count_;
-  //WCHAR *directory;
   ACE_HANDLE handle_;
   ACE_WString file_name_;
   ACE_WString directory_;
   ACE_Auto_Event *event_;
   ACE_Auto_Event *active_handler_;
   ACE_HANDLE get_handle(void) const;
-  
+
   int create_file();
   virtual int svc(void);
   int processing(const BYTE *lpBuffer, const DWORD nBufferLength);
 };
 
-#endif /* ACE_WIN32 */
+#endif

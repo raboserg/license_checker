@@ -37,7 +37,12 @@ int Process_Killer_Task::open(ACE_Time_Value tv1) {
   return 0;
 }
 
-int Process_Killer_Task::close(u_long arg) { return 0; }
+int Process_Killer_Task::close(u_long arg) {
+  ACE_DEBUG((LM_INFO,
+             ACE_TEXT("%T Process_Killer_Task: close, arg - %d :(%t) \n"),
+             arg));
+  return 0;
+}
 
 int Process_Killer_Task::handle_timeout(const ACE_Time_Value &current_time,
                                         const void *) {
@@ -84,7 +89,7 @@ int Process_Killer_Task::svc() {
       }
     }
     // reschedule next day
-    schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
+    schedule_handle_timeout(next_day_waiting_secs());
   } catch (const std::runtime_error &err) {
     CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
     // shutdown_service(); //???

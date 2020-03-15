@@ -61,6 +61,13 @@ public:
   virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg);
   virtual int schedule_handle_timeout(const int &seconds);
 
+  void set_try_get_license_mins(const int license_mins) {
+    try_get_license_mins_ = license_mins;
+  }
+  void set_day_waiting_hours(const int waiting_hours) {
+    day_waiting_hours_ = waiting_hours;
+  }
+
 private:
   long timerId_;
   int day_counter_;
@@ -71,12 +78,12 @@ private:
   const std::unique_ptr<LicenseChecker> licenseChecker_;
 
   virtual int svc(void);
-  int next_try_get_license_secs() { return this->try_get_license_mins_ * 60; }
+  int next_try_get_license_secs() { return try_get_license_mins_ * 60; }
 
-  int next_day_waiting_secs() { return this->day_waiting_hours_ * 60 * 60; }
+  int next_day_waiting_secs() { return day_waiting_hours_ * 60 * 60; }
 
   int try_get_license_mins() { return try_get_license_mins_; }
-  int day_waiting_hours() { return this->day_waiting_hours_; }
+  int day_waiting_hours() { return day_waiting_hours_; }
 
   void inform_next_try_log() {
     char_t log[100];

@@ -14,6 +14,7 @@ LicenseExtractor::LicenseExtractor(const uri &address, const Message &message,
   request_.set_method(methods::POST);
   request_.set_body(make_request_message(message).serialize(),
                     web::http::details::mime_types::application_json);
+  //???crossplat::threadpool::initialize_with_threads(10);
 }
 
 shared_ptr<Result> LicenseExtractor::processing_license() {

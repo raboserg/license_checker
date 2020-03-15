@@ -4,6 +4,8 @@
 #include "parser_ini.h"
 #include "tracer.h"
 
+using namespace std;
+
 Service::Service(void)
     : done_handler_(ACE_Sig_Handler_Ex(ACE_Reactor::end_event_loop)) {
   reactor(ACE_Reactor::instance());
@@ -25,6 +27,25 @@ int Service::handle_exception(ACE_HANDLE) {
 int Service::handle_timeout(const ACE_Time_Value &tv, const void *) {
   ACE_UNUSED_ARG(tv);
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\thandle timeout...\n")));
+  return 0;
+}
+
+int Service::reshedule_tasks() {
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T Service: reshedule_tasks (%t) \n")));
+
+  get_license_task_->set_day_waiting_hours(
+      PARSER::instance()->options().next_day_waiting_hours);
+  get_license_task_->set_try_get_license_mins(
+      PARSER::instance()->options().next_try_get_license_mins);
+  get_license_task_->schedule_handle_timeout(5);
+
+  process_killer_task_->process_stopping_name(
+      PARSER::instance()->options().kill_file_name);
+  process_killer_task_->set_day_waiting_hours(
+      PARSER::instance()->options().next_day_waiting_hours);
+  process_killer_task_->schedule_handle_timeout(5);
+
+  // reactor()->schedule_timer(get_license_task_, 0, tv1, ACE_Time_Value::zero);
   return 0;
 }
 
@@ -56,28 +77,36 @@ int Service::run(void) {
   //    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   //  }
 
-  const std::unique_ptr<Config_Handler> config_handler_ =
-      std::make_unique<Config_Handler>(ACE_Reactor::instance());
-
-  const int try_get_license_mins = ACE_OS::atoi(
-      PARSER::instance()->options().next_try_get_license_mins.c_str());
-  const std::unique_ptr<Get_License_Task> get_license_task_ =
-      std::make_unique<Get_License_Task>(try_get_license_mins);
+  const int waiting_hours =
+      PARSER::instance()->options().next_day_waiting_hours;
+  const int waiting_mins =
+      PARSER::instance()->options().next_try_get_license_mins;
+  //  const std::unique_ptr<Get_License_Task> get_license_task_ =
+  //      std::make_unique<Get_License_Task>(waiting_mins, waiting_hours);
+  get_license_task_ =
+      std::make_unique<Get_License_Task>(waiting_mins, waiting_hours);
   if (get_license_task_->open(ACE_Time_Value(5)) == -1) {
     ACE_ERROR((LM_ERROR, "%T %p:\tcannot to open get_license_task\t (%t)\n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-  const std::unique_ptr<Process_Killer_Task> process_killer_task_ =
-      std::make_unique<Process_Killer_Task>();
-  const string_t process_stopping_name =
-      PARSER::instance()->options().kill_file_name;
-  process_killer_task_->process_stopping_name(process_stopping_name);
+  //  const std::unique_ptr<Process_Killer_Task> process_killer_task_ =
+  //      std::make_unique<Process_Killer_Task>();
+  process_killer_task_ = std::make_unique<Process_Killer_Task>();
+
+  process_killer_task_->process_stopping_name(
+      PARSER::instance()->options().kill_file_name);
+  process_killer_task_->set_day_waiting_hours(
+      PARSER::instance()->options().next_day_waiting_hours);
   if (process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
     ACE_ERROR(
         (LM_ERROR, "%T %p:\tcannot to open process_killer_task\t (%t) \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
+
+  const std::unique_ptr<Config_Handler> config_handler_ =
+      std::make_unique<Config_Handler>(ACE_Reactor::instance());
+
   this->reactor()->run_event_loop();
   // this->msg_queue();
   // Cleanly terminate connections, terminate threads.

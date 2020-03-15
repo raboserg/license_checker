@@ -70,15 +70,12 @@ int Get_License_Task::svc() {
            ACE_TEXT(
                "%T Get_License_Task: attempt to get a license... :(%t) \n")));
       INFO_LOG(TM("Attempt to get a license..."));
-
       const shared_ptr<LicenseExtractor> licenseExtractor_ =
           licenseChecker_->make_license_extractor(1);
       result = licenseExtractor_->processing_license();
-
       MESSAGE_SENDER::instance()->send(_XPLATSTR("2#Host Status#") +
                                        result->host_status()->name());
       INFO_LOG((TM("Host Status: ") + result->host_status()->name()).c_str());
-
       const int host_status = result->host_status()->id();
       if (host_status == lic::lic_host_status::ACTIVE) {
         string_t license = result->host_license()->license();
@@ -102,12 +99,10 @@ int Get_License_Task::svc() {
                 write_license(host_license);
               } else {
                 INFO_LOG(TM("The license obtained is current"));
-              }
-			  ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
+              } ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
               schedule_handle_timeout(next_try_get_license_secs());
               INFO_LOG(TM("Wait next day"));
-            } else {
-              //?????????
+            } else { //?????????
               MESSAGE_SENDER::instance()->send(
                   _XPLATSTR("1#Host License#Error restponse: retrived host "
                             "license is wrong"));
@@ -115,10 +110,9 @@ int Get_License_Task::svc() {
               schedule_handle_timeout(next_try_get_license_secs());
               inform_next_try_log();
             }
-          } else {
-            // If don't find file of license , save getted license
+          } else { // If don't find file of license , save getted license
             write_license(host_license);
-            schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
+            schedule_handle_timeout(next_day_waiting_secs());
             INFO_LOG(TM("Wait next day"));
           }
         }
@@ -126,15 +120,13 @@ int Get_License_Task::svc() {
         schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
         INFO_LOG(TM("The status of license is suspended."));
         INFO_LOG(TM("Try to get license next day."));
-      } else {
-        // TODO:save state to file ???
-        // SHADULE TIME FOR NEXT GET LICENSE STATE
+      } else { // TODO:save state to file ???
         schedule_handle_timeout(next_try_get_license_secs());
         inform_next_try_log();
       }
     } else {
       day_counter_++;
-	  ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
+      ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
       schedule_handle_timeout(next_try_get_license_secs());
       // TODO:save state to file ???
       INFO_LOG(TM("Wait next day"));
