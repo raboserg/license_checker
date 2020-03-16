@@ -1,4 +1,5 @@
 #include "config_change.h"
+#include "ntsvc.h"
 #include "parser_ini.h"
 #include "tracer.h"
 
@@ -95,6 +96,9 @@ int Config_Handler::handle_signal(int, siginfo_t *, ucontext_t *) {
     // SEND ERROR MESSAGE FOR INPUT CORRECT VALUE
     raise(SIGINT); //???
     return -1;
+  } else {
+	  ACE_DEBUG((LM_DEBUG, "%T Config_Handler: reshedule_tasks (%t) \n"));
+    SERVICE::instance()->reshedule_tasks();
   }
   this->activate();
   return 0;

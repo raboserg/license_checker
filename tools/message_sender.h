@@ -58,9 +58,8 @@ public:
       ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%T %p (%t): \n"),
                         ACE_TEXT("Message_Sernder: faild connect to itVPNAgent: \t ")),
                        -1);
-
     ACE_DEBUG((LM_DEBUG,
-               ACE_TEXT("Sending work msg to server on handle 0x%x, req %d\n"),
+               ACE_TEXT("%T Sending work msg to server on handle 0x%x, req %d :(%t)\n"),
                stream.get_handle()));
     if (stream.send_n(message.c_str(), (len + 1) * sizeof(utility::char_t)) ==
         -1) {

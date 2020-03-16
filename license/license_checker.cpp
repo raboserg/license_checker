@@ -131,11 +131,12 @@ string_t LicenseChecker::make_verify_license_cmd() {
   //[FILES] lic=D:\work\itvpn_setup\itvpn\bin\x64\lic.exe
   //[FILES] uid_file_name = license.uid
   // COMMAND: -v --uid-file license.uid --lic-file lice.lic --prod 2
-  const string_t service_path = PARSER::instance()->get_service_path();
-  const string_t license_prod = PARSER::instance()->options().prod;
-  const string_t license_file_name = PARSER::instance()->options().lic_file;
-  const string_t uid_file_name = PARSER::instance()->options().uid_file_name;
-  string_t license_process_path = PARSER::instance()->options().lic_app;
+  const Options options = PARSER::instance()->options();
+  string_t license_process_path = options.lic_app;
+  const string_t license_prod = options.prod;
+  const string_t service_path = options.service_path;
+  const string_t license_file_name = options.lic_file;
+  const string_t uid_file_name = options.uid_file_name;
   ///@TODO
   char_t buffer[BUFSIZ];
   const size_t fmt_len = ACE_OS::sprintf(

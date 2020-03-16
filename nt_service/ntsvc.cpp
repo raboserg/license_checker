@@ -46,6 +46,23 @@ void Service::handle_control(DWORD control_code) {
     inherited::handle_control(control_code);
 }
 
+int Service::reshedule_tasks() {
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T Service: reshedule_tasks (%t) \n")));
+
+  const Options options = PARSER::instance()->options();
+  get_license_task_->set_day_waiting_hours(options.next_day_waiting_hours);
+  get_license_task_->set_try_get_license_mins(
+      options.next_try_get_license_mins);
+  get_license_task_->schedule_handle_timeout(5);
+
+  process_killer_task_->process_stopping_name(options.kill_file_name);
+  process_killer_task_->set_day_waiting_hours(options.next_day_waiting_hours);
+  process_killer_task_->schedule_handle_timeout(5);
+
+  // reactor()->schedule_timer(get_license_task_, 0, tv1, ACE_Time_Value::zero);
+  return 0;
+}
+
 int Service::handle_signal(int, siginfo_t *siginfo, ucontext_t *) {
   DEBUG_LOG(TM("Service::handle_signal..."));
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tService::handle_signal...\n")));
@@ -58,14 +75,12 @@ int Service::handle_signal(int, siginfo_t *siginfo, ucontext_t *) {
 // and causing a drop out of handle_events.
 int Service::handle_exception(ACE_HANDLE) {
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tService::handle_exception()\n")));
-  //???  DEBUG_LOG(TM("int Service::handle_exception(ACE_HANDLE)"));
   return -1;
 }
 
 // Beep every two seconds.  This is what this NT service does...
 int Service::handle_timeout(const ACE_Time_Value &tv, const void *) {
   ACE_UNUSED_ARG(tv);
-  // TRACE_LOG(TM("handle timeout..."));
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\thandle timeout...\n")));
   return 0;
 }
@@ -106,8 +121,7 @@ int Service::svc(void) {
     raise(SIGINT);
   }
 
-  const std::unique_ptr<Config_Handler> config_handler =
-      std::make_unique<Config_Handler>(ACE_Reactor::instance());
+  const Options options = PARSER::instance()->options();
 
   const std::shared_ptr<WinNT::Notificator> notificator_ =
       std::make_shared<WinNT::Notificator>();
@@ -129,30 +143,30 @@ int Service::svc(void) {
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-  const int waiting_mins =
-      PARSER::instance()->options().next_try_get_license_mins;
-  const int waiting_hours =
-      PARSER::instance()->options().next_day_waiting_hours;
-  const std::unique_ptr<Get_License_Task> get_license_task_ =
+  const int waiting_mins = options.next_try_get_license_mins;
+  const int waiting_hours = options.next_day_waiting_hours;
+  get_license_task_ =
       std::make_unique<Get_License_Task>(waiting_mins, waiting_hours);
   if (get_license_task_->open(ACE_Time_Value(5)) == -1) {
     ACE_ERROR((LM_ERROR, "%T \tcannot to open get_license_task (%t)\n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-  const std::unique_ptr<Process_Killer_Task> process_killer_task_ =
-      std::make_unique<Process_Killer_Task>();
-  const string_t process_stopping_name =
-      PARSER::instance()->options().kill_file_name;
-  process_killer_task_->process_stopping_name(process_stopping_name);
+  process_killer_task_ = std::make_unique<Process_Killer_Task>();
+  process_killer_task_->set_day_waiting_hours(waiting_hours);
+  process_killer_task_->process_stopping_name(options.kill_file_name);
   if (process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
     ACE_ERROR((LM_ERROR, "%T \tcannot to open process_killer_task\t (%t) \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
+
+  const std::unique_ptr<Config_Handler> config_handler =
+      std::make_unique<Config_Handler>(ACE_Reactor::instance());
+
   this->reactor()->run_event_loop();
   // this->msg_queue();
   // Cleanly terminate connections, terminate threads.
-  ACE_DEBUG((LM_SHUTDOWN, ACE_TEXT("%T \tShutting down service\t (%t) \n")));
+  ACE_DEBUG((LM_SHUTDOWN, ACE_TEXT("%T Shutting down service (%t) \n")));
   INFO_LOG(TM("Shutting down service"));
   notificator_->Release();
 

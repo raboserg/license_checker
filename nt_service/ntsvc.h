@@ -44,6 +44,8 @@ public:
   /// Where the real work is done:
   virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg = 0);
 
+  virtual int reshedule_tasks();
+
 private:
   typedef ACE_NT_Service inherited;
 
@@ -59,8 +61,8 @@ private:
   ACE_Sig_Adapter done_handler_;
   std::shared_ptr<ACE_Auto_Event> event_;
   //std::shared_ptr<WinNT::Notificator> notificator_;
-  //std::unique_ptr<Get_License_Task> get_license_task_;
-  //std::unique_ptr<Process_Killer_Task> process_killer_task_;
+  std::unique_ptr<Get_License_Task> get_license_task_;
+  std::unique_ptr<Process_Killer_Task> process_killer_task_;
 };
 
 // Define a singleton class as a way to insure that there's only one

@@ -76,7 +76,8 @@ int Parser::init() {
   try {
     create_root(get_config_file_path());
     Options options;
-    options.unp = get_value(lic::config_keys::LICENSE_UNP);
+	options.service_path = get_service_path();
+	options.unp = get_value(lic::config_keys::LICENSE_UNP);
     options.prod = get_value(lic::config_keys::LICENSE_PROD);
     options.agentId = get_value(lic::config_keys::LICENSE_AGENT_ID);
     options.lic_app = get_value(lic::config_keys::FILES_LIC);
@@ -84,7 +85,6 @@ int Parser::init() {
     options.make_uid_cmd = get_value(lic::config_keys::LICENSE_MAKE_UID_CMD);
     options.uid_file_name = get_value(lic::config_keys::FILES_UID_FILE_NAME);
     options.license_manager_uri = get_value(lic::config_keys::LICENSE_SRV_URI);
-
     options.day_license_update = ACE_OS::atol(
         get_value(lic::config_keys::CONFIG_DAY_LICENSE_UPDATE).c_str());
     if (options.day_license_update <= 0 || options.day_license_update > 31)

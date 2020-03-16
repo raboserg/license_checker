@@ -6,7 +6,6 @@
 #include <Tlhelp32.h>
 #include <process.h>
 #endif // _WIN32
-//#include "gason.h"
 #include "constants.h"
 #include "message_sender.h"
 #include "tools.h"
@@ -88,7 +87,6 @@ int Process_Killer_Task::svc() {
         MESSAGE_SENDER::instance()->send(messa);
       }
     }
-    // reschedule next day
     schedule_handle_timeout(next_day_waiting_secs());
   } catch (const std::runtime_error &err) {
     CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
