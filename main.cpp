@@ -1,7 +1,7 @@
 #ifdef _WIN32
 #include "initializer.h"
 #else
-#include <nxsvc.h>
+#include "nxsvc.h"
 #endif
 #include "callback.h"
 #include <constants.h>

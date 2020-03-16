@@ -10,3 +10,4 @@ CMakeLists.txt.user
 CMakeLists.txt.autosave
 .vs
 deps
+.vscode

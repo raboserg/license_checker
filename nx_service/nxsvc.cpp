@@ -77,12 +77,10 @@ int Service::run(void) {
   //    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   //  }
 
-  const int waiting_hours =
-      PARSER::instance()->options().next_day_waiting_hours;
-  const int waiting_mins =
-      PARSER::instance()->options().next_try_get_license_mins;
-  //  const std::unique_ptr<Get_License_Task> get_license_task_ =
-  //      std::make_unique<Get_License_Task>(waiting_mins, waiting_hours);
+  const Options options = PARSER::instance()->options();
+  const int waiting_hours = options.next_day_waiting_hours;
+  const int waiting_mins = options.next_try_get_license_mins;
+
   get_license_task_ =
       std::make_unique<Get_License_Task>(waiting_mins, waiting_hours);
   if (get_license_task_->open(ACE_Time_Value(5)) == -1) {
@@ -90,14 +88,9 @@ int Service::run(void) {
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-  //  const std::unique_ptr<Process_Killer_Task> process_killer_task_ =
-  //      std::make_unique<Process_Killer_Task>();
   process_killer_task_ = std::make_unique<Process_Killer_Task>();
-
-  process_killer_task_->process_stopping_name(
-      PARSER::instance()->options().kill_file_name);
-  process_killer_task_->set_day_waiting_hours(
-      PARSER::instance()->options().next_day_waiting_hours);
+  process_killer_task_->process_stopping_name(options.kill_file_name);
+  process_killer_task_->set_day_waiting_hours(waiting_hours);
   if (process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
     ACE_ERROR(
         (LM_ERROR, "%T %p:\tcannot to open process_killer_task\t (%t) \n"));

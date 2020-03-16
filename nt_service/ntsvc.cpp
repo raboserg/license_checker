@@ -1,10 +1,10 @@
+#if defined(ACE_WIN32) && !defined(ACE_LACKS_WIN32_SERVICES)
+
 #include "ntsvc.h"
 #include "ace/Date_Time.h"
 #include "config_change.h"
 #include "parser_ini.h"
 #include "tracer.h"
-
-#if defined(ACE_WIN32) && !defined(ACE_LACKS_WIN32_SERVICES)
 
 Service::Service(void)
     : event_(std::make_shared<ACE_Auto_Event>()),

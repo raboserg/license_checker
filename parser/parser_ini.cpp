@@ -76,8 +76,8 @@ int Parser::init() {
   try {
     create_root(get_config_file_path());
     Options options;
-	options.service_path = get_service_path();
-	options.unp = get_value(lic::config_keys::LICENSE_UNP);
+    options.service_path = get_service_path();
+    options.unp = get_value(lic::config_keys::LICENSE_UNP);
     options.prod = get_value(lic::config_keys::LICENSE_PROD);
     options.agentId = get_value(lic::config_keys::LICENSE_AGENT_ID);
     options.lic_app = get_value(lic::config_keys::FILES_LIC);

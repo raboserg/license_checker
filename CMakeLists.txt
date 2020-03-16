@@ -2,6 +2,11 @@
 
 set(CMAKE_CXX_STANDARD 14)
 
+if(NOT DEFINED ${CMAKE_BUILD_TYPE})
+	set(CMAKE_BUILD_TYPE "Debug")
+	#set(CMAKE_BUILD_TYPE "Ralease")
+endif()
+
 include(path.cmake)
 
 if(CMAKE_HOST_WIN32)
@@ -18,17 +23,10 @@ set(LINK "SHARED")
 #set(VARIANT "RELEASE")
 set(VARIANT "DEBUG")
 
-if(NOT DEFINED ${CMAKE_BUILD_TYPE})
-	set(CMAKE_BUILD_TYPE "Debug")
-	#set(CMAKE_BUILD_TYPE "Ralease")
-endif()
-
 set(ROOT_PROJECT_BINARY_DIR ${PROJECT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
 set(CMAKE_USER_MAKE_RULES_OVERRIDE "build.cmake")
 include(build.cmake)
-
-
 
 message(STATUS "$$$$$ ROOT_PROJECT_BINARY_DIR - ${ROOT_PROJECT_BINARY_DIR}")
 message(STATUS "$$$$$ CMAKE_CROSSCOMPILING - ${CMAKE_CROSSCOMPILING}")
