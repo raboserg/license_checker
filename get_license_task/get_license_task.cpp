@@ -7,6 +7,8 @@
 
 #include "message_sender.h"
 
+namespace itvpnagent {
+
 using namespace std;
 using namespace utility;
 // const uint64_t dsfds = utility::datetime::from_days(1);
@@ -62,7 +64,6 @@ int Get_License_Task::handle_exception(ACE_HANDLE) {
 
 int Get_License_Task::svc() {
   ACE_DEBUG((LM_INFO, ACE_TEXT("%T Get_License_Task: task started :(%t) \n")));
-  shared_ptr<Result> result;
   try {
     if (licenseChecker_->is_license_update_day()) {
       ACE_DEBUG(
@@ -72,7 +73,7 @@ int Get_License_Task::svc() {
       INFO_LOG(TM("Attempt to get a license..."));
       const shared_ptr<LicenseExtractor> licenseExtractor_ =
           licenseChecker_->make_license_extractor(1);
-      result = licenseExtractor_->processing_license();
+      const shared_ptr<Result> result = licenseExtractor_->processing_license();
       MESSAGE_SENDER::instance()->send(_XPLATSTR("2#Host Status#") +
                                        result->host_status()->name());
       INFO_LOG((TM("Host Status: ") + result->host_status()->name()).c_str());
@@ -195,3 +196,4 @@ int Get_License_Task::write_license(
   }
   return 0;
 }
+} // namespace itvpnagent

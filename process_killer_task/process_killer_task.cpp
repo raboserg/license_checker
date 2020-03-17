@@ -13,6 +13,8 @@
 #include "ace/OS_NS_signal.h"
 #include "ace/Signal.h"
 
+namespace itvpnagent {
+
 Process_Killer_Task::Process_Killer_Task()
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()),
       licenseChecker_(new LicenseChecker()) {
@@ -70,7 +72,7 @@ int Process_Killer_Task::svc() {
     if (licenseChecker_->is_license_check_day() &&
         (!licenseChecker_->is_license_file() ||
          !licenseChecker_->verify_license())) {
-      if (terminate_process(this->process_stopping_name())) {
+      if (System::terminate_process(this->process_stopping_name())) {
         const string_t message =
             this->process_stopping_name() + _XPLATSTR(" was killed");
         INFO_LOG(message.c_str());
@@ -139,32 +141,4 @@ int Process_Killer_Task::shutdown_service() {
   return reactor()->end_event_loop();
 }
 
-int Process_Killer_Task::terminate_process(const utility::string_t filename) {
-  int hRes;
-  bool founded = false;
-#ifdef _WIN32
-  WCHAR szPath[20];
-  wcscpy_s(szPath, filename.c_str());
-
-  HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
-  PROCESSENTRY32 pEntry;
-  pEntry.dwSize = sizeof(pEntry);
-  hRes = Process32First(hSnapShot, &pEntry);
-  while (hRes) {
-    if (wcscmp(pEntry.szExeFile, szPath) == 0) {
-      HANDLE hProcess =
-          OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
-      if (hProcess != NULL) {
-        TerminateProcess(hProcess, 9);
-        CloseHandle(hProcess);
-        founded = true;
-      }
-    }
-    hRes = Process32Next(hSnapShot, &pEntry);
-  }
-  CloseHandle(hSnapShot);
-  return founded;
-#else
-  return utils::os_utilities::terminate_process(filename);
-#endif
-}
+} // namespace itvpnagent

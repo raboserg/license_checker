@@ -1,5 +1,4 @@
-#ifndef CONFIG_CHANGE_H
-#define CONFIG_CHANGE_H
+#pragma once
 
 #include "ace/Auto_Event.h"
 #include "ace/Log_Msg.h"
@@ -8,6 +7,8 @@
 #include "ace/Task.h"
 #include "ace/Thread_Mutex.h"
 #include <Windows.h>
+
+namespace itvpnagent {
 
 class Config_Handler : public ACE_Task_Base {
 public:
@@ -42,4 +43,4 @@ private:
   int processing(const BYTE *lpBuffer, const DWORD nBufferLength);
 };
 
-#endif
+} // namespace itvpnagent

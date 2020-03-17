@@ -3,8 +3,11 @@
 #include "parser_ini.h"
 #include "tracer.h"
 
-#define FILE_SHARE_MODE FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE
-#define DISPOSITION FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED
+namespace itvpnagent {
+
+constexpr int DISPOSITION = FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED;
+constexpr int FILE_SHARE_MODE =
+    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
 
 Config_Handler::Config_Handler(ACE_Reactor *reactor)
     : handle_(ACE_INVALID_HANDLE), event_(new ACE_Auto_Event),
@@ -97,7 +100,7 @@ int Config_Handler::handle_signal(int, siginfo_t *, ucontext_t *) {
     raise(SIGINT); //???
     return -1;
   } else {
-	  ACE_DEBUG((LM_DEBUG, "%T Config_Handler: reshedule_tasks (%t) \n"));
+    ACE_DEBUG((LM_DEBUG, "%T Config_Handler: reshedule_tasks (%t) \n"));
     SERVICE::instance()->reshedule_tasks();
   }
   this->activate();
@@ -154,3 +157,4 @@ void Config_Handler::set_file_name(ACE_WString &file_name) {
 
 ACE_HANDLE
 Config_Handler::get_handle(void) const { return this->handle_; }
+} // namespace itvpnagent

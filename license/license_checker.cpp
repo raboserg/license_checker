@@ -11,6 +11,8 @@
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_stdlib.h"
 
+using namespace itvpnagent;
+
 LicenseChecker::LicenseChecker() {}
 
 utility::string_t LicenseChecker::run_proc(const string_t &command) {
@@ -186,10 +188,10 @@ ACE_Date_Time LicenseChecker::current_license_date() {
 }
 
 ACE_Date_Time LicenseChecker::extract_license_date(const string_t &lic) {
-  ACE_Date_Time date_time = ACE_Date_Time(0);
-  stringstream_t ss(lic);
   string_t item;
+  stringstream_t ss(lic);
   std::vector<string_t> splitted;
+  ACE_Date_Time date_time = ACE_Date_Time(0);
   while (std::getline(ss, item, _XPLATSTR('.')))
     splitted.push_back(item);
   if (!splitted[2].empty()) {

@@ -12,7 +12,8 @@
 template <typename T>
 using tracer_unique_ptr = std::unique_ptr<T, std::function<void(T *)>>;
 
-namespace utils {
+namespace itvpnagent {
+
 class Logger {
 public:
   tBOOL write(const eP7Trace_Level level, const tXCHAR *text,
@@ -33,9 +34,9 @@ extern P7_EXPORT tBOOL __cdecl Send(tUINT16 i_wTrace_ID,
                                     const char *i_pFile,
                                     const char *i_pFunction,
                                     const tXCHAR *i_pFormat);
-} // namespace utils
+} // namespace itvpnagent
 
-typedef utils::Singleton<utils::Logger> LOGGER;
+typedef itvpnagent::Singleton<itvpnagent::Logger> LOGGER;
 
 #define DELIVER(level, X)                                                      \
   LOGGER::instance()->write(level, X, __LINE__, __FILE__, __FUNCTION__);

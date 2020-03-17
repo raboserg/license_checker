@@ -2,6 +2,8 @@
 #include "callback.h"
 #include "tracer.h"
 
+using namespace itvpnagent;
+
 Process::Process(void)
     : opt_install(0), opt_remove(0), opt_start(0), opt_kill(0), opt_type(0),
       opt_debug(0), opt_startup(0) {

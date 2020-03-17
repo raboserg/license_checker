@@ -5,6 +5,8 @@
 #include <cpprest/asyncrt_utils.h>
 #include <tracer.h>
 
+namespace itvpnagent {
+
 #ifdef _WIN32
 const utility::string_t LIC_INI_FILE = U("itvpnagent.ini");
 #else
@@ -14,13 +16,12 @@ const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
 utility::string_t Parser::get_service_path() { return service_path_; }
 
 utility::string_t Parser::make_service_path() {
-  const utility::string_t service_path =
-      utils::os_utilities::current_module_path();
+  const utility::string_t service_path = System::current_module_path();
   DEBUG_LOG((TM("Current service path: ") + service_path).c_str());
   return service_path;
 }
 
-utility::string_t Parser::get_config_file_path() {
+utility::string_t Parser::make_config_file_path() {
   utility::string_t path_;
   if (!service_path_.empty())
     path_ = this->service_path_ + this->file_name_;
@@ -74,7 +75,7 @@ utility::string_t Parser::get_config_file_name() { return this->file_name_; }
 
 int Parser::init() {
   try {
-    create_root(get_config_file_path());
+    create_root(make_config_file_path());
     Options options;
     options.service_path = get_service_path();
     options.unp = get_value(lic::config_keys::LICENSE_UNP);
@@ -155,3 +156,4 @@ int Parser::init() {
   }
   return 0;
 }
+} // namespace itvpnagent

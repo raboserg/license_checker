@@ -1,10 +1,12 @@
-#if defined(ACE_WIN32) && !defined(ACE_LACKS_WIN32_SERVICES)
+#if defined(_WIN32)
 
 #include "ntsvc.h"
 #include "ace/Date_Time.h"
 #include "config_change.h"
 #include "parser_ini.h"
 #include "tracer.h"
+
+namespace itvpnagent {
 
 Service::Service(void)
     : event_(std::make_shared<ACE_Auto_Event>()),
@@ -18,8 +20,9 @@ Service::Service(void)
 Service::~Service(void) {
   /*if (this->reactor()->cancel_timer(this) == -1)
     ACE_ERROR(
-        (LM_ERROR, "%T (%t):\tService::~Service failed to cancel_timer.\n"));
-  DEBUG_LOG(TM("Service::~Service failed to cancel_timer"));*/
+                    (LM_ERROR, "%T (%t):\tService::~Service failed to
+  cancel_timer.\n")); DEBUG_LOG(TM("Service::~Service failed to
+  cancel_timer"));*/
 }
 
 int Service::handle_close(ACE_HANDLE, ACE_Reactor_Mask) {
@@ -176,5 +179,5 @@ int Service::svc(void) {
   ACE_OS::sleep(3);
   return 0;
 }
-
+} // namespace itvpnagent
 #endif /* ACE_WIN32 && !ACE_LACKS_WIN32_SERVICES */

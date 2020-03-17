@@ -4,7 +4,8 @@
 static const long s_is_debug = is_debug;
 static const char s_connect_type[] = log_config;
 
-namespace utils {
+namespace itvpnagent {
+
 static const utility::char_t s_log_text_format[] = {
     TM("/P7.Format=\"%lv [%tf] %ms\"")};
 
@@ -35,19 +36,16 @@ utility::string_t Logger::make_connect_config() {
   if (is_debug)
     return lig_server_config;
   else {
-    log_file_config.append(
-        utils::os_utilities::current_module_path().append(TM("logs")));
+    log_file_config.append(System::current_module_path().append(TM("logs")));
     return log_file_config;
   }
 }
 
-P7_EXPORT tBOOL __cdecl utils::Send(tUINT16 i_wTrace_ID,
-                                    eP7Trace_Level i_dwLevel,
-                                    hP7_Trace_Module i_hModule, tUINT16 i_wLine,
-                                    const char *i_pFile,
-                                    const char *i_pFunction,
-                                    const tXCHAR *i_pFormat) {
+P7_EXPORT tBOOL __cdecl Send(tUINT16 i_wTrace_ID, eP7Trace_Level i_dwLevel,
+                             hP7_Trace_Module i_hModule, tUINT16 i_wLine,
+                             const char *i_pFile, const char *i_pFunction,
+                             const tXCHAR *i_pFormat) {
   return LOGGER::instance()->write(i_dwLevel, i_pFormat, i_wLine, i_pFile,
                                    i_pFunction);
 }
-} // namespace utils
+} // namespace itvpnagent

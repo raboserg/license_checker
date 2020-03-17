@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 add_library(process_killer_task STATIC process_killer_task.cpp process_killer_task.h )
-target_link_libraries(process_killer_task PRIVATE constants ${ACE})
+target_link_libraries(process_killer_task PRIVATE tools constants ${ACE})
 target_include_directories(process_killer_task PRIVATE ../tracer ../constants ../tools ../client
     ../license ../parser ../common
     ${ACE_INCLUDE_DIR}

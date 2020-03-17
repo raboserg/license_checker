@@ -7,6 +7,8 @@
 #include "ace/Timer_Queue_Adapters.h"
 #include "license_checker.h"
 
+namespace itvpnagent {
+
 class Process_Killer_Task : public ACE_Task<ACE_MT_SYNCH> {
 public:
   Process_Killer_Task();
@@ -37,8 +39,8 @@ private:
   const std::unique_ptr<LicenseChecker> licenseChecker_;
   virtual int svc(void);
   int shutdown_service();
-  int terminate_process(const utility::string_t filename);
   int execute_process(const utility::string_t &filename);
   int next_day_waiting_secs() { return day_waiting_hours_ * 60 * 60; }
   int day_waiting_hours() { return day_waiting_hours_; }
 };
+} // namespace itvpnagent

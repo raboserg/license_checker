@@ -4,7 +4,7 @@
 #include <memory>
 #include <mutex>
 
-namespace utils {
+namespace itvpnagent {
 
 template <typename T> class Singleton {
 private:

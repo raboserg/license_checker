@@ -10,9 +10,9 @@
 //#include "ace/Reactor_Notification_Strategy.h"
 //#include "event_sink_task.h"
 
-class Get_License_Task;
+typedef ACE_Thread_Timer_Queue_Adapter<ACE_Timer_Heap> Thread_Timer_Queue;
 
-class MyActiveTimer : public ACE_Thread_Timer_Queue_Adapter<ACE_Timer_Heap> {
+class MyActiveTimer : public Thread_Timer_Queue {
 public:
   MyActiveTimer() { this->activate(); }
 };
@@ -47,6 +47,8 @@ public:
 private:
   int id_;
 };
+
+namespace itvpnagent {
 
 class Get_License_Task : public ACE_Task<ACE_MT_SYNCH> {
 public:
@@ -102,3 +104,4 @@ private:
   // the Bridge/Strategy patterns.
   //???ACE_Reactor_Notification_Strategy notification_strategy_;
 };
+} // namespace itvpnagent

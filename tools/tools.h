@@ -1,31 +1,23 @@
 #pragma once
-#ifndef TOOLS_H
-#define TOOLS_H
+#include <string>
 
-#ifdef _WIN32
-#include <Windows.h>
+//namespace a::b { int i; }
+
+namespace itvpnagent {
+namespace System {
+
+#ifdef WIN32
+typedef std::wstring string__;
 #else
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <string>
-#include <sys/socket.h>
-#include <unistd.h>
-
-#include <dirent.h>
-#include <errno.h>
-#include <fstream>
-#include <iostream>
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string>
-#include <sys/types.h>
+typedef std::string string__;
 #endif
-//#include <cpprest/details/basic_types.h>
-#include <memory>
 
-namespace utils {
+static void __cdecl sleep(unsigned long ms);
+string__ current_module_path();
+bool terminate_process(const string__ &procName);
+#ifndef _WIN32
+int getProcIdByName(const std::string &procName);
+#endif // !_WIN32
 
 struct ip_helper {
 
@@ -62,89 +54,5 @@ struct ip_helper {
   //  }
 };
 
-#ifdef WIN32
-typedef std::wstring string__;
-#else
-typedef std::string string__;
-#endif
-
-class os_utilities {
-public:
-  static void __cdecl sleep(unsigned long ms) {
-#ifdef WIN32
-    Sleep(ms);
-#else
-    usleep(ms * 1000);
-#endif
-  }
-
-  string__ static current_module_path() {
-    string__ service_path;
-#ifdef _WIN32
-    WCHAR szPath[MAX_PATH];
-    if (!GetModuleFileName(NULL, szPath, MAX_PATH)) {
-      wprintf(L"Cannot get service file name, error %u\n", GetLastError());
-    }
-    const utility::string_t module_path(szPath);
-    service_path =
-        module_path.substr(0, module_path.find_last_of(_XPLATSTR("\\")))
-            .append(_XPLATSTR("\\"));
-#else
-    service_path = string__(getcwd(NULL, 0));
-    service_path.append(_XPLATSTR("/"));
-#endif
-    return service_path;
-  }
-
-#ifndef WIN32
-  static bool terminate_process(const std::string &procName) {
-    bool result = false;
-    int pid = getProcIdByName(procName);
-    if (pid > 0) {
-      int ret = kill(pid, SIGTERM); //??? SIGINT
-      if (ret == 0)
-        result = true;
-    }
-    return result;
-  }
-
-  static int getProcIdByName(const std::string &procName) {
-    int pid = -1;
-    // Open the /proc directory
-    DIR *dp = opendir("/proc");
-    if (dp != NULL) {
-      // Enumerate all entries in directory until process found
-      struct dirent *dirp;
-      while (pid < 0 && (dirp = readdir(dp))) {
-        // Skip non-numeric entries
-        int id = atoi(dirp->d_name);
-        if (id > 0) {
-          // Read contents of virtual /proc/{pid}/cmdline file
-          std::string cmdPath =
-              std::string("/proc/") + dirp->d_name + "/cmdline";
-          std::ifstream cmdFile(cmdPath.c_str());
-          std::string cmdLine;
-          std::getline(cmdFile, cmdLine);
-          if (!cmdLine.empty()) {
-            // Keep first cmdline item which contains the program path
-            size_t pos = cmdLine.find('\0');
-            if (pos != std::string::npos)
-              cmdLine = cmdLine.substr(0, pos);
-            // Keep program name only, removing the path
-            pos = cmdLine.rfind('/');
-            if (pos != std::string::npos)
-              cmdLine = cmdLine.substr(pos + 1);
-            // Compare against requested process name
-            if (procName == cmdLine)
-              pid = id;
-          }
-        }
-      }
-    }
-    closedir(dp);
-    return pid;
-  }
-#endif
-};
-} // namespace utils
-#endif
+} // namespace System
+} // namespace itvpnagent

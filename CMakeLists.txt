@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 
 if(NOT DEFINED ${CMAKE_BUILD_TYPE})
 	set(CMAKE_BUILD_TYPE "Debug")
@@ -90,6 +90,7 @@ message(STATUS "CMAKE_INCLUDE_PATH - ${CMAKE_INCLUDE_PATH}")
 message(STATUS "RUNTIME - ${RUNTIME}")
 
 add_subdirectory("client")
+add_subdirectory("tools")
 add_subdirectory("license")
 add_subdirectory("parser")
 add_subdirectory("tracer")

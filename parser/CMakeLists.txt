@@ -4,4 +4,4 @@ add_library(parser STATIC ${SOURCE_LIST})
 #add_executable(parser test.cpp ${SOURCE_LIST}) 
 target_include_directories(parser PUBLIC ../tracer ../tools ../constants
     ${Boost_INCLUDE_DIRS} ${CMAKE_INCLUDE_PATH} ${DEFAULT_LIBP7_INCLUDE_DIR})
-target_link_libraries(parser PRIVATE constants)
+target_link_libraries(parser PRIVATE tools constants)

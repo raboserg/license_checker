@@ -17,6 +17,8 @@
 #include "get_license_task.h"
 #include "process_killer_task.h"
 
+namespace itvpnagent {
+
 class Service : public ACE_NT_Service {
 public:
   Service(void);
@@ -49,18 +51,11 @@ public:
 private:
   typedef ACE_NT_Service inherited;
 
-  int get_seconds_in_hours(const int days) {
-    const int sec_min = 60;
-    const int min_hour = 60;
-    const int hour_day = 24;
-    return sec_min * min_hour * hour_day * days;
-  }
-
 private:
   int stop_;
   ACE_Sig_Adapter done_handler_;
   std::shared_ptr<ACE_Auto_Event> event_;
-  //std::shared_ptr<WinNT::Notificator> notificator_;
+  // std::shared_ptr<WinNT::Notificator> notificator_;
   std::unique_ptr<Get_License_Task> get_license_task_;
   std::unique_ptr<Process_Killer_Task> process_killer_task_;
 };
@@ -71,5 +66,6 @@ private:
 // and the ACE_Object_Manager deletes it at run-down.
 
 typedef ACE_Singleton<Service, ACE_Mutex> SERVICE;
-#define NT_SERVICE SERVICE::instance ()
+#define NT_SERVICE SERVICE::instance()
+} // namespace itvpnagent
 #endif /* ACE_WIN32 && !ACE_LACKS_WIN32_SERVICES */

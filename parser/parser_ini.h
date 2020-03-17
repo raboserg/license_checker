@@ -6,6 +6,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <cpprest/details/basic_types.h>
 
+namespace itvpnagent {
 namespace pt = boost::property_tree;
 
 #ifdef _WIN32
@@ -51,13 +52,13 @@ class Parser {
 public:
   Parser(void);
   int init();
-  utility::string_t get_config_file_path();
+  utility::string_t make_config_file_path();
   utility::string_t get_service_path();
   utility::string_t get_config_file_name();
   Options options() { return options_; }
   Parser(const utility::string_t &file_name);
 };
 
-typedef utils::Singleton<Parser> PARSER;
-
+typedef Singleton<Parser> PARSER;
+} // namespace itvpnagent
 #endif
