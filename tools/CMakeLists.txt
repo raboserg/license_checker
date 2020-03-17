@@ -1,0 +1,6 @@
+cmake_minimum_required (VERSION 3.8)
+set(SOURCE_LIST tools.cpp tools.h)
+add_library(tools STATIC ${SOURCE_LIST})
+#add_executable(tools test.cpp ${SOURCE_LIST}) 
+#target_include_directories(tools PUBLIC ../tracer ../tools ../constants  ${Boost_INCLUDE_DIRS} ${CMAKE_INCLUDE_PATH} ${DEFAULT_LIBP7_INCLUDE_DIR})
+#target_link_libraries(parser PRIVATE constants)
