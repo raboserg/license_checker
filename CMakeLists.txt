@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.8)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 if(NOT DEFINED ${CMAKE_BUILD_TYPE})
 	set(CMAKE_BUILD_TYPE "Debug")
@@ -43,7 +43,7 @@ if(CMAKE_HOST_WIN32)
         set(Boost_USE_RELEASE_LIBS ON)
         set(CPPREST_LIB_NAME "cpprest_2_10")
         set(P7_LIB_NAME "P7x64.dll")
-        set(ACE_LIB_NAME "ACE")
+        set(ACE_LIB_NAME "ACE.6.5.6")
     endif()
 elseif(CMAKE_HOST_UNIX)
     set(CPPREST_LIB_NAME cpprest)
@@ -112,7 +112,9 @@ if(CMAKE_HOST_WIN32)
 	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 		target_compile_definitions(${PROJECT_NAME} PUBLIC -DCONNEC_CONFIG)
 	endif()
-    target_compile_definitions(${PROJECT_NAME} PUBLIC -DCONNEC_CONFIG -D_WIN32_WINNT -D_WIN32_WINNT=0x0601 -D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE -D_WIN32 -D_WINDOWS)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC -DCONNEC_CONFIG -D_WIN32_WINNT
+        -D_WIN32_WINNT=0x0601 -D_WINSOCK_DEPRECATED_NO_WARNINGS
+        -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE -D_WIN32 -D_WINDOWS)
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST main.cpp application.cpp application.h stdafx.h)
     set(LINK_LIBS nx_service)

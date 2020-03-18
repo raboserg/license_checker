@@ -1,10 +1,12 @@
 #include "notificator_linux.h"
 
+LinuxNoficitator::LinuxNoficitator() { this->reactor(ACE_Reactor::instance()); }
+
 char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
                                                   const size_t buffer_size) {
   /* Try to get program name by PID */
   sprintf(buffer, "/proc/%d/cmdline", pid);
-  const int fd = open(buffer, O_RDONLY);
+  const int fd = ::open(buffer, O_RDONLY);
   if (fd < 0)
     return nullptr;
   /* Read file contents into buffer */
@@ -75,7 +77,8 @@ void LinuxNoficitator::shutdown_fanotify(const int numbers,
   close(fanotify_fd);
 }
 
-int LinuxNoficitator::initialize_fanotify(unsigned int numbers, char **paths) {
+int LinuxNoficitator::initialize_fanotify(unsigned int numbers,
+                                          const char **paths) {
   const int fanotify_fd = fanotify_init(FAN_CLOEXEC, init_mask);
   /* Create new fanotify device */
   if (fanotify_fd < 0) {
@@ -87,7 +90,8 @@ int LinuxNoficitator::initialize_fanotify(unsigned int numbers, char **paths) {
   monitors = static_cast<monitored_t *>(malloc(numbers * sizeof(monitored_t)));
   /* Loop all input directories, setting up marks */
   for (unsigned int i = 0; i < numbers; ++i) {
-    monitors[i].path = strdup(paths[i + 1]);
+    // monitors[i].path = strdup(paths[i + 1]);
+    monitors[i].path = strdup(paths[i]);
     /* Add new fanotify mark */
     if (fanotify_mark(fanotify_fd, FAN_MARK_ADD, event_mask, AT_FDCWD,
                       monitors[i].path) < 0) {
@@ -100,16 +104,65 @@ int LinuxNoficitator::initialize_fanotify(unsigned int numbers, char **paths) {
   return fanotify_fd;
 }
 
-int LinuxNoficitator::run_notify(int argc, char *argv[]) {
-  // int fanotify_fd;
-  struct pollfd fds[FD_POLL_MAX];
-  /* Input arguments... */
-  if (argc < 2) {
-    fprintf(stderr, "Usage: %s directory1 [directory2 ...]\n", argv[0]);
+int LinuxNoficitator::open(const ACE_Time_Value tv1) {
+  //  // this->activate();
+  //  numbers = static_cast<unsigned int>(argc);
+  //  /* Initialize fanotify FD and the marks */
+  //  fanotify_fd = initialize_fanotify(numbers, argv);
+
+  //  if (fanotify_fd < 0) {
+  //    fprintf(stderr, "Couldn't initialize fanotify\n");
+  //    DEBUG_LOG(TM("Couldn't initialize fanotify"));
+  //    exit(EXIT_FAILURE);
+  //  }
+  //  fds[FD_POLL_FANOTIFY].fd = fanotify_fd;
+  //  fds[FD_POLL_FANOTIFY].events = POLLIN;
+
+  return 0;
+}
+
+int LinuxNoficitator::close(u_long arg) { return 0; }
+
+int LinuxNoficitator::handle_input(ACE_HANDLE) {
+  printf("\tLinuxNoficitator::handle_inputLinuxNoficitator::handle_input\n");
+  /* Block until there is something to be read */
+  if (poll(fds, FD_POLL_MAX, -1) < 0) {
+    char buffer[512];
+    int cx = snprintf(buffer, 512, "Couldn't poll(): '%s'", strerror(errno));
+    DEBUG_LOG(buffer);
+    fprintf(stderr, "Couldn't poll(): '%s'\n", strerror(errno));
     exit(EXIT_FAILURE);
   }
+  if (fds[FD_POLL_FANOTIFY].revents & POLLIN) {
+    char buffer[FANOTIFY_BUFFER_SIZE];
+    ssize_t length =
+        read(fds[FD_POLL_FANOTIFY].fd, buffer, FANOTIFY_BUFFER_SIZE);
+    if (length > 0) {
+      struct fanotify_event_metadata *metadata;
+      metadata = (struct fanotify_event_metadata *)buffer;
+      while (FAN_EVENT_OK(metadata, length)) {
+        event_process(metadata);
+        if (metadata->fd > 0)
+          close(metadata->fd);
+        metadata = FAN_EVENT_NEXT(metadata, length);
+      }
+    }
+  }
+  return 0;
+}
 
-  numbers = static_cast<unsigned int>(argc - 1);
+int LinuxNoficitator::svc() { return 0; }
+
+int LinuxNoficitator::run_notify(int argc, const char *argv[]) {
+  // int fanotify_fd;
+  // struct pollfd fds[FD_POLL_MAX];
+  /* Input arguments... */
+  //  if (argc < 1) {
+  //    fprintf(stderr, "Usage: %s directory1 [directory2 ...]\n", argv[0]);
+  //    exit(EXIT_FAILURE);
+  //  }
+
+  numbers = static_cast<unsigned int>(argc);
   /* Initialize fanotify FD and the marks */
   fanotify_fd = initialize_fanotify(numbers, argv);
 
@@ -120,32 +173,37 @@ int LinuxNoficitator::run_notify(int argc, char *argv[]) {
   }
   fds[FD_POLL_FANOTIFY].fd = fanotify_fd;
   fds[FD_POLL_FANOTIFY].events = POLLIN;
+
+  if (this->reactor()->register_handler(this, ACE_Event_Handler::READ_MASK) ==
+      -1)
+    ACE_ERROR((LM_ERROR, ACE_TEXT("(%P|%t) Echo_Handler::open: %p\n"),
+               ACE_TEXT("register_handler for input")));
+
   /* Now loop */
-  for (;;) {
-    /* Block until there is something to be read */
-    if (poll(fds, FD_POLL_MAX, -1) < 0) {
-      char buffer[512];
-      int cx = snprintf(buffer, 512, "Couldn't poll(): '%s'", strerror(errno));
-      DEBUG_LOG(buffer);
-      fprintf(stderr, "Couldn't poll(): '%s'\n", strerror(errno));
-      exit(EXIT_FAILURE);
-    }
-    if (fds[FD_POLL_FANOTIFY].revents & POLLIN) {
-      char buffer[FANOTIFY_BUFFER_SIZE];
-      ssize_t length =
-          read(fds[FD_POLL_FANOTIFY].fd, buffer, FANOTIFY_BUFFER_SIZE);
-      if (length > 0) {
-        struct fanotify_event_metadata *metadata;
-        metadata = (struct fanotify_event_metadata *)buffer;
-        while (FAN_EVENT_OK(metadata, length)) {
-          event_process(metadata);
-          if (metadata->fd > 0)
-            close(metadata->fd);
-          metadata = FAN_EVENT_NEXT(metadata, length);
-        }
-      }
-    }
-  }
+  //  for (;;) {
+  //    /* Block until there is something to be read */
+  //    if (poll(fds, FD_POLL_MAX, -1) < 0) {
+  //      char buffer[512];
+  //      int cx = snprintf(buffer, 512, "Couldn't poll(): '%s'",
+  //      strerror(errno)); DEBUG_LOG(buffer); fprintf(stderr, "Couldn't poll():
+  //      '%s'\n", strerror(errno)); exit(EXIT_FAILURE);
+  //    }
+  //    if (fds[FD_POLL_FANOTIFY].revents & POLLIN) {
+  //      char buffer[FANOTIFY_BUFFER_SIZE];
+  //      ssize_t length =
+  //          read(fds[FD_POLL_FANOTIFY].fd, buffer, FANOTIFY_BUFFER_SIZE);
+  //      if (length > 0) {
+  //        struct fanotify_event_metadata *metadata;
+  //        metadata = (struct fanotify_event_metadata *)buffer;
+  //        while (FAN_EVENT_OK(metadata, length)) {
+  //          event_process(metadata);
+  //          if (metadata->fd > 0)
+  //            close(metadata->fd);
+  //          metadata = FAN_EVENT_NEXT(metadata, length);
+  //        }
+  //      }
+  //    }
+  //  }
   return EXIT_SUCCESS;
 }
 
@@ -155,3 +213,5 @@ LinuxNoficitator::~LinuxNoficitator() {
   printf("Exiting fanotify example...\n");
   DEBUG_LOG(TM("LinuxNoficitator::~LinuxNoficitator"));
 }
+
+ACE_HANDLE LinuxNoficitator::get_handle(void) const { return fanotify_fd; }

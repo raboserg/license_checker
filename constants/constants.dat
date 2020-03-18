@@ -12,6 +12,7 @@ DAT(CONFIG_DAY_LICENSE_UPDATE,	U("CONFIG.day_license_update"))
 DAT(CONFIG_DAY_LICENSE_CHECK,	U("CONFIG.day_license_check"))
 DAT(CONFIG_NEXT_TRY_GET_LIC,	U("CONFIG.next_try_get_license_mins"))
 DAT(CONFIG_NEXT_DAY_WAIT_GET,	U("CONFIG.next_day_waiting_hours"))
+DAT(FILES_OPENVPN_PATH,         U("FILES.openvpn"))
 #endif
 
 #ifdef _HOST_STATUSES

@@ -3,21 +3,14 @@
 #include "nxsvc.h"
 #include "parser_ini.h"
 
+namespace itvpnagent {
+
 Config_Handler::Config_Handler(ACE_Reactor *reactor)
-    : handle_(ACE_INVALID_HANDLE) /*,
-       done_handler_(ACE_Sig_Handler_Ex(ACE_Reactor::end_event_loop))*/
-{
+    : handle_(ACE_INVALID_HANDLE) {
   this->reactor(reactor);
 
   this->set_file_name(PARSER::instance()->get_config_file_name());
   this->set_directory(PARSER::instance()->get_service_path());
-
-  //  if (this->reactor()->register_handler(SIGINT, &this->done_handler_) == -1)
-  //  {
-  //    ACE_ERROR(
-  //        (LM_ERROR, "%T %p:\tcannot to register_handler SIGINT\t (%t) \n"));
-  //    this->reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
-  //  }
 
   this->handle_ = inotify_init();
   this->watch_ = inotify_add_watch(this->handle_, this->get_directory().c_str(),
@@ -95,3 +88,5 @@ std::string Config_Handler::get_file_name() { return this->file_name_; }
 void Config_Handler::set_file_name(const std::string &file_name) {
   this->file_name_ = file_name;
 }
+
+} // namespace itvpnagent

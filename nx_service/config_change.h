@@ -11,6 +11,8 @@
 #include <sys/inotify.h>
 #include <sys/types.h>
 
+namespace itvpnagent {
+
 #define EVENT_SIZE (sizeof(struct inotify_event))
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
 
@@ -34,6 +36,6 @@ private:
   ACE_HANDLE handle_;
   std::string file_name_;
   std::string directory_;
-
-  // ACE_Sig_Adapter done_handler_;
 };
+
+} // namespace itvpnagent

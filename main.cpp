@@ -1,6 +1,7 @@
 #ifdef _WIN32
 #include "initializer.h"
 #else
+#include "notificator_linux.h"
 #include "nxsvc.h"
 #endif
 #include "callback.h"
@@ -30,7 +31,19 @@ int main(int argc, char *argv[]) {
   return PROCESS::instance()->run(argc, argv);
   // setlocale(LC_ALL, "ru_RU.UTF-8");
 #else
-  return SERVICE::instance()->run();
+
+  const std::shared_ptr<LinuxNoficitator> notificator_ =
+      std::make_shared<LinuxNoficitator>();
+  // const char *fdfsd[] = {"/home/user/install/ITVPN/amd64_oracle_linux"};
+  const char *fdfsd[] = {"/home/user/install/ITVPN/amd64_oracle_linux/"};
+
+  if (notificator_->run_notify(1, fdfsd)) {
+    ACE_ERROR(
+        (LM_ERROR,
+         "%T (%t) %p:\tcannot to initialize notificator for event sink\n"));
+  }
+
+  // return SERVICE::instance()->run();
 #endif
 
   return 0;

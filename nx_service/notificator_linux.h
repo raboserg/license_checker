@@ -1,5 +1,4 @@
-#ifndef LINUX_NOTIFICATOR_H
-#define LINUX_NOTIFICATOR_H
+#pragma once
 
 #include "tracer.h"
 #include <errno.h>
@@ -14,10 +13,13 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "ace/Reactor.h"
+#include "ace/Task.h"
 /* Size of buffer to use when reading fanotify events */
 #define FANOTIFY_BUFFER_SIZE 8192
 
-class LinuxNoficitator {
+class LinuxNoficitator : public ACE_Task_Base {
+  // class LinuxNoficitator : public ACE_Event_Handler {
   /* Structure to keep track of monitored directories */
   typedef struct {
     /* Path of the directory */
@@ -35,7 +37,10 @@ class LinuxNoficitator {
        FAN_CLOSE_NOWRITE | /* Unwrittable file closed */
        FAN_OPEN |          /* File was opened */
        FAN_ONDIR | /* We want to be reported of events in the directory */
-       FAN_EVENT_ON_CHILD | FAN_OPEN_EXEC);
+       FAN_EVENT_ON_CHILD | /**/
+       FAN_OPEN_EXEC);
+
+  struct pollfd fds[FD_POLL_MAX];
 
   unsigned int init_mask = (O_RDONLY | O_CLOEXEC | O_LARGEFILE);
 
@@ -45,17 +50,24 @@ class LinuxNoficitator {
                               const size_t buffer_size);
   void event_process(const struct fanotify_event_metadata *event);
 
-  int initialize_fanotify(unsigned int numbers, char **paths);
+  int initialize_fanotify(unsigned int numbers, const char **paths);
 
-  int fanotify_fd;
+  // int fanotify_fd;
+  ACE_HANDLE fanotify_fd;
   unsigned int numbers;
 
+  virtual int svc(void);
+  int handle_input(ACE_HANDLE fd);
+
 public:
+  ACE_HANDLE get_handle(void) const;
+  int close(u_long arg);
+  int open(const ACE_Time_Value tv1);
+  LinuxNoficitator();
   virtual ~LinuxNoficitator();
-  int run_notify(int argc, char *argv[]);
+  int run_notify(int argc, const char *argv[]);
   void shutdown_fanotify(const int numbers, const int fanotify_fd);
   static void srv_run(void *argc);
 };
 
 static LinuxNoficitator theInstance;
-#endif // LINUX_NOTIFICATOR_H

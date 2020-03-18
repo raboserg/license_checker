@@ -125,6 +125,7 @@ int Parser::init() {
           utility::conversions::to_utf8string(this->file_name_));
 
     options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
+    options.openvpn_file_path = get_value(lic::config_keys::FILES_OPENVPN_PATH);
 
     // int pos = options.lic_app.find_last_of(_XPLATSTR("\\"));
     //   if (pos != string_t::npos)

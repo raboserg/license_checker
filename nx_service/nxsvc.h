@@ -12,6 +12,8 @@
 #include "get_license_task.h"
 #include "process_killer_task.h"
 
+namespace itvpnagent {
+
 class Service : public ACE_Task<ACE_MT_SYNCH> {
 public:
   Service(void);
@@ -33,5 +35,6 @@ private:
   std::unique_ptr<Process_Killer_Task> process_killer_task_;
 };
 
-typedef ACE_Singleton<Service, ACE_Mutex> SERVICE;
 //??? #define NXSVC SERVICE::instance();
+} // namespace itvpnagent
+typedef ACE_Singleton<itvpnagent::Service, ACE_Mutex> SERVICE;

@@ -4,6 +4,8 @@
 #include "parser_ini.h"
 #include "tracer.h"
 
+namespace itvpnagent {
+
 using namespace std;
 
 Service::Service(void)
@@ -68,16 +70,20 @@ int Service::run(void) {
     raise(SIGINT);
   }
 
-  //  const std::shared_ptr<LinuxNoficitator> notificator_ =
-  //      std::make_shared<LinuxNoficitator>();
-  //  if (notificator_->srv_run( == -1) {
-  //    ACE_ERROR(
-  //        (LM_ERROR,
-  //         "%T (%t) %p:\tcannot to initialize notificator for event sink\n"));
-  //    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
-  //  }
-
   const Options options = PARSER::instance()->options();
+
+  const std::shared_ptr<LinuxNoficitator> notificator_ =
+      std::make_shared<LinuxNoficitator>();
+
+  const char *fdfsd[] = {options.openvpn_file_path.c_str()};
+
+  if (notificator_->run_notify(1, fdfsd)) {
+    ACE_ERROR(
+        (LM_ERROR,
+         "%T (%t) %p:\tcannot to initialize notificator for event sink\n"));
+    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
+  }
+
   const int waiting_hours = options.next_day_waiting_hours;
   const int waiting_mins = options.next_try_get_license_mins;
 
@@ -111,3 +117,5 @@ int Service::run(void) {
 }
 
 int Service::svc(void) { return 0; }
+
+} // namespace itvpnagent

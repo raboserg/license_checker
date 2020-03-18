@@ -1,10 +1,8 @@
-#pragma once
-
 #include "tools.h"
 
 #ifdef _WIN32
-#include <Windows.h>
 #include <Tlhelp32.h>
+#include <Windows.h>
 //#include <process.h>
 #else
 #include <arpa/inet.h>
@@ -49,7 +47,7 @@ string__ current_module_path() {
       module_path.substr(0, module_path.find_last_of(L"\\")).append(L"\\");
 #else
   service_path = string__(getcwd(NULL, 0));
-  service_path.append(_XPLATSTR("/"));
+  service_path.append("/");
 #endif
   return service_path;
 }
@@ -57,16 +55,12 @@ string__ current_module_path() {
 bool terminate_process(const string__ &procName) {
   bool result = false;
 #ifndef WIN32
-  // static bool terminate_process(const std::string &procName) {
-  bool result = false;
   int pid = getProcIdByName(procName);
   if (pid > 0) {
     int ret = kill(pid, SIGTERM); //??? SIGINT
     if (ret == 0)
       result = true;
   }
-  return result;
-}
 #else
   WCHAR szPath[20];
   wcscpy_s(szPath, procName.c_str());
@@ -88,7 +82,7 @@ bool terminate_process(const string__ &procName) {
   }
   CloseHandle(hSnapShot);
 #endif
-return result;
+  return result;
 } // namespace System
 #ifndef _WIN32
 int getProcIdByName(const std::string &procName) {
@@ -128,5 +122,5 @@ int getProcIdByName(const std::string &procName) {
 }
 #endif // !_WIN32
 
-} // namespace itvpnagent
+} // namespace System
 } // namespace itvpnagent
