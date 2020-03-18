@@ -1,18 +1,15 @@
 #pragma once
-#ifndef EVENTSINK_H
-#define EVENTSINK_H
 
 #include <ace/Auto_Event.h>
-
 #define _WIN32_DCOM
-#include <iostream>
-using namespace std;
 #include <Wbemidl.h>
-#include <comdef.h>
-
 #include <atlbase.h>
+#include <comdef.h>
+#include <iostream>
 
 #pragma comment(lib, "wbemuuid.lib")
+
+using namespace std;
 
 class EventSink : public IWbemObjectSink {
   LONG m_lRef;
@@ -38,5 +35,3 @@ public:
                                       BSTR strParam,
                                       IWbemClassObject __RPC_FAR *pObjParam);
 };
-
-#endif // end of EventSink.h

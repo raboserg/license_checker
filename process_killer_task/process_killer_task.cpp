@@ -1,14 +1,10 @@
 #include "process_killer_task.h"
 #include "ace/OS_NS_time.h"
 #include "ace/Process.h"
-#include "tracer.h"
-#ifdef _WIN32
-#include <Tlhelp32.h>
-#include <process.h>
-#endif // _WIN32
 #include "constants.h"
 #include "message_sender.h"
 #include "tools.h"
+#include "tracer.h"
 
 #include "ace/OS_NS_signal.h"
 #include "ace/Signal.h"
@@ -38,7 +34,7 @@ int Process_Killer_Task::open(ACE_Time_Value tv1) {
   return 0;
 }
 
-int Process_Killer_Task::close(u_long arg) {
+int Process_Killer_Task::close(const u_long arg) {
   ACE_DEBUG((LM_INFO,
              ACE_TEXT("%T Process_Killer_Task: close, arg - %d :(%t) \n"),
              arg));
@@ -78,7 +74,8 @@ int Process_Killer_Task::svc() {
         INFO_LOG(message.c_str());
         const string_t messa = _XPLATSTR("{ \"code\": \"1\", \"disc\": \"") +
                                message + _XPLATSTR("\" }");
-        MESSAGE_SENDER::instance()->send(messa);
+        Net::send_message(messa);
+        //MESSAGE_SENDER::instance()->send(messa);
       } else {
         const string_t message = _XPLATSTR("Process ") +
                                  this->process_stopping_name() +
@@ -86,20 +83,31 @@ int Process_Killer_Task::svc() {
         const string_t messa = _XPLATSTR("{ \"code\": \"1\", \"disc\": \"") +
                                message + _XPLATSTR("\" }");
         INFO_LOG(message.c_str());
-        MESSAGE_SENDER::instance()->send(messa);
+        Net::send_message(messa);
+        //MESSAGE_SENDER::instance()->send(messa);
       }
     }
     schedule_handle_timeout(next_day_waiting_secs());
+  } catch (const boost::process::process_error &err) {
+    std::string str(err.what());
+    const string_t message =
+        conversions::to_string_t(str.substr(0, str.find_first_of(":")));
+    //MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    Net::send_message(_XPLATSTR("0#Critical#") + message);
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Process_Killer_Task: %s :(%t) \n"),
+               err.what()));
+    ERROR_LOG(message.c_str());
+    // shutdown service
+    raise(SIGINT);
   } catch (const std::runtime_error &err) {
-    CRITICAL_LOG(utility::conversions::to_string_t(err.what()).c_str());
-    // shutdown_service(); //???
-
-    raise(SIGINT); //???
-
-    ACE_ERROR_RETURN(
-        (LM_ERROR, ACE_TEXT("%T Process_Killer_Task: kill task - %s :(%t) \n"),
-         err.what()),
-        -1);
+    const string_t message = conversions::to_string_t(std::string(err.what()));
+    //MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    Net::send_message(_XPLATSTR("0#Critical#") + message);
+    ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Process_Killer_Task: kill task :(%t) \n"),
+               err.what()));
+    ERROR_LOG(message.c_str());
+    // shutdown service
+    raise(SIGINT);
   }
   ACE_DEBUG(
       (LM_INFO, ACE_TEXT("%T Process_Killer_Task: task finished (%t) \n")));

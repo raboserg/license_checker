@@ -2,18 +2,17 @@
 
 #include "ace/Reactor.h"
 #include "ace/Task.h"
-
 #include "ace/Timer_Heap.h"
 #include "ace/Timer_Queue_Adapters.h"
-//#include "common_task.h"
+
 #include "license_checker.h"
-//#include "ace/Reactor_Notification_Strategy.h"
+//#include "common_task.h"
 //#include "event_sink_task.h"
+//#include "ace/Reactor_Notification_Strategy.h"
 
-typedef ACE_Thread_Timer_Queue_Adapter<ACE_Timer_Heap> Thread_Timer_Queue;
+using Thread_Timer_Queue = ACE_Thread_Timer_Queue_Adapter<ACE_Timer_Heap>;
 
-class MyActiveTimer : public Thread_Timer_Queue {
-public:
+struct MyActiveTimer : public Thread_Timer_Queue {
   MyActiveTimer() { this->activate(); }
 };
 
@@ -66,6 +65,7 @@ public:
   void set_try_get_license_mins(const int license_mins) {
     try_get_license_mins_ = license_mins;
   }
+
   void set_day_waiting_hours(const int waiting_hours) {
     day_waiting_hours_ = waiting_hours;
   }
@@ -75,18 +75,14 @@ private:
   int day_counter_;
   int try_get_license_mins_;
   int day_waiting_hours_;
-
   ACE_Array<ACE_CString> results_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
 
   virtual int svc(void);
   int next_try_get_license_secs() { return try_get_license_mins_ * 60; }
-
   int next_day_waiting_secs() { return day_waiting_hours_ * 60 * 60; }
-
   int try_get_license_mins() { return try_get_license_mins_; }
   int day_waiting_hours() { return day_waiting_hours_; }
-
   void inform_next_try_log() {
     char_t log[100];
     const size_t fmt_len = ACE_OS::sprintf(

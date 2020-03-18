@@ -3,9 +3,9 @@
 #include "ace/OS_NS_time.h"
 #include "client_license.h"
 #include "constants.h"
-#include "tracer.h"
-
 #include "message_sender.h"
+#include "tools.h"
+#include "tracer.h"
 
 namespace itvpnagent {
 
@@ -74,8 +74,8 @@ int Get_License_Task::svc() {
       const shared_ptr<LicenseExtractor> licenseExtractor_ =
           licenseChecker_->make_license_extractor(1);
       const shared_ptr<Result> result = licenseExtractor_->processing_license();
-      MESSAGE_SENDER::instance()->send(_XPLATSTR("2#Host Status#") +
-                                       result->host_status()->name());
+      Net::send_message(_XPLATSTR("2#Host Status#") +
+                        result->host_status()->name());
       INFO_LOG((TM("Host Status: ") + result->host_status()->name()).c_str());
       const int host_status = result->host_status()->id();
       if (host_status == lic::lic_host_status::ACTIVE) {
@@ -104,9 +104,8 @@ int Get_License_Task::svc() {
               schedule_handle_timeout(next_try_get_license_secs());
               INFO_LOG(TM("Wait next day"));
             } else { //?????????
-              MESSAGE_SENDER::instance()->send(
-                  _XPLATSTR("1#Host License#Error restponse: retrived host "
-                            "license is wrong"));
+              Net::send_message(_XPLATSTR("1#Host License#Error restponse: "
+                                          "retrived host license is wrong"));
               ERROR_LOG(TM("Error restponse: retrived host license is wrong"));
               schedule_handle_timeout(next_try_get_license_secs());
               inform_next_try_log();
@@ -136,7 +135,7 @@ int Get_License_Task::svc() {
     std::string str(err.what());
     const string_t message =
         conversions::to_string_t(str.substr(0, str.find_first_of(":")));
-    MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    Net::send_message(_XPLATSTR("0#Critical#") + message);
     ACE_ERROR(
         (LM_DEBUG, ACE_TEXT("%T Get_License_Task: %s :(%t) \n"), err.what()));
     ERROR_LOG(message.c_str());
@@ -144,7 +143,7 @@ int Get_License_Task::svc() {
     raise(SIGINT);
   } catch (const runtime_error &err) {
     const string_t message = conversions::to_string_t(std::string(err.what()));
-    MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    Net::send_message(_XPLATSTR("0#Critical#") + message);
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: kill task :(%t) \n"),
                err.what()));
     ERROR_LOG(message.c_str());
@@ -156,7 +155,7 @@ int Get_License_Task::svc() {
                err.what()));
     ERROR_LOG(message.c_str());
     if (err.error_code().value() == lic::error_code::MIME_TYPES) {
-      MESSAGE_SENDER::instance()->send(_XPLATSTR("1#Error#") + message);
+      Net::send_message(_XPLATSTR("1#Error#") + message);
       //  ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: kill task :(%t)
       //  \n"),
       //             err.what()));

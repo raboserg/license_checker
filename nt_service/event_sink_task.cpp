@@ -2,9 +2,9 @@
 #include "client_license.h"
 #include "constants.h"
 #include "license_checker.h"
-#include "tracer.h"
-
 #include "message_sender.h"
+#include "tools.h"
+#include "tracer.h"
 #include <codecvt>
 #include <locale>
 
@@ -29,8 +29,8 @@ int EventSink_Task::svc() {
                "%T Get_License_Task: attempt to get a license... :(%t) \n")));
       INFO_LOG(TM("Attempt to get a license..."));
       const shared_ptr<Result> result = licenseExtractor_->processing_license();
-      MESSAGE_SENDER::instance()->send(_XPLATSTR("2#Host Status#") +
-                                       result->host_status()->name());
+      itvpnagent::Net::send_message(_XPLATSTR("2#Host Status#") +
+                                    result->host_status()->name());
       INFO_LOG((TM("Host Status: ") + result->host_status()->name()).c_str());
       if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
         string_t license = result->host_license()->license();
@@ -48,13 +48,13 @@ int EventSink_Task::svc() {
     std::string str(err.what());
     const string_t message =
         conversions::to_string_t(str.substr(0, str.find_first_of(":")));
-    MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    itvpnagent::Net::send_message(_XPLATSTR("0#Critical#") + message);
     ERROR_LOG(message.c_str());
     // stop service
     raise(SIGINT);
   } catch (const runtime_error &err) {
     const string_t message = conversions::to_string_t(std::string(err.what()));
-    MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    itvpnagent::Net::send_message(_XPLATSTR("0#Critical#") + message);
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
                err.what()));
     ERROR_LOG(message.c_str());
@@ -66,11 +66,7 @@ int EventSink_Task::svc() {
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
                err.what()));
     if (err.error_code().value() == lic::error_code::MIME_TYPES) {
-      MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
-      //ACE_ERROR((LM_DEBUG, ACE_TEXT("%T (%t):\t\tEventSink_Task: kill task\n"),
-      //           err.what()));
-      //// stop service
-      //raise(SIGINT);
+      itvpnagent::Net::send_message(_XPLATSTR("0#Critical#") + message);
     }
   }
   return 0;

@@ -57,11 +57,9 @@ int Service::reshedule_tasks() {
   get_license_task_->set_try_get_license_mins(
       options.next_try_get_license_mins);
   get_license_task_->schedule_handle_timeout(5);
-
   process_killer_task_->process_stopping_name(options.kill_file_name);
   process_killer_task_->set_day_waiting_hours(options.next_day_waiting_hours);
   process_killer_task_->schedule_handle_timeout(5);
-
   // reactor()->schedule_timer(get_license_task_, 0, tv1, ACE_Time_Value::zero);
   return 0;
 }
@@ -69,7 +67,6 @@ int Service::reshedule_tasks() {
 int Service::handle_signal(int, siginfo_t *siginfo, ucontext_t *) {
   DEBUG_LOG(TM("Service::handle_signal..."));
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T (%t):\tService::handle_signal...\n")));
-
   return 0;
 }
 
@@ -126,8 +123,8 @@ int Service::svc(void) {
 
   const Options options = PARSER::instance()->options();
 
-  const std::shared_ptr<WinNT::Notificator> notificator_ =
-      std::make_shared<WinNT::Notificator>();
+  const std::unique_ptr<WinNT::Notificator> notificator_ =
+      std::make_unique<WinNT::Notificator>();
   if (notificator_->Initialize(this->event_) == -1) {
     ACE_ERROR((LM_ERROR,
                "%T (%t) \tCannot to initialize notificator for event sink\n"));
@@ -158,7 +155,7 @@ int Service::svc(void) {
   process_killer_task_ = std::make_unique<Process_Killer_Task>();
   process_killer_task_->set_day_waiting_hours(waiting_hours);
   process_killer_task_->process_stopping_name(options.kill_file_name);
-  if (process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
+  if (process_killer_task_->open(ACE_Time_Value(5)) == -1) {
     ACE_ERROR((LM_ERROR, "%T \tcannot to open process_killer_task\t (%t) \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
@@ -169,14 +166,17 @@ int Service::svc(void) {
   this->reactor()->run_event_loop();
   // this->msg_queue();
   // Cleanly terminate connections, terminate threads.
-  ACE_DEBUG((LM_SHUTDOWN, ACE_TEXT("%T Shutting down service (%t) \n")));
-  INFO_LOG(TM("Shutting down service"));
   notificator_->Release();
 
   // this->reactor()->cancel_timer(this);
   this->reactor()->remove_handler(this->event_->handle(),
                                   ACE_Event_Handler::DONT_CALL);
-  ACE_OS::sleep(3);
+
+  ACE_Thread_Manager::instance()->wait(new ACE_Time_Value(3));
+
+  ACE_DEBUG((LM_SHUTDOWN, ACE_TEXT("%T Shutting down service (%t) \n")));
+  INFO_LOG(TM("Shutting down service"));
+
   return 0;
 }
 } // namespace itvpnagent

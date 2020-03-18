@@ -7,8 +7,6 @@
 #include "ace/Mutex.h"
 #include <cpprest/details/basic_types.h>
 
-static const ACE_TCHAR *rendezvous = ACE_TEXT("127.0.0.1:8005");
-
 // class Client_Svc_Handler
 //    : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> {
 //  bool debug;
@@ -40,11 +38,11 @@ static const ACE_TCHAR *rendezvous = ACE_TEXT("127.0.0.1:8005");
 // typedef ACE_Strategy_Connector<Client_Svc_Handler, ACE_SOCK_CONNECTOR>
 //    STRATEGY_CONNECTOR;
 
-class Message_Sernder {
+class Message_Sender {
   ACE_INET_Addr addr_;
 
 public:
-  Message_Sernder(void) : addr_(rendezvous) {}
+  Message_Sender(const ACE_TCHAR* addr) : addr_(addr) {}
 
   virtual int open() { return 0; }
   virtual int close() { return 0; }
@@ -55,8 +53,8 @@ public:
     ACE_Time_Value delay(0, 50);
     size_t len = message.size();
     if (connect.connect(stream, addr_) < 0)
-      ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%T %p (%t): \n"),
-                        ACE_TEXT("Message_Sernder: faild connect to itVPNAgent: \t ")),
+      ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("%T %p \n"),
+                        ACE_TEXT("Message_Sernder: faild connect to itVPNAgent (%t): \t ")),
                        -1);
     ACE_DEBUG((LM_DEBUG,
                ACE_TEXT("%T Sending work msg to server on handle 0x%x, req %d :(%t)\n"),
@@ -71,4 +69,4 @@ public:
   }
 };
 
-typedef ACE_Singleton<Message_Sernder, ACE_Mutex> MESSAGE_SENDER;
+//typedef ACE_Singleton<Message_Sender, ACE_Mutex> MESSAGE_SENDER;

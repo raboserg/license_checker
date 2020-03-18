@@ -37,6 +37,7 @@ private:
   int day_waiting_hours_;
   ACE_Array<ACE_CString> state_;
   const std::unique_ptr<LicenseChecker> licenseChecker_;
+
   virtual int svc(void);
   int shutdown_service();
   int execute_process(const utility::string_t &filename);
