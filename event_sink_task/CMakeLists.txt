@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.12)
+add_library(event_sink_task STATIC event_sink_task.cpp event_sink_task.h)
+target_include_directories(event_sink_task PRIVATE ../constants ../tracer ../tools ../client ../license ../parser ../common
+        ${ACE_INCLUDE_DIR} ${CPPREST_INCLUDE_DIR} ${DEFAULT_LIBP7_INCLUDE_DIR})
+if(CMAKE_HOST_WIN32)
+    target_link_libraries(event_sink_task PRIVATE license_checker ${ACE})
+    target_compile_definitions(event_sink_task PRIVATE -D_CRT_SECURE_NO_WARNINGS)
+elseif(CMAKE_HOST_UNIX)
+    target_link_libraries(event_sink_task PRIVATE license_checker constants ${ACE})
+endif()

@@ -53,6 +53,7 @@ int Config_Handler::handle_input(ACE_HANDLE) {
           ACE_DEBUG(
               (LM_DEBUG, "%T Config_Handler::processing ", buffer, "(%t) \n"));
           INFO_LOG(buffer);
+          ACE_OS::sleep(1);
           if (PARSER::instance()->init() == -1) {
             ACE_ERROR((LM_ERROR, "%T %p: cannot to initialize constants (%t)\n",
                        "\tConfig_Handler::handle_input"));

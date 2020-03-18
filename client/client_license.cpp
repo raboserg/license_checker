@@ -6,14 +6,16 @@ using namespace std;
 using namespace utility;
 using namespace conversions;
 
-LicenseExtractor::LicenseExtractor(const uri &address, const Message &message,
+LicenseExtractor::LicenseExtractor(const uri &address,
+                                   const Request_License &req_lic,
                                    const int64_t &attempt)
-    : client_(address, make_client_config(attempt)), message_(message),
+    : client_(address, make_client_config(attempt)),
+      request_license_(req_lic),
       attempt_(attempt) {
   result_ = make_shared<Result>();
-  request_.set_method(methods::POST);
-  request_.set_body(make_request_message(message).serialize(),
-                    web::http::details::mime_types::application_json);
+  http_request_.set_method(methods::POST);
+  http_request_.set_body(make_request_message(req_lic).serialize(),
+                         web::http::details::mime_types::application_json);
   //???crossplat::threadpool::initialize_with_threads(10);
 }
 
@@ -61,7 +63,6 @@ shared_ptr<Result> LicenseExtractor::processing_license() {
 }
 
 void LicenseExtractor::processing_http_errors(const http_response &response) {
-
   string_t error = utility::conversions::to_string_t(
       "Fault connection: status code - " + to_string(response.status_code()));
 
@@ -101,8 +102,8 @@ void LicenseExtractor::processing_http_errors(const http_response &response) {
   throw runtime_error(to_utf8string(error).c_str());
 }
 
-client::http_client_config
-LicenseExtractor::make_client_config(const int64_t &attempt) {
+client::http_client_config LicenseExtractor::make_client_config(
+    const int64_t &attempt) {
   client::http_client_config config;
   config.set_validate_certificates(false);
   config.set_timeout(std::chrono::seconds(60));
@@ -112,7 +113,7 @@ LicenseExtractor::make_client_config(const int64_t &attempt) {
 http_response LicenseExtractor::send_request() {
   const chrono::seconds time_try_connection_{attempt_};
   //???	std::chrono::duration_cast<std::chrono::seconds>(attempt_);
-  if (!message_.is_valid())
+  if (!request_license_.is_valid())
     throw runtime_error("message for request is empty");
 
   shared_ptr<http_pipeline_stage> countStage = make_shared<stage_handler>();
@@ -122,12 +123,12 @@ http_response LicenseExtractor::send_request() {
   auto start = chrono::steady_clock::now();
   while (true) {
     try {
-      response = client_.request(request_).get();
+      response = client_.request(http_request_).get();
       break;
-    } catch (http_exception &ex) {
+    } catch (const http_exception &ex) {
       ucout << _XPLATSTR("Http error code: ") << ex.error_code().value()
-            << std::endl; // error code win = 12029,
-                          // error code lin = 110 - Request canceled by user.
+            << std::endl;  // error code win = 12029,
+                           // error code lin = 110 - Request canceled by user.
       if (chrono::steady_clock::now() > (start + time_try_connection_)) {
         ERROR_LOG(to_string_t(ex.what()).c_str());
         //????? throw_with_nested(runtime_error(ex.what()));
@@ -141,12 +142,12 @@ http_response LicenseExtractor::send_request() {
   return response;
 }
 
-value LicenseExtractor::make_request_message(const Message message_) {
+value LicenseExtractor::make_request_message(const Request_License request) {
   value message;
-  message[_XPLATSTR("unp")] = value::string(message_.get_unp());
-  message[_XPLATSTR("request")] = value::string(message_.get_uid());
-  message[_XPLATSTR("agentId")] = value::string(message_.get_agent());
-  message[_XPLATSTR("hostTypeId")] = value::string(message_.get_host_type());
+  message[_XPLATSTR("unp")] = value::string(request.get_unp());
+  message[_XPLATSTR("request")] = value::string(request.get_uid());
+  message[_XPLATSTR("agentId")] = value::string(request.get_agent());
+  message[_XPLATSTR("hostTypeId")] = value::string(request.get_host_type());
   INFO_LOG(message.serialize().c_str());
   return message;
 }

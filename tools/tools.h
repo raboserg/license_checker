@@ -1,7 +1,9 @@
 #pragma once
 //#include "message_sender.h"
 #define WIN32_LEAN_AND_MEAN
+#ifdef _WIN32
 #include <Windows.h>
+#endif
 #include <string>
 // namespace a::b { int i; }
 
@@ -16,9 +18,10 @@ typedef std::string string__;
 
 namespace System {
 
-void __cdecl sleep(unsigned long ms);
+void __cdecl sleep(const unsigned long ms);
 string__ current_module_path();
 bool terminate_process(const string__ &procName);
+
 #ifndef _WIN32
 int getProcIdByName(const std::string &procName);
 #endif // !_WIN32

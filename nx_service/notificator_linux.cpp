@@ -1,6 +1,13 @@
 #include "notificator_linux.h"
+#include "event_sink_task.h"
 
-LinuxNoficitator::LinuxNoficitator() { this->reactor(ACE_Reactor::instance()); }
+LinuxNoficitator::LinuxNoficitator() {
+  //  ACE_Reactor r(new ACE_Dev_Poll_Reactor);
+  //  this->reactor(&r);
+
+  //  ACE_Dev_Poll_Reactor dev_poll_reactor_impl;
+  //  ACE_Reactor dev_poll_reactor(&dev_poll_reactor_impl);
+}
 
 char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
                                                   const size_t buffer_size) {
@@ -58,9 +65,10 @@ void LinuxNoficitator::event_process(
     printf("\tFAN_CLOSE_WRITE\n");
   if (event->mask & FAN_CLOSE_NOWRITE)
     printf("\tFAN_CLOSE_NOWRITE\n");
-
-  if (event->mask & FAN_OPEN_EXEC)
+  if (event->mask & FAN_OPEN_EXEC) {
     printf("\tFAN_OPEN_EXEC\n");
+    LICENSE_WORKER_TASK::instance()->open();
+  }
   fflush(stdout);
   close(event->fd);
 }
@@ -151,7 +159,35 @@ int LinuxNoficitator::handle_input(ACE_HANDLE) {
   return 0;
 }
 
-int LinuxNoficitator::svc() { return 0; }
+int LinuxNoficitator::svc() {
+  /* Now loop */
+  for (;;) {
+    /* Block until there is something to be read */
+    if (poll(fds, FD_POLL_MAX, -1) < 0) {
+      char buffer[512];
+      int cx = snprintf(buffer, 512, "Couldn't poll(): '%s'", strerror(errno));
+      DEBUG_LOG(buffer);
+      fprintf(stderr, "Couldn't poll(): '%s'\n", strerror(errno));
+      exit(EXIT_FAILURE);
+    }
+    if (fds[FD_POLL_FANOTIFY].revents & POLLIN) {
+      char buffer[FANOTIFY_BUFFER_SIZE];
+      ssize_t length =
+          read(fds[FD_POLL_FANOTIFY].fd, buffer, FANOTIFY_BUFFER_SIZE);
+      if (length > 0) {
+        struct fanotify_event_metadata *metadata;
+        metadata = (struct fanotify_event_metadata *)buffer;
+        while (FAN_EVENT_OK(metadata, length)) {
+          event_process(metadata);
+          if (metadata->fd > 0)
+            close(metadata->fd);
+          metadata = FAN_EVENT_NEXT(metadata, length);
+        }
+      }
+    }
+  }
+  return 0;
+}
 
 int LinuxNoficitator::run_notify(int argc, const char *argv[]) {
   // int fanotify_fd;
@@ -174,11 +210,13 @@ int LinuxNoficitator::run_notify(int argc, const char *argv[]) {
   fds[FD_POLL_FANOTIFY].fd = fanotify_fd;
   fds[FD_POLL_FANOTIFY].events = POLLIN;
 
-  if (this->reactor()->register_handler(this, ACE_Event_Handler::READ_MASK) ==
-      -1)
-    ACE_ERROR((LM_ERROR, ACE_TEXT("(%P|%t) Echo_Handler::open: %p\n"),
-               ACE_TEXT("register_handler for input")));
+  //  if (this->reactor()->register_handler(this, ACE_Event_Handler::READ_MASK)
+  //  ==
+  //      -1)
+  //    ACE_ERROR((LM_ERROR, ACE_TEXT("(%P|%t) Echo_Handler::open: %p\n"),
+  //               ACE_TEXT("register_handler for input")));
 
+  this->activate();
   /* Now loop */
   //  for (;;) {
   //    /* Block until there is something to be read */

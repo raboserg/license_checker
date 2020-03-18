@@ -13,8 +13,10 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "ace/Dev_Poll_Reactor.h"
 #include "ace/Reactor.h"
 #include "ace/Task.h"
+
 /* Size of buffer to use when reading fanotify events */
 #define FANOTIFY_BUFFER_SIZE 8192
 

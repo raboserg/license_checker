@@ -74,9 +74,7 @@ int Service::run(void) {
 
   const std::shared_ptr<LinuxNoficitator> notificator_ =
       std::make_shared<LinuxNoficitator>();
-
   const char *fdfsd[] = {options.openvpn_file_path.c_str()};
-
   if (notificator_->run_notify(1, fdfsd)) {
     ACE_ERROR(
         (LM_ERROR,
@@ -107,6 +105,8 @@ int Service::run(void) {
       std::make_unique<Config_Handler>(ACE_Reactor::instance());
 
   this->reactor()->run_event_loop();
+
+  ACE_Thread_Manager::instance()->wait(new ACE_Time_Value(3));
   // this->msg_queue();
   // Cleanly terminate connections, terminate threads.
   ACE_DEBUG((LM_SHUTDOWN, ACE_TEXT("%T Shutting down service (%t) \n")));

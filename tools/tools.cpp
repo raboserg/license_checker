@@ -26,7 +26,7 @@
 namespace itvpnagent {
 namespace System {
 
-static void __cdecl sleep(unsigned long ms) {
+void __cdecl sleep(const unsigned long ms) {
 #ifdef WIN32
   Sleep(ms);
 #else
@@ -53,14 +53,7 @@ string__ current_module_path() {
 
 bool terminate_process(const string__ &procName) {
   bool result = false;
-#ifndef WIN32
-  int pid = getProcIdByName(procName);
-  if (pid > 0) {
-    int ret = kill(pid, SIGTERM); //??? SIGINT
-    if (ret == 0)
-      result = true;
-  }
-#else
+#ifdef WIN32
   WCHAR szPath[20];
   wcscpy_s(szPath, procName.c_str());
   HANDLE hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, NULL);
@@ -80,6 +73,13 @@ bool terminate_process(const string__ &procName) {
     hRes = Process32Next(hSnapShot, &pEntry);
   }
   CloseHandle(hSnapShot);
+#else
+  int pid = getProcIdByName(procName);
+  if (pid > 0) {
+    int ret = kill(pid, SIGTERM); //??? SIGINT
+    if (ret == 0)
+      result = true;
+  }
 #endif
   return result;
 }

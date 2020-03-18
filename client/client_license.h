@@ -114,15 +114,16 @@ public:
   void status_code(unsigned short status_code) { status_code_ = status_code; }
 };
 
-class Message {
+class Request_License {
   const utility::string_t uid_;
   const utility::string_t unp_;
   const utility::string_t agent_;
   const utility::string_t host_type_;
 
 public:
-  Message(const utility::string_t uid, const utility::string_t unp,
-          const utility::string_t agent, const utility::string_t host_type)
+  Request_License(const utility::string_t uid, const utility::string_t unp,
+                  const utility::string_t agent,
+                  const utility::string_t host_type)
       : uid_(uid), unp_(unp), agent_(agent), host_type_(host_type) {}
   utility::string_t get_uid() const { return uid_; }
   utility::string_t get_unp() const { return unp_; }
@@ -159,7 +160,7 @@ private:
 
 class LicenseExtractor {
 public:
-  LicenseExtractor(const uri &address_, const Message &message_,
+  LicenseExtractor(const uri &address_, const Request_License &request_license_,
                    const int64_t &attempt);
 
   uri get_uri() { return address_; }
@@ -167,16 +168,16 @@ public:
   std::shared_ptr<Result> get_result() const { return result_; }
 
 private:
-  Message message_;
   const uri address_;
-  http_request request_;
   const int64_t attempt_;
+  http_request http_request_;
   client::http_client client_;
   std::shared_ptr<Result> result_;
+  Request_License request_license_;
 
   http_response send_request();
-  value make_request_message(const Message message_);
   void processing_http_errors(const http_response &response);
+  value make_request_message(const Request_License request_license_);
   client::http_client_config make_client_config(const int64_t &attempt);
 };
 

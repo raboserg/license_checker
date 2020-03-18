@@ -235,8 +235,8 @@ LicenseChecker::make_license_extractor(const int64_t &attempt) {
   const string_t uid = generate_machine_uid();
   // get host_type
   const string_t host_type = PARSER::instance()->options().prod;
-  const Message message_ = Message(uid, unp, agent, host_type);
-  return std::make_shared<LicenseExtractor>(address_, message_, attempt);
+  const Request_License request_ = Request_License(uid, unp, agent, host_type);
+  return std::make_shared<LicenseExtractor>(address_, request_, attempt);
 }
 
 bool LicenseChecker::is_check_licenses_months(const int &next_month) {
