@@ -1,0 +1,2 @@
+sudo gdbserver localhost:2345 ./itvpnagent
+
