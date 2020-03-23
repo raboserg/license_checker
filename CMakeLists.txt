@@ -46,7 +46,7 @@ if(CMAKE_HOST_WIN32)
         set(CPPREST_LIB_NAME "cpprest_2_10")
         set(P7_LIB_NAME "P7x64.dll")
         #set(ACE_LIB_NAME "ACE.6.5.6")
-            set(ACE_LIB_NAME "ACE")
+		set(ACE_LIB_NAME "ACE")
     endif()
 elseif(CMAKE_HOST_UNIX)
     set(CPPREST_LIB_NAME cpprest)
@@ -54,7 +54,12 @@ elseif(CMAKE_HOST_UNIX)
 endif()
 
 if(CMAKE_HOST_WIN32)
-    find_package(cpprestsdk REQUIRED)
+#    set(cpprestsdk_DIR "${VCPKG_ROOT}/installed/x64-windows/share/cpprestsdk")
+#	set(unofficial-brotli_DIR "${VCPKG_ROOT}/installed/x64-windows/share/unofficial-brotli")
+#	find_package(cpprestsdk REQUIRED)
+#	message("cpprestsdk_INCLUDE_DIR ${cpprestsdk_INCLUDE_DIR}")
+#	message("cpprestsdk_LIBRARIES ${cpprestsdk_LIBRARIES}")
+
     find_package(Boost 1.60.0 COMPONENTS filesystem REQUIRED)
     find_library(P7_LIB NAMES ${P7_LIB_NAME} HINTS ${DEFAULT_LIBP7_LIB_DIR})
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} HINTS ${VCPKG_DIR}/lib)
@@ -107,10 +112,9 @@ add_subdirectory("process_killer_task")
 if(CMAKE_HOST_WIN32)
     set(SOURCE_LIST main.cpp application.cpp application.h stdafx.h)
     set(LINK_LIBS NT_Service)
-    set(INCLUDE_DIRS client license tracer tools constants nt_service 
-        get_license_task process_killer_task
-        ${Boost_INCLUDE_DIRS}
-        ${DEFAULT_LIBP7_INCLUDE_DIR})
+	
+	set(INCLUDE_DIRS nt_service constants ${DEFAULT_LIBP7_INCLUDE_DIR})
+
     add_executable(${PROJECT_NAME} ${SOURCE_LIST})
     add_subdirectory("nt_service")
     target_link_libraries(${PROJECT_NAME} PUBLIC ${LINK_LIBS})
