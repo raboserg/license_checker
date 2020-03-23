@@ -18,15 +18,15 @@ typedef std::string string__;
 
 namespace System {
 
-void __cdecl sleep(const unsigned long ms);
+void sleep(const unsigned long ms);
 string__ current_module_path();
 bool terminate_process(const string__ &procName);
 
 #ifndef _WIN32
 int getProcIdByName(const std::string &procName);
-#endif // !_WIN32
+#endif  // !_WIN32
 
-} // namespace System
+}  // namespace System
 
 namespace Net {
 
@@ -67,5 +67,5 @@ int send_message(const string__ message);
 //  }
 //};
 
-} // namespace Net
-} // namespace itvpnagent
+}  // namespace Net
+}  // namespace itvpnagent

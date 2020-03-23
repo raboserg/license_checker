@@ -11,6 +11,7 @@ if(CMAKE_HOST_WIN32)
         set(CPPREST_LIB_NAME "cpprest_2_10")
     endif()
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME})
+
     target_link_libraries(client PRIVATE ${CPPREST_LIB} constants) 
     target_include_directories(client PUBLIC ../tracer ../tools ../constants ${Boost_INCLUDE_DIRS} ${DEFAULT_LIBP7_INCLUDE_DIR})
 elseif(CMAKE_HOST_UNIX)

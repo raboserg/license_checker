@@ -3,10 +3,11 @@
 
 #include <P7_Trace.h>
 #include <Singleton.h>
-#include <functional>
 #include <cpprest/details/basic_types.h>
 
-#define LOGIN_CONNECT                                                          \
+#include <functional>
+
+#define LOGIN_CONNECT \
   TM("/P7.Sink=FileTxt /P7.Dir=D:/Logs/ /P7.Format=\" %lv [%tf] %ms\"")
 
 template <typename T>
@@ -15,13 +16,13 @@ using tracer_unique_ptr = std::unique_ptr<T, std::function<void(T *)>>;
 namespace itvpnagent {
 
 class Logger {
-public:
+ public:
   tBOOL write(const eP7Trace_Level level, const tXCHAR *text,
               const tUINT16 line, const char *file, const char *fun, ...);
 
   Logger();
 
-private:
+ private:
   const tracer_unique_ptr<IP7_Client> client__;
   tracer_unique_ptr<IP7_Trace> tracer__;
 
@@ -34,11 +35,11 @@ extern P7_EXPORT tBOOL __cdecl Send(tUINT16 i_wTrace_ID,
                                     const char *i_pFile,
                                     const char *i_pFunction,
                                     const tXCHAR *i_pFormat);
-} // namespace itvpnagent
+}  // namespace itvpnagent
 
 typedef itvpnagent::Singleton<itvpnagent::Logger> LOGGER;
 
-#define DELIVER(level, X)                                                      \
+#define DELIVER(level, X) \
   LOGGER::instance()->write(level, X, __LINE__, __FILE__, __FUNCTION__);
 
 #define INFO_LOG(X) DELIVER(EP7TRACE_LEVEL_INFO, X)

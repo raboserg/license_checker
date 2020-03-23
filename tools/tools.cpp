@@ -8,25 +8,26 @@
 #include <arpa/inet.h>
 #include <dirent.h>
 #include <errno.h>
-#include <fstream>
-#include <iostream>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <fstream>
+#include <iostream>
+#include <string>
 #endif
 //#include <cpprest/details/basic_types.h>
 #include <memory>
 
 namespace itvpnagent {
+
 namespace System {
 
-void __cdecl sleep(const unsigned long ms) {
+void sleep(const unsigned long ms) {
 #ifdef WIN32
   Sleep(ms);
 #else
@@ -76,9 +77,8 @@ bool terminate_process(const string__ &procName) {
 #else
   int pid = getProcIdByName(procName);
   if (pid > 0) {
-    int ret = kill(pid, SIGTERM); //??? SIGINT
-    if (ret == 0)
-      result = true;
+    int ret = kill(pid, SIGTERM);  //??? SIGINT
+    if (ret == 0) result = true;
   }
 #endif
   return result;
@@ -104,15 +104,12 @@ int getProcIdByName(const std::string &procName) {
         if (!cmdLine.empty()) {
           // Keep first cmdline item which contains the program path
           size_t pos = cmdLine.find('\0');
-          if (pos != std::string::npos)
-            cmdLine = cmdLine.substr(0, pos);
+          if (pos != std::string::npos) cmdLine = cmdLine.substr(0, pos);
           // Keep program name only, removing the path
           pos = cmdLine.rfind('/');
-          if (pos != std::string::npos)
-            cmdLine = cmdLine.substr(pos + 1);
+          if (pos != std::string::npos) cmdLine = cmdLine.substr(pos + 1);
           // Compare against requested process name
-          if (procName == cmdLine)
-            pid = id;
+          if (procName == cmdLine) pid = id;
         }
       }
     }
@@ -120,9 +117,9 @@ int getProcIdByName(const std::string &procName) {
   closedir(dp);
   return pid;
 }
-#endif // !_WIN32
+#endif  // !_WIN32
 
-} // namespace System
+}  // namespace System
 
 namespace Net {
 
@@ -133,5 +130,5 @@ int send_message(const string__ message) {
   return 0;
 }
 
-} // namespace Net
-} // namespace itvpnagent
+}  // namespace Net
+}  // namespace itvpnagent

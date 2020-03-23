@@ -13,6 +13,8 @@ if(CMAKE_HOST_WIN32)
     project ("itVPNAgent")
 elseif(CMAKE_HOST_UNIX)
     project ("itvpnagent")
+    set(CMAKE_C_COMPILER "/usr/bin/gcc-5")
+    set(CMAKE_CXX_COMPILER "/usr/bin/g++-5")
 endif()
 
 set(VS_STARTUP_PROJECT ${PROJECT_NAME})
@@ -52,30 +54,32 @@ elseif(CMAKE_HOST_UNIX)
 endif()
 
 if(CMAKE_HOST_WIN32)
-    find_package(Boost 1.71.0 COMPONENTS filesystem REQUIRED)
+    find_package(cpprestsdk REQUIRED)
+    find_package(Boost 1.60.0 COMPONENTS filesystem REQUIRED)
     find_library(P7_LIB NAMES ${P7_LIB_NAME} HINTS ${DEFAULT_LIBP7_LIB_DIR})
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} HINTS ${VCPKG_DIR}/lib)
     find_library(ACE NAMES ${ACE_LIB_NAME} HINTS ${ACE_LIBRARY_DIR})
 	#find_library(LICENSE license HINTS "D:/library/vcpkg/installed/x64-windows-static/debug/lib")
 elseif(CMAKE_HOST_UNIX)
     find_library(ACE NAMES ${ACE_LIB_NAME} PATHS ${ACE_LIBRARY_DIR})
-    set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
-    set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
-    set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
-    set(CMAKE_INCLUDE_PATH ${DEFAULT_UNIX_BOOST_DIR})
+#    find_package(Boost COMPONENTS system filesystem)
+#    set(CMAKE_LIBRARY_PATH_ ${CMAKE_LIBRARY_PATH})
+#    set(CMAKE_INCLUDE_PATH_ ${CMAKE_INCLUDE_PATH})
+#    set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_BOOST_DIR}/stage/lib)
+#    set(CMAKE_INCLUDE_PATH ${DEFAULT_UNIX_BOOST_DIR})
     find_package(Boost COMPONENTS system filesystem)
-    set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_LIBP7_DIR}/Binaries)
+#    set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_LIBP7_DIR}/Binaries)
     find_library(P7_LIB NAMES P7)
     file(COPY ${P7_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     # sudo cp libP7.so to /usr/local/lib
     # cd /usr/local/lib
     # sudo ldconfig -n
     exec_program("ln -s ${P7_LIB} ${CMAKE_CURRENT_BINARY_DIR}/libP7.so.2")
-    find_library(SSL_LIB ssl ${OPENSSL_LIBRARY_PATH})
-    find_library(CRYPTO_LIB crypto ${OPENSSL_LIBRARY_PATH})
+#    find_library(SSL_LIB ssl ${OPENSSL_LIBRARY_PATH})
+#    find_library(CRYPTO_LIB crypto ${OPENSSL_LIBRARY_PATH})
     find_library(CPPREST_LIB NAMES ${CPPREST_LIB_NAME} PATHS ${CPPREST_LIBRARY_DIR})
-    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH_})
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
+#    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH_})
+#    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH_})
 endif()
 
 if(NOT DEFINED Boost_FOUND)
@@ -119,9 +123,9 @@ if(CMAKE_HOST_WIN32)
         -D_CRT_SECURE_NO_WARNINGS -D_UNICODE -DUNICODE -D_WIN32 -D_WINDOWS)
 elseif(CMAKE_HOST_UNIX)
     set(SOURCES_LIST main.cpp application.cpp application.h stdafx.h)
-    set(LINK_LIBS nx_service)
+    set(LINK_LIBS nx_service crypto)
     set(INCLUDE_DIRS client license constants nx_service tracer tools parser
-		get_license_task process_killer_task common
+        get_license_task process_killer_task common
         ${Boost_INCLUDE_DIRS}
         ${CPPREST_INCLUDE_DIR}
         ${OPENSSL_INCLUDE_PATH}
