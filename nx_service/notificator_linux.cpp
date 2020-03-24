@@ -65,10 +65,10 @@ void LinuxNoficitator::event_process(
     printf("\tFAN_CLOSE_WRITE\n");
   if (event->mask & FAN_CLOSE_NOWRITE)
     printf("\tFAN_CLOSE_NOWRITE\n");
-  if (event->mask & FAN_OPEN_EXEC) {
-    printf("\tFAN_OPEN_EXEC\n");
-    LICENSE_WORKER_TASK::instance()->open();
-  }
+//  if (event->mask & FAN_OPEN_EXEC) {
+//    printf("\tFAN_OPEN_EXEC\n");
+//    LICENSE_WORKER_TASK::instance()->open();
+//  }
   fflush(stdout);
   close(event->fd);
 }

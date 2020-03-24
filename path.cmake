@@ -78,13 +78,13 @@ elseif(CMAKE_HOST_UNIX)
     set(BOOST_ROOT ${VCPKG_DIR})
     set(CPPREST_ROOT ${VCPKG_DIR})
 
-    set(DEFAULT_UNIX_LIBP7_DIR "${VCPKG_DIR}/include")
-    set(DEFAULT_LIBP7_INCLUDE_DIR "${VCPKG_DIR}/lib")
+    set(DEFAULT_UNIX_LIBP7_DIR "${VCPKG_DIR}/lib")
+    set(DEFAULT_LIBP7_INCLUDE_DIR "${VCPKG_DIR}/include")
 
-#    set(OPENSSL_LIBRARY_PATH "/home/user/projects/library/openssl")
-#    set(OPENSSL_INCLUDE_PATH "/home/user/projects/library/openssl/include")
+    set(OPENSSL_LIBRARY_PATH "${VCPKG_DIR}/lib")
+    set(OPENSSL_INCLUDE_PATH "${VCPKG_DIR}/include")
 
-#    set(OPENSSL_ROOT_DIR "C:\\OpenSSL-Win64")
+#    set(OPENSSL_ROOT_DIR "${VCPKG_DIR}")
 #    find_package(OpenSSL 1.1.0 REQUIRED EXACT)
 
 

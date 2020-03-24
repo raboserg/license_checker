@@ -39,8 +39,8 @@ class LinuxNoficitator : public ACE_Task_Base {
        FAN_CLOSE_NOWRITE | /* Unwrittable file closed */
        FAN_OPEN |          /* File was opened */
        FAN_ONDIR | /* We want to be reported of events in the directory */
-       FAN_EVENT_ON_CHILD | /**/
-       FAN_OPEN_EXEC);
+       FAN_EVENT_ON_CHILD);// | /**/
+       //FAN_OPEN_EXEC);
 
   struct pollfd fds[FD_POLL_MAX];
 
