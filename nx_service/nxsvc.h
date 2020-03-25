@@ -18,7 +18,7 @@ class Service : public ACE_Task<ACE_MT_SYNCH> {
 public:
   Service(void);
   ~Service(void);
-  virtual int run();
+  virtual int run(int argc, char *argv[]);
   virtual int svc(void);
   int reshedule_tasks();
   virtual int handle_exception(ACE_HANDLE h);

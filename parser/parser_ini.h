@@ -58,6 +58,7 @@ public:
   utility::string_t get_config_file_name();
   utility::string_t make_config_file_path();
   Parser(const utility::string_t &file_name);
+    int init(const utility::string_t &path);
 };
 
 typedef Singleton<Parser> PARSER;

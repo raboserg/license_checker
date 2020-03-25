@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
     ACE_Thread_Manager::instance()->wait();
     */
-  return SERVICE::instance()->run();
+  return SERVICE::instance()->run(argc, argv);
 #endif
 
   return 0;

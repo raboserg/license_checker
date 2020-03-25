@@ -1,5 +1,6 @@
 #include "notificator_linux.h"
 #include "event_sink_task.h"
+#include "nxsvc.h"
 
 LinuxNoficitator::LinuxNoficitator() {
   //  ACE_Reactor r(new ACE_Dev_Poll_Reactor);
@@ -30,6 +31,27 @@ char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
   return buffer;
 }
 
+string LinuxNoficitator::get_file_name_from_path(const int fd, char *buffer,
+                                              const size_t buffer_size) {
+    if (fd <= 0)
+      return nullptr;
+    sprintf(buffer, "/proc/self/fd/%d", fd);
+    const ssize_t len = readlink(buffer, buffer, buffer_size - 1);
+    if (len < 0)
+      return nullptr;
+    buffer[len] = '\0';
+
+    std::string file_path(buffer);
+    const int pos = file_path.find_last_of(_XPLATSTR("/"));
+    string file_name;
+    if (pos != string_t::npos)
+      file_name = file_path.substr(pos+1, file_path.length());
+
+     printf("Received @@@@@@@@@@@@@@@@@@@@@@ '%s' '%d'", file_name.c_str(), pos);
+
+    return file_name;
+}
+
 char *LinuxNoficitator::get_file_path_from_fd(const int fd, char *buffer,
                                               const size_t buffer_size) {
   if (fd <= 0)
@@ -45,30 +67,55 @@ char *LinuxNoficitator::get_file_path_from_fd(const int fd, char *buffer,
 void LinuxNoficitator::event_process(
     const struct fanotify_event_metadata *event) {
   char path[PATH_MAX];
-  printf("Received event in path '%s'",
-         get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
+//  printf("Received event in path '%s'",
+//         get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
+
   char buffer[512];
   int cx = snprintf(
       buffer, 512, "Received event in path '%s'",
       get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
   DEBUG_LOG(buffer);
+
+  const string file = get_file_name_from_path(event->fd, path, PATH_MAX);
+
+  printf("Received event in path '%s'",  file.c_str() ? path : "unknown");
+
   printf(" pid=%d (%s): \n", event->pid,
          (get_program_name_from_pid(event->pid, path, PATH_MAX) ? path
                                                                 : "unknown"));
-  if (event->mask & FAN_OPEN)
-    printf("\tFAN_OPEN\n");
-  if (event->mask & FAN_ACCESS)
-    printf("\tFAN_ACCESS\n");
-  if (event->mask & FAN_MODIFY)
-    printf("\tFAN_MODIFY\n");
-  if (event->mask & FAN_CLOSE_WRITE)
-    printf("\tFAN_CLOSE_WRITE\n");
-  if (event->mask & FAN_CLOSE_NOWRITE)
-    printf("\tFAN_CLOSE_NOWRITE\n");
-//  if (event->mask & FAN_OPEN_EXEC) {
-//    printf("\tFAN_OPEN_EXEC\n");
-//    LICENSE_WORKER_TASK::instance()->open();
+
+//  if (ACE_OS::strcmp(this->get_file_name().c_str(), event->name) == 0) {
+//    char_t buffer[BUFSIZ];
+//    const size_t len =
+//        ACE_OS::sprintf(buffer, "The %s was update\n", event->name);
+//    ACE_DEBUG(
+//        (LM_DEBUG, "%T Config_Handler::processing ", buffer, "(%t) \n"));
+//    INFO_LOG(buffer);
+//    ACE_OS::sleep(1);
+//    if (PARSER::instance()->init() == -1) {
+//      ACE_ERROR((LM_ERROR, "%T %p: cannot to initialize constants (%t)\n",
+//                 "\tConfig_Handler::handle_input"));
+//      raise(SIGINT);
+//    } else {
+//      SERVICE::instance()->reshedule_tasks();
+//    }
 //  }
+
+  if (event->mask & FAN_ACCESS){
+      printf("\tFAN_ACCESS\n");
+  }
+
+  if (event->mask & FAN_OPEN){
+//    LICENSE_WORKER_TASK::instance()->open();
+    printf("\tFAN_OPEN\n");
+  }
+
+  if (event->mask & FAN_CLOSE_WRITE){
+
+//      SERVICE::instance()->reshedule_tasks();
+      printf("\tFAN_CLOSE_WRITE\n");
+  }
+
   fflush(stdout);
   close(event->fd);
 }
@@ -217,31 +264,6 @@ int LinuxNoficitator::run_notify(int argc, const char *argv[]) {
   //               ACE_TEXT("register_handler for input")));
 
   this->activate();
-  /* Now loop */
-  //  for (;;) {
-  //    /* Block until there is something to be read */
-  //    if (poll(fds, FD_POLL_MAX, -1) < 0) {
-  //      char buffer[512];
-  //      int cx = snprintf(buffer, 512, "Couldn't poll(): '%s'",
-  //      strerror(errno)); DEBUG_LOG(buffer); fprintf(stderr, "Couldn't poll():
-  //      '%s'\n", strerror(errno)); exit(EXIT_FAILURE);
-  //    }
-  //    if (fds[FD_POLL_FANOTIFY].revents & POLLIN) {
-  //      char buffer[FANOTIFY_BUFFER_SIZE];
-  //      ssize_t length =
-  //          read(fds[FD_POLL_FANOTIFY].fd, buffer, FANOTIFY_BUFFER_SIZE);
-  //      if (length > 0) {
-  //        struct fanotify_event_metadata *metadata;
-  //        metadata = (struct fanotify_event_metadata *)buffer;
-  //        while (FAN_EVENT_OK(metadata, length)) {
-  //          event_process(metadata);
-  //          if (metadata->fd > 0)
-  //            close(metadata->fd);
-  //          metadata = FAN_EVENT_NEXT(metadata, length);
-  //        }
-  //      }
-  //    }
-  //  }
   return EXIT_SUCCESS;
 }
 

@@ -1,2 +1,8 @@
 sudo gdbserver localhost:2345 ./itvpnagent
 
+systemctl -l status itvpnagent
+systemctl start itvpnagent
+systemctl stop itvpnagent
+sudo journalctl -u itvpnagent.service -f
+
+

@@ -1,0 +1,14 @@
+[Unit]
+Description=itvpnagent
+After=syslog.target network.target
+
+[Service]
+PrivateTmp=true
+#Type=forking
+PIDFile=/home/user/itvpnagent/%i.pid
+#ExecStart=/home/user/itvpnagent/itvpnagent --daemon --writepid /home/user/itvpnagent/%i.pid --cd /home/user/itvpnagent/
+ExecStart=/home/user/itvpnagent/itvpnagent -config=/home/user/itvpnagent/lic_check_l.ini 
+#--daemon --writepid /home/user/itvpnagent/%i.pid --cd /home/user/itvpnagent/
+
+[Install]
+WantedBy=multi-user.target
