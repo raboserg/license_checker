@@ -24,6 +24,9 @@ bool terminate_process(const string__ &procName);
 
 #ifndef _WIN32
 int getProcIdByName(const std::string &procName);
+string__ get_file_name_from_path(const char *buffer);
+string__ get_path_without_file_name(const char *buffer);
+
 #endif  // !_WIN32
 
 }  // namespace System

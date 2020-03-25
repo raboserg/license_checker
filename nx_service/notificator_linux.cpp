@@ -15,8 +15,7 @@ char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
   /* Try to get program name by PID */
   sprintf(buffer, "/proc/%d/cmdline", pid);
   const int fd = ::open(buffer, O_RDONLY);
-  if (fd < 0)
-    return nullptr;
+  if (fd < 0) return nullptr;
   /* Read file contents into buffer */
   const ssize_t len = read(fd, buffer, buffer_size - 1);
   if (len <= 0) {
@@ -26,49 +25,69 @@ char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
   close(fd);
   buffer[len] = '\0';
   char *aux = strstr(buffer, "^@");
-  if (aux)
-    *aux = '\0';
+  if (aux) *aux = '\0';
   return buffer;
 }
 
-string LinuxNoficitator::get_file_name_from_path(const int fd, char *buffer,
-                                              const size_t buffer_size) {
-    if (fd <= 0)
-      return nullptr;
-    sprintf(buffer, "/proc/self/fd/%d", fd);
-    const ssize_t len = readlink(buffer, buffer, buffer_size - 1);
-    if (len < 0)
-      return nullptr;
-    buffer[len] = '\0';
-
-    std::string file_path(buffer);
-    const int pos = file_path.find_last_of(_XPLATSTR("/"));
-    string file_name;
-    if (pos != string_t::npos)
-      file_name = file_path.substr(pos+1, file_path.length());
-
-     printf("Received @@@@@@@@@@@@@@@@@@@@@@ '%s' '%d'", file_name.c_str(), pos);
-
-    return file_name;
+string LinuxNoficitator::get_file_name_from_path(const char *buffer) {
+  std::string file_path(buffer);
+  const int pos = file_path.find_last_of(_XPLATSTR("/"));
+  //  string file_name;
+  if (pos != string_t::npos)
+    return file_path.substr(pos + 1, file_path.length());
+  //  printf("Received @@@@@@@@@@@@@@@@@@@@@@ '%s' '%d'", file_name.c_str(),
+  //  pos);
+  return nullptr;
 }
 
-char *LinuxNoficitator::get_file_path_from_fd(const int fd, char *buffer,
-                                              const size_t buffer_size) {
-  if (fd <= 0)
-    return nullptr;
+// string LinuxNoficitator::get_file_name_from_path(const int fd, char *buffer,
+//                                                 const size_t buffer_size) {
+//  if (fd <= 0) return nullptr;
+//  sprintf(buffer, "/proc/self/fd/%d", fd);
+//  const ssize_t len = readlink(buffer, buffer, buffer_size - 1);
+//  if (len < 0) return nullptr;
+//  buffer[len] = '\0';
+
+//  std::string file_path(buffer);
+//  const int pos = file_path.find_last_of(_XPLATSTR("/"));
+//  string file_name;
+//  if (pos != string_t::npos)
+//    file_name = file_path.substr(pos + 1, file_path.length());
+//  //  printf("Received @@@@@@@@@@@@@@@@@@@@@@ '%s' '%d'", file_name.c_str(),
+//  //  pos);
+//  return file_name;
+//}
+
+int LinuxNoficitator::get_file_path_from_fd(const int fd, char *buffer,
+                                            const size_t buffer_size) {
+  if (fd <= 0) return -1;
   sprintf(buffer, "/proc/self/fd/%d", fd);
   const ssize_t len = readlink(buffer, buffer, buffer_size - 1);
-  if (len < 0)
-    return nullptr;
+  if (len < 0) return -1;
   buffer[len] = '\0';
-  return buffer;
+  return 0;
 }
+
+// char *LinuxNoficitator::get_file_path_from_fd(const int fd, char *buffer,
+//                                              const size_t buffer_size) {
+//  if (fd <= 0) return nullptr;
+//  sprintf(buffer, "/proc/self/fd/%d", fd);
+//  const ssize_t len = readlink(buffer, buffer, buffer_size - 1);
+//  if (len < 0) return nullptr;
+//  buffer[len] = '\0';
+//  return buffer;
+//}
 
 void LinuxNoficitator::event_process(
     const struct fanotify_event_metadata *event) {
+  string file;
   char path[PATH_MAX];
-//  printf("Received event in path '%s'",
-//         get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
+  if (get_file_path_from_fd(event->fd, path, PATH_MAX) != -1)
+    file = get_file_name_from_path(path);
+
+  //  printf("Received event in path '%s'",
+  //         get_file_path_from_fd(event->fd, path, PATH_MAX) ? path :
+  //         "unknown");
 
   char buffer[512];
   int cx = snprintf(
@@ -76,45 +95,56 @@ void LinuxNoficitator::event_process(
       get_file_path_from_fd(event->fd, path, PATH_MAX) ? path : "unknown");
   DEBUG_LOG(buffer);
 
-  const string file = get_file_name_from_path(event->fd, path, PATH_MAX);
+  //  const string file = get_file_name_from_path(event->fd, path, PATH_MAX);
 
-  printf("Received event in path '%s'",  file.c_str() ? path : "unknown");
+  printf("File name is '%s' \n", file.c_str());
 
   printf(" pid=%d (%s): \n", event->pid,
          (get_program_name_from_pid(event->pid, path, PATH_MAX) ? path
                                                                 : "unknown"));
 
-//  if (ACE_OS::strcmp(this->get_file_name().c_str(), event->name) == 0) {
-//    char_t buffer[BUFSIZ];
-//    const size_t len =
-//        ACE_OS::sprintf(buffer, "The %s was update\n", event->name);
-//    ACE_DEBUG(
-//        (LM_DEBUG, "%T Config_Handler::processing ", buffer, "(%t) \n"));
-//    INFO_LOG(buffer);
-//    ACE_OS::sleep(1);
-//    if (PARSER::instance()->init() == -1) {
-//      ACE_ERROR((LM_ERROR, "%T %p: cannot to initialize constants (%t)\n",
-//                 "\tConfig_Handler::handle_input"));
-//      raise(SIGINT);
-//    } else {
-//      SERVICE::instance()->reshedule_tasks();
-//    }
-//  }
+  //  if (ACE_OS::strcmp(this->get_file_name().c_str(), event->name) == 0) {
+  //    char_t buffer[BUFSIZ];
+  //    const size_t len =
+  //        ACE_OS::sprintf(buffer, "The %s was update\n", event->name);
+  //    ACE_DEBUG(
+  //        (LM_DEBUG, "%T Config_Handler::processing ", buffer, "(%t) \n"));
+  //    INFO_LOG(buffer);
+  //    ACE_OS::sleep(1);
+  //    if (PARSER::instance()->init() == -1) {
+  //      ACE_ERROR((LM_ERROR, "%T %p: cannot to initialize constants (%t)\n",
+  //                 "\tConfig_Handler::handle_input"));
+  //      raise(SIGINT);
+  //    } else {
+  //      SERVICE::instance()->reshedule_tasks();
+  //    }
+  //  }
 
-  if (event->mask & FAN_ACCESS){
-      printf("\tFAN_ACCESS\n");
-  }
+  //  if (event->mask & FAN_ACCESS) {
+  //    printf("\tFAN_ACCESS\n");
+  //  }
 
-  if (event->mask & FAN_OPEN){
-//    LICENSE_WORKER_TASK::instance()->open();
+  if (event->mask & FAN_OPEN) {
+    //    LICENSE_WORKER_TASK::instance()->open();
     printf("\tFAN_OPEN\n");
   }
 
-  if (event->mask & FAN_CLOSE_WRITE){
-
-//      SERVICE::instance()->reshedule_tasks();
-      printf("\tFAN_CLOSE_WRITE\n");
+  if (event->mask & FAN_CLOSE_WRITE) {
+    //      SERVICE::instance()->reshedule_tasks();
+    printf("\tFAN_CLOSE_WRITE\n");
   }
+
+  //  if (event->mask & FAN_MODIFY) {
+  //    printf("\tFAN_MODIFY\n");
+  //  }
+
+  //  if (event->mask & FAN_ONDIR) {
+  //    printf("\tFAN_ONDIR\n");
+  //  }
+
+  //  if (event->mask & FAN_EVENT_ON_CHILD) {
+  //    printf("\tFAN_EVENT_ON_CHILD\n");
+  //  }
 
   fflush(stdout);
   close(event->fd);
@@ -197,8 +227,7 @@ int LinuxNoficitator::handle_input(ACE_HANDLE) {
       metadata = (struct fanotify_event_metadata *)buffer;
       while (FAN_EVENT_OK(metadata, length)) {
         event_process(metadata);
-        if (metadata->fd > 0)
-          close(metadata->fd);
+        if (metadata->fd > 0) close(metadata->fd);
         metadata = FAN_EVENT_NEXT(metadata, length);
       }
     }
@@ -226,8 +255,7 @@ int LinuxNoficitator::svc() {
         metadata = (struct fanotify_event_metadata *)buffer;
         while (FAN_EVENT_OK(metadata, length)) {
           event_process(metadata);
-          if (metadata->fd > 0)
-            close(metadata->fd);
+          if (metadata->fd > 0) close(metadata->fd);
           metadata = FAN_EVENT_NEXT(metadata, length);
         }
       }

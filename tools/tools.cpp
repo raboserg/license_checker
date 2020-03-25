@@ -117,6 +117,21 @@ int getProcIdByName(const std::string &procName) {
   closedir(dp);
   return pid;
 }
+
+string__ get_file_name_from_path(const char *buffer) {
+  string__ file_path(buffer);
+  const int pos = file_path.find_last_of(_XPLATSTR("/"));
+  if (pos != string__::npos)
+    return file_path.substr(pos + 1, file_path.length());
+  return nullptr;
+}
+
+string__ get_path_without_file_name(const char *buffer) {
+  string__ file_path(buffer);
+  const int pos = file_path.find_last_of(_XPLATSTR("/"));
+  if (pos != string__::npos) return file_path.substr(0, pos);
+  return nullptr;
+}
 #endif  // !_WIN32
 
 }  // namespace System
