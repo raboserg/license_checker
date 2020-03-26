@@ -81,7 +81,7 @@ int Itvpn_Exec_Handler::handle_input(ACE_HANDLE) {
 int Itvpn_Exec_Handler::handle_signal(int, siginfo_t *, ucontext_t *) {
   ACE_DEBUG((LM_DEBUG, "(%t) Itvpn_Exec_Handler::handle_signal\n"));
   //
-  this->reactor()->resume_handler((this);
+  this->reactor()->resume_handler(this);
 
   if (this->reactor()->register_handler(this, ACE_Event_Handler::READ_MASK) == -1)
     ACE_ERROR((LM_ERROR, ACE_TEXT("(%P|%t) Itvpn_Exec_Handler::open: %p\n"),
