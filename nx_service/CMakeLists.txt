@@ -3,8 +3,9 @@ cmake_minimum_required (VERSION 3.8)
 project(nx_service)
 
 set(SOURCES_LIST notificator_linux.cpp notificator_linux.h
-    nxsvc.cpp nxsvc.h
-    config_change.cpp config_change.h)
+    nxsvc.cpp nxsvc.h 
+    config_change.cpp config_change.h 
+    itvpn_exec_handler.cpp itvpn_exec_handler.h)
 
 add_library(${PROJECT_NAME} STATIC ${SOURCES_LIST})
 

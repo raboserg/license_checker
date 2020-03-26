@@ -45,7 +45,6 @@ if(CMAKE_HOST_WIN32)
         set(Boost_USE_RELEASE_LIBS ON)
         set(CPPREST_LIB_NAME "cpprest")
         set(P7_LIB_NAME "P7x64.dll")
-        #set(ACE_LIB_NAME "ACE.6.5.6")
         set(ACE_LIB_NAME "ACE")
     endif()
 elseif(CMAKE_HOST_UNIX)
@@ -71,8 +70,6 @@ elseif(CMAKE_HOST_UNIX)
     find_package(Boost COMPONENTS system filesystem)
 #    set(CMAKE_LIBRARY_PATH ${DEFAULT_UNIX_LIBP7_DIR}/Binaries)
     find_library(P7_LIB NAMES ${P7_LIB_NAME} PATHS ${DEFAULT_UNIX_LIBP7_DIR})
-
-message("P7_LIBP7_LIBP7_LIBP7_LIBP7_LIBP7_LIB ${P7_LIB}")
 #    file(COPY ${P7_LIB} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
     # sudo cp libP7.so to /usr/local/lib
     # cd /usr/local/lib

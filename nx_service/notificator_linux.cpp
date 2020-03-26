@@ -1,6 +1,9 @@
 #include "notificator_linux.h"
 #include "event_sink_task.h"
 #include "nxsvc.h"
+#include "tools.h"
+
+using namespace itvpnagent;
 
 LinuxNoficitator::LinuxNoficitator() {
   //  ACE_Reactor r(new ACE_Dev_Poll_Reactor);
@@ -27,17 +30,6 @@ char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
   char *aux = strstr(buffer, "^@");
   if (aux) *aux = '\0';
   return buffer;
-}
-
-string LinuxNoficitator::get_file_name_from_path(const char *buffer) {
-  std::string file_path(buffer);
-  const int pos = file_path.find_last_of(_XPLATSTR("/"));
-  //  string file_name;
-  if (pos != string_t::npos)
-    return file_path.substr(pos + 1, file_path.length());
-  //  printf("Received @@@@@@@@@@@@@@@@@@@@@@ '%s' '%d'", file_name.c_str(),
-  //  pos);
-  return nullptr;
 }
 
 // string LinuxNoficitator::get_file_name_from_path(const int fd, char *buffer,
@@ -83,7 +75,7 @@ void LinuxNoficitator::event_process(
   string file;
   char path[PATH_MAX];
   if (get_file_path_from_fd(event->fd, path, PATH_MAX) != -1)
-    file = get_file_name_from_path(path);
+    file = System::get_file_name_from_path(path);
 
   //  printf("Received event in path '%s'",
   //         get_file_path_from_fd(event->fd, path, PATH_MAX) ? path :
@@ -236,7 +228,7 @@ int LinuxNoficitator::handle_input(ACE_HANDLE) {
 }
 
 int LinuxNoficitator::svc() {
-  /* Now loop */
+
   for (;;) {
     /* Block until there is something to be read */
     if (poll(fds, FD_POLL_MAX, -1) < 0) {

@@ -6,23 +6,25 @@
 
 namespace itvpnagent {
 
-Config_Handler::Config_Handler(ACE_Reactor *reactor)
-    : handle_(ACE_INVALID_HANDLE) {
-  this->reactor(reactor);
+Config_Handler::Config_Handler(ACE_Reactor *r)
+    : ACE_Event_Handler (r), handle_(ACE_INVALID_HANDLE) {
+  this->reactor(r);
 
   this->set_file_name(PARSER::instance()->get_config_file_name());
 
   const string directory = System::get_path_without_file_name(
       PARSER::instance()->get_service_path().c_str());
-
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%t) Event_Handler::~Event_Handler: %s \n"),
-             directory.c_str()));
-
   this->set_directory(directory);
 
+  char_t buffer[BUFSIZ];
+  const size_t len =
+    ACE_OS::sprintf(buffer, "Started monitoring file '%s' ...\n", PARSER::instance()->get_service_path().c_str());
+    ACE_DEBUG((LM_DEBUG, "%T Config_Handler: %s ", buffer, "(%t) \n"));
+    INFO_LOG(buffer);
+
+
   this->handle_ = inotify_init();
-  this->watch_ = inotify_add_watch(this->handle_, this->get_directory().c_str(),
-                                   IN_MODIFY | IN_OPEN | IN_ACCESS);
+  this->watch_ = inotify_add_watch(this->handle_, this->get_directory().c_str(), IN_MODIFY ); 
 
   if (this->handle_ == ACE_INVALID_HANDLE)
     ACE_ERROR((LM_ERROR, "FindFirstChangeNotification could not be setup\n"));
@@ -34,62 +36,53 @@ Config_Handler::Config_Handler(ACE_Reactor *reactor)
 }
 
 Config_Handler::~Config_Handler(void) {
-  ACE_DEBUG((LM_DEBUG, "(%t) Event_Handler::~Event_Handler\n"));
+  ACE_DEBUG((LM_DEBUG, "(%t) Config_Handler::~Config_Handler\n"));
   inotify_rm_watch(this->handle_, watch_);
 }
 
 ACE_HANDLE Config_Handler::get_handle(void) const { return handle_; }
 
 int Config_Handler::handle_input(ACE_HANDLE) {
-  ACE_DEBUG((LM_DEBUG, "%T Event_Handler::handle_input (%t) \n"));
+  ACE_DEBUG((LM_DEBUG, "%T Config_Handler::handle_input (%t) \n"));
   char buffer[EVENT_BUF_LEN];
   if (read(this->handle_, buffer, EVENT_BUF_LEN) < 0)
     ACE_ERROR_RETURN((LM_ERROR, ACE_TEXT("length < 0")), -1);
   struct inotify_event *event = (struct inotify_event *)&buffer;
   if (event->len) {
-    if (event->mask & IN_MODIFY) {
       if (event->mask & IN_ISDIR) {
-        ACE_DEBUG(
-            (LM_DEBUG, ACE_TEXT("%T Directory %s modify (%t)\n"), event->name));
+          ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T Directory %s modify (%t)\n"), event->name));
       } else {
-        ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%t) Event_Handler: File %s modify.\n"),
-                   event->name));
-        if (ACE_OS::strcmp(this->get_file_name().c_str(), event->name) == 0) {
-          char_t buffer[BUFSIZ];
-          const size_t len =
-              ACE_OS::sprintf(buffer, "The %s was update\n", event->name);
-          ACE_DEBUG(
-              (LM_DEBUG, "%T Config_Handler::processing ", buffer, "(%t) \n"));
-          INFO_LOG(buffer);
-          ACE_OS::sleep(1);
-          if (PARSER::instance()->init() == -1) {
-            ACE_ERROR((LM_ERROR, "%T %p: cannot to initialize constants (%t)\n",
-                       "\tConfig_Handler::handle_input"));
-            raise(SIGINT);
-          } else {
-            SERVICE::instance()->reshedule_tasks();
+          if (event->mask & IN_MODIFY){
+              ACE_DEBUG((LM_DEBUG, ACE_TEXT("(%t) Config_Handler: File %s modify.\n"),
+                         event->name));
+              if (ACE_OS::strcmp(this->get_file_name().c_str(), event->name) == 0) {
+                  char_t buffer[BUFSIZ];
+                  const size_t len =
+                          ACE_OS::sprintf(buffer, "The %s was update\n", event->name);
+                  ACE_DEBUG((LM_DEBUG, "%T Config_Handler::processing ", buffer, "(%t) \n"));
+                  INFO_LOG(buffer);
+                  ACE_OS::sleep(1);
+                  if (PARSER::instance()->init() == -1) {
+                      ACE_ERROR((LM_ERROR, "%T %p: Cannot to initialize constants (%t) \n",
+                                 "\tConfig_Handler::handle_input"));
+                      raise(SIGINT);
+                  } else {
+                      SERVICE::instance()->reshedule_tasks();
+                  }
+              }
           }
-        }
       }
-    }
-    if (event->mask & IN_OPEN /*|| event->mask & IN_ACCESS*/) {
-      char_t buffer[BUFSIZ];
-      const size_t len =
-          ACE_OS::sprintf(buffer, "The %s was OPEN\n", event->name);
-      ACE_DEBUG(
-          (LM_DEBUG, "%T Config_Handler::processing:  %s", buffer, "(%t) \n"));
-    }
   }
   return 0;
 }
 
 int Config_Handler::handle_signal(int, siginfo_t *, ucontext_t *) {
-  ACE_DEBUG((LM_DEBUG, "(%t) Event_Handler::handle_signal\n"));
+  ACE_DEBUG((LM_DEBUG, "(%t) Config_Handler::handle_signal\n"));
   return 0;
 }
 
 int Config_Handler::handle_close(ACE_HANDLE, ACE_Reactor_Mask) {
-  ACE_DEBUG((LM_DEBUG, "Event_Handler removed from Reactor\n"));
+  ACE_DEBUG((LM_DEBUG, "Config_Handler removed from Reactor\n"));
   return 0;
 }
 

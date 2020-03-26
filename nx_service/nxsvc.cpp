@@ -1,6 +1,7 @@
 #include "nxsvc.h"
 #include "ace/Date_Time.h"
 #include "config_change.h"
+#include "itvpn_exec_handler.h"
 #include "parser_ini.h"
 #include "tracer.h"
 
@@ -12,6 +13,13 @@ namespace itvpnagent {
 using namespace std;
 
 ACE_TCHAR config_file[MAXPATHLEN];
+
+static ACE_THR_FUNC_RETURN event_loop (void *arg) {
+  ACE_Reactor *reactor = static_cast<ACE_Reactor *> (arg);
+  reactor->owner (ACE_OS::thr_self ());
+  reactor->run_reactor_event_loop ();
+  return 0;
+}
 
 static int parse_args(int argc, ACE_TCHAR *argv[]) {
   static const ACE_TCHAR options[] = ACE_TEXT(":f:");
@@ -62,7 +70,6 @@ int Service::handle_timeout(const ACE_Time_Value &tv, const void *) {
 
 int Service::reshedule_tasks() {
   ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T Service: reshedule_tasks (%t) \n")));
-
   const Options options = PARSER::instance()->options();
   get_license_task_->set_day_waiting_hours(options.next_day_waiting_hours);
   get_license_task_->set_try_get_license_mins(
@@ -108,30 +115,35 @@ int Service::run(int argc, char *argv[]) {
   //    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   //  }
 
-  const int waiting_hours = options.next_day_waiting_hours;
-  const int waiting_mins = options.next_try_get_license_mins;
-
-  get_license_task_ =
-      std::make_unique<Get_License_Task>(waiting_mins, waiting_hours);
-  if (get_license_task_->open(ACE_Time_Value(5)) == -1) {
+  this->get_license_task_ =
+      std::make_unique<Get_License_Task>(options.next_try_get_license_mins, 
+      options.next_day_waiting_hours);
+  if (this->get_license_task_->open(ACE_Time_Value(5)) == -1) {
     ACE_ERROR((LM_ERROR, "%T %p:\tcannot to open get_license_task\t (%t)\n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
 
-  process_killer_task_ = std::make_unique<Process_Killer_Task>();
-  process_killer_task_->process_stopping_name(options.kill_file_name);
-  process_killer_task_->set_day_waiting_hours(waiting_hours);
-  if (process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
+  this->process_killer_task_ = std::make_unique<Process_Killer_Task>();
+  this->process_killer_task_->process_stopping_name(options.kill_file_name);
+  this->process_killer_task_->set_day_waiting_hours(options.next_day_waiting_hours);
+  if (this->process_killer_task_->open(ACE_Time_Value(5, 0)) == -1) {
     ACE_ERROR(
         (LM_ERROR, "%T %p:\tcannot to open process_killer_task\t (%t) \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
-
+  
+  ACE_Reactor notify_reactor;
+  ACE_Thread_Manager::instance ()->spawn (event_loop, &notify_reactor);  
+  
   const std::unique_ptr<Config_Handler> config_handler_ =
-      std::make_unique<Config_Handler>(ACE_Reactor::instance());
+      std::make_unique<Config_Handler>(&notify_reactor);
 
-  this->reactor()->run_event_loop();
-
+  const std::unique_ptr<Itvpn_Exec_Handler> itvpn_exec_handler_ =
+      std::make_unique<Itvpn_Exec_Handler>(&notify_reactor);
+  
+  reactor()->run_event_loop();
+  notify_reactor.end_reactor_event_loop();
+  
   ACE_Thread_Manager::instance()->wait(new ACE_Time_Value(3));
   // this->msg_queue();
   // Cleanly terminate connections, terminate threads.

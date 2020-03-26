@@ -60,11 +60,7 @@ class LinuxNoficitator : public ACE_Task_Base {
   //                              const size_t buffer_size);
   int get_file_path_from_fd(const int fd, char *buffer,
                             const size_t buffer_size);
-
-  std::string get_file_name_from_path(const char *buffer);
-
   void event_process(const struct fanotify_event_metadata *event);
-
   int initialize_fanotify(unsigned int numbers, const char **paths);
 
   // int fanotify_fd;
