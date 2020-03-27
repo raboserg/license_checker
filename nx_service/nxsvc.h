@@ -10,6 +10,7 @@
 #include "process_killer_task.h"
 
 namespace itvpnagent {
+using namespace std;
 
 class Service : public ACE_Task<ACE_MT_SYNCH> {
 public:
@@ -26,9 +27,9 @@ private:
   int stop_;
   ACE_Sig_Adapter done_handler_;
 
-  std::shared_ptr<ACE_Event> event_;
-  std::unique_ptr<Get_License_Task> get_license_task_;
-  std::unique_ptr<Process_Killer_Task> process_killer_task_;
+  shared_ptr<ACE_Event> event_;
+  unique_ptr<Get_License_Task> get_license_task_;
+  unique_ptr<Process_Killer_Task> process_killer_task_;
 };
 
 } // namespace itvpnagent

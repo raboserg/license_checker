@@ -11,7 +11,7 @@ namespace itvpnagent {
 using string__ = std::wstring;
 using char__ = wchar_t;
 #else
-using std::string string__;
+using string__ = std::string;
 using char__ = char;
 #endif
 
