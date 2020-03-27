@@ -1,19 +1,16 @@
 #pragma once
-//#include "message_sender.h"
 #define WIN32_LEAN_AND_MEAN
 #ifdef _WIN32
 #include <Windows.h>
 #endif
 #include <string>
-// namespace a::b { int i; }
 
 namespace itvpnagent {
 
 #ifdef WIN32
-// typedef std::wstring string__;
 using string__ = std::wstring;
 #else
-typedef std::string string__;
+using std::string string__;
 #endif
 
 namespace System {
@@ -24,12 +21,14 @@ bool terminate_process(const string__ &procName);
 
 #ifndef _WIN32
 int getProcIdByName(const std::string &procName);
+#endif // !_WIN32
+
+} // namespace System
+
+namespace Files {
 string__ get_file_name_from_path(const char *buffer);
 string__ get_path_without_file_name(const char *buffer);
-
-#endif  // !_WIN32
-
-}  // namespace System
+}
 
 namespace Net {
 
@@ -70,5 +69,5 @@ int send_message(const string__ message);
 //  }
 //};
 
-}  // namespace Net
-}  // namespace itvpnagent
+} // namespace Net
+} // namespace itvpnagent

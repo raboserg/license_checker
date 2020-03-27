@@ -7,6 +7,7 @@
 #include "ace/Task.h"
 #include "ace/Thread_Mutex.h"
 #include <Windows.h>
+#include "ace/Manual_Event.h"
 
 namespace itvpnagent {
 
@@ -37,7 +38,6 @@ private:
   ACE_Auto_Event *event_;
   ACE_Auto_Event *active_handler_;
   ACE_HANDLE get_handle(void) const;
-
   int create_file();
   virtual int svc(void);
   int processing(const BYTE *lpBuffer, const DWORD nBufferLength);

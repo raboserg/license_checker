@@ -78,5 +78,3 @@ class LinuxNoficitator : public ACE_Task_Base {
   int run_notify(int argc, const char *argv[]);
   void shutdown_fanotify(const int numbers, const int fanotify_fd);
 };
-
-static LinuxNoficitator theInstance;

@@ -4,7 +4,6 @@
 #include "itvpn_exec_handler.h"
 #include "parser_ini.h"
 #include "tracer.h"
-
 #include "ace/Get_Opt.h"
 #include "ace/OS_NS_string.h"
 
@@ -28,7 +27,7 @@ static int parse_args(int argc, ACE_TCHAR *argv[]) {
                            ACE_Get_Opt::ARG_REQUIRED) == -1)
     return -1;
   int option;
-  ACE_OS_String::strcpy(config_file, ACE_TEXT("HAStatus.conf"));
+  //ACE_OS_String::strcpy(config_file, ACE_TEXT("HAStatus.conf"));
   while ((option = cmd_opts()) != EOF) switch (option) {
       case 'f':
         ACE_OS_String::strncpy(config_file, cmd_opts.opt_arg(), MAXPATHLEN);
@@ -89,7 +88,7 @@ int Service::run(int argc, char *argv[]) {
   DEBUG_LOG(TM("Start Service::svc"));
 
   if (parse_args(argc, argv) == -1 ||
-      PARSER::instance()->init(utility::string_t(config_file)) == -1) {
+      PARSER::instance()->init(string_t(config_file)) == -1) {
     raise(SIGINT);
   }
 
@@ -103,17 +102,6 @@ int Service::run(int argc, char *argv[]) {
   }
 
   const Options options = PARSER::instance()->options();
-
-  //  const std::shared_ptr<LinuxNoficitator> notificator_ =
-  //      std::make_shared<LinuxNoficitator>();
-  //  const char *notify_paths[] = {options.openvpn_file_path.c_str(),
-  //                                options.service_path.c_str()};
-  //  if (notificator_->run_notify(2, notify_paths)) {
-  //    ACE_ERROR(
-  //        (LM_ERROR,
-  //         "%T (%t) %p:\tcannot to initialize notificator for event sink\n"));
-  //    reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
-  //  }
 
   this->get_license_task_ =
       std::make_unique<Get_License_Task>(options.next_try_get_license_mins, 

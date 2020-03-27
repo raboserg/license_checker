@@ -8,35 +8,36 @@
 namespace itvpnagent {
 
 #ifdef _WIN32
-const utility::string_t LIC_INI_FILE = U("itvpnagent.ini");
+const string_t LIC_INI_FILE = U("itvpnagent.ini");
 #else
-const utility::string_t LIC_INI_FILE = U("lic_check_l.ini");
+const string_t LIC_INI_FILE = U("lic_check_l.ini");
 #endif
 
-utility::string_t Parser::get_service_path() { return service_path_; }
+string_t Parser::get_service_path() { return service_path_; }
 
-utility::string_t Parser::make_service_path() {
-  const utility::string_t service_path = System::current_module_path();
+string_t Parser::make_service_path() {
+  const string_t service_path = System::current_module_path();
   DEBUG_LOG((TM("Current service path: ") + service_path).c_str());
   return service_path;
 }
 
-utility::string_t Parser::make_config_file_path() {
-  utility::string_t path_;
+string_t Parser::make_config_file_path() {
+  string_t path_;
 #ifdef _WIN32
   if (!service_path_.empty())
     path_ = this->service_path_ + this->file_name_;
   else
     path_ = this->file_name_;
 #else
-  path_ = this->service_path_;
+  //path_ = this->config_file_path_;
+  path_ = this->service_path_ + this->file_name_;
   DEBUG_LOG((TM("Current config path: ") + path_).c_str());
 #endif
   return path_;
 }
 
-void Parser::create_root(const utility::string_t &file_name) {
-  utility::ifstream_t file(file_name, std::ios::in);
+void Parser::create_root(const string_t &file_name) {
+  ifstream_t file(file_name, std::ios::in);
   if (!file.is_open()) {
     const std::string error_msg(
         std::string("can't open ini file - ")
@@ -58,38 +59,45 @@ void Parser::create_root(const utility::string_t &file_name) {
 Parser::Parser()
     : file_name_(LIC_INI_FILE), service_path_(make_service_path()) {}
 
-//Parser::Parser(const utility::string_t &file_name)
+// Parser::Parser(const utility::string_t &file_name)
 //    : file_name_(file_name), service_path_(make_service_path()) {}
 
-Parser::Parser(const utility::string_t &file_name)
+Parser::Parser(const string_t &file_name)
     : file_name_(LIC_INI_FILE), service_path_(file_name) {}
 
-utility::string_t Parser::get_value(const utility::string_t &key) const {
-  utility::string_t value;
+string_t Parser::get_value(const utility::string_t &key) const {
+  string_t value;
   if (!root_.empty()) {
-    value = root_.get<utility::string_t>(key);
+    value = root_.get<string_t>(key);
     if (value.empty())
       throw std::runtime_error(
-          utility::conversions::to_utf8string(key) + "is empty. Look at the " +
-          utility::conversions::to_utf8string(this->file_name_));
+          conversions::to_utf8string(key) + "is empty. Look at the " +
+          conversions::to_utf8string(this->file_name_));
     else
       DEBUG_LOG((key + TM(" - ") + value).c_str());
   }
   return value;
 }
 
-utility::string_t Parser::get_config_file_name() { return this->file_name_; }
+utility::string_t Parser::get_config_file_path() {
+  return this->config_file_path_;
+}
 
-int Parser::init(const utility::string_t &path) {
-    this->service_path_ = path;
-    this->init();
-    return 0;
+string_t Parser::get_config_file_name() { return this->file_name_; }
+
+int Parser::init(const string_t &config_file_path) {
+  this->config_file_path_ = config_file_path;
+  this->service_path_ =
+      Files::get_path_without_file_name(config_file_path.c_str());
+  this->file_name_ = Files::get_file_name_from_path(config_file_path.c_str());
+  this->init();
+  return 0;
 }
 
 int Parser::init() {
   try {
-    create_root(make_config_file_path());
     Options options;
+    create_root(make_config_file_path());
     options.service_path = get_service_path();
     options.unp = get_value(lic::config_keys::LICENSE_UNP);
     options.prod = get_value(lic::config_keys::LICENSE_PROD);
@@ -140,25 +148,8 @@ int Parser::init() {
     options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
     options.openvpn_file_path = get_value(lic::config_keys::FILES_OPENVPN_PATH);
 
-    // int pos = options.lic_app.find_last_of(_XPLATSTR("\\"));
-    //   if (pos != string_t::npos)
-    //     options.lic_files_path = options.lic_app.substr(0, pos);
-    //   else
-    //     options.lic_files_path = _XPLATSTR(".");
-
-    // pos = options.lic_file.find_last_of(_XPLATSTR("\\"));
-    // if (pos != string_t::npos) {
-    //	options.lic_file_name = options.lic_file.substr(0, pos);
-    //
-    //	options.lic_file_name =
-    //		options.lic_file.substr(options.lic_file.find_last_of('\\') +
-    // 1);
-    //}
-    // else
-    //	options.lic_file_name = _XPLATSTR(".");
-
     options.lic_file_name =
-        options.lic_file.substr(options.lic_file.find_last_of('\\') + 1);
+        Files::get_file_name_from_path(options.lic_file.c_str());
 
     options.log_files_path = get_service_path() + _XPLATSTR("logs");
     this->set_options(options);

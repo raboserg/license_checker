@@ -20,19 +20,19 @@ class Config_Handler : public ACE_Event_Handler {
 public:
   Config_Handler(ACE_Reactor *reactor);
   ~Config_Handler(void);
-  int handle_signal(int signum, siginfo_t * = 0, ucontext_t * = 0);
   int handle_input(ACE_HANDLE fd);
   int handle_close(ACE_HANDLE handle, ACE_Reactor_Mask close_mask);
   ACE_HANDLE get_handle(void) const;
 
-  std::string get_directory();
+  std::string get_directory() const;
   void set_directory(const std::string &directory);
 
-  std::string get_file_name();
+  std::string get_file_name() const;
   void set_file_name(const std::string &file_name);
 
 private:
   int watch_;
+  int iterations_;
   ACE_HANDLE handle_;
   std::string file_name_;
   std::string directory_;

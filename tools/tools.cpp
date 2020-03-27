@@ -1,6 +1,5 @@
 #include "tools.h"
 #include "message_sender.h"
-//???#include "parser_ini.h"
 
 #ifdef _WIN32
 #include <Tlhelp32.h>
@@ -8,19 +7,18 @@
 #include <arpa/inet.h>
 #include <dirent.h>
 #include <errno.h>
+#include <fstream>
+#include <iostream>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <fstream>
-#include <iostream>
-#include <string>
 #endif
-//#include <cpprest/details/basic_types.h>
 #include <memory>
 
 namespace itvpnagent {
@@ -77,8 +75,9 @@ bool terminate_process(const string__ &procName) {
 #else
   int pid = getProcIdByName(procName);
   if (pid > 0) {
-    int ret = kill(pid, SIGTERM);  //??? SIGINT
-    if (ret == 0) result = true;
+    int ret = kill(pid, SIGTERM); //??? SIGINT
+    if (ret == 0)
+      result = true;
   }
 #endif
   return result;
@@ -104,12 +103,15 @@ int getProcIdByName(const std::string &procName) {
         if (!cmdLine.empty()) {
           // Keep first cmdline item which contains the program path
           size_t pos = cmdLine.find('\0');
-          if (pos != std::string::npos) cmdLine = cmdLine.substr(0, pos);
+          if (pos != std::string::npos)
+            cmdLine = cmdLine.substr(0, pos);
           // Keep program name only, removing the path
           pos = cmdLine.rfind('/');
-          if (pos != std::string::npos) cmdLine = cmdLine.substr(pos + 1);
+          if (pos != std::string::npos)
+            cmdLine = cmdLine.substr(pos + 1);
           // Compare against requested process name
-          if (procName == cmdLine) pid = id;
+          if (procName == cmdLine)
+            pid = id;
         }
       }
     }
@@ -118,23 +120,48 @@ int getProcIdByName(const std::string &procName) {
   return pid;
 }
 
+#endif // !_WIN32
+
+} // namespace System
+
+namespace Files {
+
 string__ get_file_name_from_path(const char *buffer) {
   string__ file_path(buffer);
-  const int pos = file_path.find_last_of(_XPLATSTR("/"));
-  if (pos != string__::npos)
-    return file_path.substr(pos + 1, file_path.length());
-  return nullptr;
+
+// string__ file_name = file_path.substr(file_path.find_last_of('/') + 1);
+#ifndef _WIN32
+  const string__ file_name = file_path.substr(file_path.find_last_of('/') + 1);
+#else
+  // const int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
+  string__ file_name = file_path.substr(file_path.find_last_of('\\') + 1);
+#endif
+
+  //#ifndef _WIN32
+  //  const int pos = file_path.find_last_of(_XPLATSTR("/"));
+  //#else
+  //  const int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
+  //#endif
+  //  if (pos != string__::npos)
+  //    return file_path.substr(pos + 1, file_path.length());
+  return file_name;
 }
 
 string__ get_path_without_file_name(const char *buffer) {
-  string__ file_path(buffer);
-  const int pos = file_path.find_last_of(_XPLATSTR("/"));
-  if (pos != string__::npos) return file_path.substr(0, pos);
-  return nullptr;
+  string__ file_path;
+  string__ full_file_path(buffer);
+#ifndef _WIN32
+  const int pos = full_file_path.find_last_of(_XPLATSTR("/"));
+#else
+  const int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
+#endif
+  if (pos != string__::npos)
+    file_path = full_file_path.substr(0, pos + 1);
+  else
+    file_path = file_path = _XPLATSTR(".");
+  return file_path;
 }
-#endif  // !_WIN32
-
-}  // namespace System
+}
 
 namespace Net {
 
@@ -145,5 +172,5 @@ int send_message(const string__ message) {
   return 0;
 }
 
-}  // namespace Net
-}  // namespace itvpnagent
+} // namespace Net
+} // namespace itvpnagent

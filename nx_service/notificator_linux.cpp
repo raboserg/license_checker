@@ -75,7 +75,7 @@ void LinuxNoficitator::event_process(
   string file;
   char path[PATH_MAX];
   if (get_file_path_from_fd(event->fd, path, PATH_MAX) != -1)
-    file = System::get_file_name_from_path(path);
+    file = Files::get_file_name_from_path(path);
 
   //  printf("Received event in path '%s'",
   //         get_file_path_from_fd(event->fd, path, PATH_MAX) ? path :

@@ -36,7 +36,11 @@ utility::string_t Logger::make_connect_config() {
   if (is_debug)
     return lig_server_config;
   else {
+#ifdef _WIN32
     log_file_config.append(System::current_module_path().append(TM("logs")));
+#else
+    log_file_config.append(System::current_module_path().append(TM("logs")));
+#endif
     return log_file_config;
   }
 }

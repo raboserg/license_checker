@@ -43,7 +43,8 @@ class Parser {
   prop_tree root_;
   Options options_;
   utility::string_t service_path_;
-  const utility::string_t file_name_;
+  utility::string_t config_file_path_;
+  utility::string_t file_name_;
   utility::string_t make_service_path();
   prop_tree get_tree() { return this->root_; }
   void create_root(const utility::string_t &file_name);
@@ -56,9 +57,10 @@ public:
   utility::string_t get_service_path();
   Options options() { return options_; }
   utility::string_t get_config_file_name();
+  utility::string_t get_config_file_path();
   utility::string_t make_config_file_path();
   Parser(const utility::string_t &file_name);
-    int init(const utility::string_t &path);
+  int init(const utility::string_t &path);
 };
 
 typedef Singleton<Parser> PARSER;

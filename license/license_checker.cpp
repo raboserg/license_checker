@@ -4,6 +4,7 @@
 #include <constants.h>
 #include <cpprest/asyncrt_utils.h>
 #include <tracer.h>
+#include "tools.h"
 
 //#include "ace/Auto_Ptr.h"
 //#include "ace/Codecs.h"
@@ -46,13 +47,14 @@ bool LicenseChecker::find_file(const path &dir_path, const string_t &file_name,
 bool LicenseChecker::is_license_file() {
   const string_t license_file_path = PARSER::instance()->options().lic_file;
   // path file_path = PARSER::instance()->options().lic_files_path;
-  path file_path;
-  int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
-  if (pos != string_t::npos)
-    file_path = license_file_path.substr(0, pos);
-  else
-    file_path = _XPLATSTR(".");
+  path file_path = Files::get_path_without_file_name(license_file_path.c_str());
+//  int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
+//  if (pos != string_t::npos)
+//    file_path = license_file_path.substr(0, pos);
+//  else
+//    file_path = _XPLATSTR(".");
   const string_t file_name = PARSER::instance()->options().lic_file_name;
+  //const string_t file_name = Files::get_file_name_from_path(PARSER::instance()->options().lic_file_name.c_str());
   const bool result = find_file(file_path, file_name, file_path);
   if (!result)
     ERROR_LOG((license_file_path + TM(" not found")).c_str());
