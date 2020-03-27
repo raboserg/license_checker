@@ -9,8 +9,10 @@ namespace itvpnagent {
 
 #ifdef WIN32
 using string__ = std::wstring;
+using char__ = wchar_t;
 #else
 using std::string string__;
+using char__ = char;
 #endif
 
 namespace System {
@@ -26,8 +28,8 @@ int getProcIdByName(const std::string &procName);
 } // namespace System
 
 namespace Files {
-string__ get_file_name_from_path(const char *buffer);
-string__ get_path_without_file_name(const char *buffer);
+string__ get_file_name_from_path(const char__ *buffer);
+string__ get_path_without_file_name(const char__ *buffer);
 }
 
 namespace Net {

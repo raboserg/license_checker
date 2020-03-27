@@ -126,34 +126,22 @@ int getProcIdByName(const std::string &procName) {
 
 namespace Files {
 
-string__ get_file_name_from_path(const char *buffer) {
+string__ get_file_name_from_path(const char__ *buffer) {
   string__ file_path(buffer);
-
-// string__ file_name = file_path.substr(file_path.find_last_of('/') + 1);
 #ifndef _WIN32
-  const string__ file_name = file_path.substr(file_path.find_last_of('/') + 1);
+  return file_path.substr(file_path.find_last_of('/') + 1);
 #else
-  // const int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
-  string__ file_name = file_path.substr(file_path.find_last_of('\\') + 1);
+  return file_path.substr(file_path.find_last_of('\\') + 1);
 #endif
-
-  //#ifndef _WIN32
-  //  const int pos = file_path.find_last_of(_XPLATSTR("/"));
-  //#else
-  //  const int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
-  //#endif
-  //  if (pos != string__::npos)
-  //    return file_path.substr(pos + 1, file_path.length());
-  return file_name;
 }
 
-string__ get_path_without_file_name(const char *buffer) {
+string__ get_path_without_file_name(const char__ *buffer) {
   string__ file_path;
   string__ full_file_path(buffer);
 #ifndef _WIN32
   const int pos = full_file_path.find_last_of(_XPLATSTR("/"));
 #else
-  const int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
+  const int pos = full_file_path.find_last_of(_XPLATSTR("\\"));
 #endif
   if (pos != string__::npos)
     file_path = full_file_path.substr(0, pos + 1);

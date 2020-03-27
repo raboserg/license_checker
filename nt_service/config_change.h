@@ -27,7 +27,6 @@ public:
   void set_file_name(ACE_WString &file_name);
 
   virtual int open();
-  // virtual int close(u_long flags = 0);
 
 private:
   bool bStop;

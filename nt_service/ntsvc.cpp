@@ -101,15 +101,15 @@ int Service::svc(void) {
     reactor()->owner(ACE_Thread::self());
 
   // Schedule a timer every two seconds.
-  ACE_Time_Value tv(2, 0);
-  // ACE_Reactor::instance()->schedule_wait(this, 0, tv, tv);
+  /*ACE_Time_Value tv(2, 0);
+  ACE_Reactor::instance()->schedule_timer(this, 0, tv, tv);*/
   //////////////////////////////////////////////////////////////////////////
 
-  int arg1 = 1;
+  /*int arg1 = 1;
   CB cb1(arg1);
   MyActiveTimer atimer;
   const ACE_Time_Value curr_tv = ACE_OS::gettimeofday();
-  ACE_Time_Value interval = ACE_Time_Value(1, 100000);
+  ACE_Time_Value interval = ACE_Time_Value(1, 100000);*/
   // atimer.schedule(&cb1, &arg1, curr_tv + ACE_Time_Value(3L), interval);
 
   ////////////////////////////////////////////////////////////////////////
