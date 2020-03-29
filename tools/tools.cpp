@@ -35,14 +35,12 @@ void sleep(const unsigned long ms) {
 
 string__ current_module_path() {
   string__ service_path;
-
 #ifdef _WIN32
   WCHAR szPath[MAX_PATH];
   if (!GetModuleFileName(NULL, szPath, MAX_PATH))
     wprintf(L"Cannot get service file name, error %u\n", GetLastError());
   const string__ module_path(szPath);
-  service_path =
-      module_path.substr(0, module_path.find_last_of(L"\\")).append(L"\\");
+  service_path = module_path.substr(0, module_path.find_last_of(L"\\")).append(L"\\");
 #else
   service_path = string__(getcwd(NULL, 0));
   service_path.append("/");
@@ -61,8 +59,7 @@ bool terminate_process(const string__ &procName) {
   int hRes = Process32First(hSnapShot, &pEntry);
   while (hRes) {
     if (wcscmp(pEntry.szExeFile, szPath) == 0) {
-      HANDLE hProcess =
-          OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
+      HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
       if (hProcess != NULL) {
         TerminateProcess(hProcess, 9);
         CloseHandle(hProcess);
@@ -149,7 +146,7 @@ string__ get_path_without_file_name(const char__ *buffer) {
     file_path = file_path = _XPLATSTR(".");
   return file_path;
 }
-}
+} // namespace Files
 
 namespace Net {
 
