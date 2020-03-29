@@ -11,23 +11,24 @@ namespace itvpnagent {
 
 using namespace std;
 using namespace utility;
-// const uint64_t dsfds = utility::datetime::from_days(1);
-// dsfds/10000/1000 = seconds
 
 const char_t *module = _XPLATSTR("Get_License_Task");
 
 Get_License_Task::Get_License_Task(const int &license_mins,
                                    const int &waiting_hours)
     : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()),
-      licenseChecker_(new LicenseChecker()), day_counter_(0),
-      try_get_license_mins_(license_mins), day_waiting_hours_(waiting_hours) {
+      licenseChecker_(new LicenseChecker()),
+      day_counter_(0),
+      try_get_license_mins_(license_mins),
+      day_waiting_hours_(waiting_hours) {
   this->reactor(ACE_Reactor::instance());
 }
 
 Get_License_Task::Get_License_Task(ACE_Thread_Manager *thr_mgr,
                                    const int &license_mins,
                                    const int &waiting_hours)
-    : ACE_Task<ACE_MT_SYNCH>(thr_mgr), try_get_license_mins_(license_mins),
+    : ACE_Task<ACE_MT_SYNCH>(thr_mgr),
+      try_get_license_mins_(license_mins),
       day_waiting_hours_(waiting_hours) {
   reactor(ACE_Reactor::instance());
 }
@@ -100,17 +101,18 @@ int Get_License_Task::svc() {
                 write_license(host_license);
               } else {
                 INFO_LOG(TM("The license obtained is current"));
-              } ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
+              }  ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
               schedule_handle_timeout(next_try_get_license_secs());
               INFO_LOG(TM("Wait next day"));
-            } else { //?????????
-              Net::send_message(_XPLATSTR("1#Host License#Error restponse: "
-                                          "retrived host license is wrong"));
+            } else {  //?????????
+              Net::send_message(
+                  _XPLATSTR("1#Host License#Error restponse: "
+                            "retrived host license is wrong"));
               ERROR_LOG(TM("Error restponse: retrived host license is wrong"));
               schedule_handle_timeout(next_try_get_license_secs());
               inform_next_try_log();
             }
-          } else { // If don't find file of license , save getted license
+          } else {  // If don't find file of license , save getted license
             write_license(host_license);
             schedule_handle_timeout(next_day_waiting_secs());
             INFO_LOG(TM("Wait next day"));
@@ -120,7 +122,7 @@ int Get_License_Task::svc() {
         schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
         INFO_LOG(TM("The status of license is suspended."));
         INFO_LOG(TM("Try to get license next day."));
-      } else { // TODO:save state to file ???
+      } else {  // TODO:save state to file ???
         schedule_handle_timeout(next_try_get_license_secs());
         inform_next_try_log();
       }
@@ -156,12 +158,6 @@ int Get_License_Task::svc() {
     ERROR_LOG(message.c_str());
     if (err.error_code().value() == lic::error_code::MIME_TYPES) {
       Net::send_message(_XPLATSTR("1#Error#") + message);
-      //  ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: kill task :(%t)
-      //  \n"),
-      //             err.what()));
-      //  // shutdown service
-      //  raise(SIGINT);
-      //} else {
       schedule_handle_timeout(next_try_get_license_secs());
       inform_next_try_log();
     }
@@ -195,4 +191,4 @@ int Get_License_Task::write_license(
   }
   return 0;
 }
-} // namespace itvpnagent
+}  // namespace itvpnagent

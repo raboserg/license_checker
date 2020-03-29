@@ -17,15 +17,14 @@ struct MyActiveTimer : public Thread_Timer_Queue {
 };
 
 class CB : public ACE_Event_Handler {
-public:
+ public:
   CB(int id) : id_(id) {}
 
   virtual int handle_timeout(const ACE_Time_Value &, const void *arg) {
     ACE_TRACE("CB::handle_timeout");
 
     const int *val = static_cast<const int *>(arg);
-    if ((*val) != id_)
-      return -1;
+    if ((*val) != id_) return -1;
     /////////////////////////////////////////////////
     /*  ACE_Message_Block *mblk = 0;
       ACE_Message_Block *log_blk = 0;
@@ -43,14 +42,14 @@ public:
     return 0;
   }
 
-private:
+ private:
   int id_;
 };
 
 namespace itvpnagent {
 
 class Get_License_Task : public ACE_Task<ACE_MT_SYNCH> {
-public:
+ public:
   Get_License_Task(const int &try_get_license_mins, const int &waiting_hours);
   Get_License_Task(ACE_Thread_Manager *thr_mgr, const int &try_get_license_mins,
                    const int &waiting_hours);
@@ -70,7 +69,7 @@ public:
     day_waiting_hours_ = waiting_hours;
   }
 
-private:
+ private:
   long timerId_;
   int day_counter_;
   int try_get_license_mins_;
@@ -92,12 +91,5 @@ private:
   }
 
   virtual int write_license(const shared_ptr<HostLicense> &host_license);
-
-  //  int shutdown_service() {
-  //    reactor()->cancel_timer(this);
-  //    return reactor()->end_reactor_event_loop();
-  //  }
-  // the Bridge/Strategy patterns.
-  //???ACE_Reactor_Notification_Strategy notification_strategy_;
 };
-} // namespace itvpnagent
+}  // namespace itvpnagent

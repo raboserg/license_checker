@@ -16,7 +16,7 @@ else()
 	target_compile_definitions(${PROJECT_NAME} PRIVATE log_config="${LOG_FILE_CONFIG}")
 endif()
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CPPREST_INCLUDE_DIR} ../tools
+target_include_directories(${PROJECT_NAME} PRIVATE ${CPPREST_INCLUDE_DIR} ../tools ../parser
     ${ACE_INCLUDE_DIR}
     ${DEFAULT_LIBP7_INCLUDE_DIR})
 

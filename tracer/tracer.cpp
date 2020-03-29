@@ -1,4 +1,5 @@
 #include "tracer.h"
+#include "parser_ini.h"
 #include "tools.h"
 
 static const long s_is_debug = is_debug;
@@ -39,8 +40,8 @@ utility::string_t Logger::make_connect_config() {
 #ifdef _WIN32
     log_file_config.append(System::current_module_path().append(TM("logs")));
 #else
-    
-    log_file_config.append(System::current_module_path().append(TM("logs")));
+    return PARSER::instance()->options().log_files_path;
+    // log_file_config.append(System::current_module_path().append(TM("logs")));
 #endif
     return log_file_config;
   }
@@ -53,4 +54,4 @@ P7_EXPORT tBOOL __cdecl Send(tUINT16 i_wTrace_ID, eP7Trace_Level i_dwLevel,
   return LOGGER::instance()->write(i_dwLevel, i_pFormat, i_wLine, i_pFile,
                                    i_pFunction);
 }
-} // namespace itvpnagent
+}  // namespace itvpnagent
