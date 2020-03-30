@@ -1,36 +1,36 @@
 #ifdef _CONFIG_FILE_KEYS
-DAT(FILES_LIC,              U("FILES.lic"))
-DAT(FILES_LIC_FILE_NAME,    U("FILES.lic_file_name"))
-DAT(FILES_UID_FILE_NAME,	U("FILES.uid_file_name"))
-DAT(FILES_KILL_FILE_NAME,	U("FILES.kill_file_name"))
-DAT(LICENSE_MAKE_UID_CMD,   U("LICENSE.make_uid_cmd"))
-DAT(LICENSE_PROD,           U("LICENSE.prod"))
-DAT(LICENSE_AGENT_ID,       U("LICENSE.agentId"))
-DAT(LICENSE_UNP,            U("LICENSE.unp"))
-DAT(LICENSE_SRV_URI,	    U("LICENSE.license_manager_uri"))
-DAT(CONFIG_DAY_LICENSE_UPDATE,	U("CONFIG.day_license_update"))
-DAT(CONFIG_DAY_LICENSE_CHECK,	U("CONFIG.day_license_check"))
-DAT(CONFIG_NEXT_TRY_GET_LIC,	U("CONFIG.next_try_get_license_mins"))
-DAT(CONFIG_NEXT_DAY_WAIT_GET,	U("CONFIG.next_day_waiting_hours"))
-DAT(FILES_OPENVPN_PATH,         U("FILES.openvpn"))
+DAT(FILES_LIC, _XPLATSTR("FILES.lic"))
+DAT(FILES_LIC_FILE_NAME, _XPLATSTR("FILES.lic_file_name"))
+DAT(FILES_UID_FILE_NAME, _XPLATSTR("FILES.uid_file_name"))
+DAT(FILES_KILL_FILE_NAME, _XPLATSTR("FILES.kill_file_name"))
+DAT(LICENSE_MAKE_UID_CMD, _XPLATSTR("LICENSE.make_uid_cmd"))
+DAT(LICENSE_PROD, _XPLATSTR("LICENSE.prod"))
+DAT(LICENSE_AGENT_ID, _XPLATSTR("LICENSE.agentId"))
+DAT(LICENSE_UNP, _XPLATSTR("LICENSE.unp"))
+DAT(LICENSE_SRV_URI, _XPLATSTR("LICENSE.license_manager_uri"))
+DAT(CONFIG_DAY_LICENSE_UPDATE, _XPLATSTR("CONFIG.day_license_update"))
+DAT(CONFIG_DAY_LICENSE_CHECK, _XPLATSTR("CONFIG.day_license_check"))
+DAT(CONFIG_NEXT_TRY_GET_LIC, _XPLATSTR("CONFIG.next_try_get_license_mins"))
+DAT(CONFIG_NEXT_DAY_WAIT_GET, _XPLATSTR("CONFIG.next_day_waiting_hours"))
+DAT(FILES_OPENVPN_PATH, _XPLATSTR("FILES.openvpn"))
 #endif
 
 #ifdef _HOST_STATUSES
-DAT(NEW,        4, U("new"))
-DAT(ACTIVE,		1, U("active"))
-DAT(APPROVED,   3, U("approved"))
-DAT(SUSPENDED,  2, U("suspended"))
+DAT(NEW, 4, _XPLATSTR("new"))
+DAT(ACTIVE, 1, _XPLATSTR("active"))
+DAT(APPROVED, 3, _XPLATSTR("approved"))
+DAT(SUSPENDED, 2, _XPLATSTR("suspended"))
 #endif
 
 #ifdef _CONSTANTS
-DAT(UID_SIZE,               58, U("uid size"))
-DAT(LICENSE_SIZE,           152, U("license size"))
-DAT(CHECK_DAYS,             5, U("check days"))
-DAT(NEXT_DAY_WAITING,       86400, U("next day waiting seconds"))
-DAT(WAIT_NEXT_TRY_GET_SECS, 10, U("wait next try get seconds"))
+DAT(UID_SIZE, 58, _XPLATSTR("uid size"))
+DAT(LICENSE_SIZE, 152, _XPLATSTR("license size"))
+DAT(CHECK_DAYS, 5, _XPLATSTR("check days"))
+DAT(NEXT_DAY_WAITING, 86400, _XPLATSTR("next day waiting seconds"))
+DAT(WAIT_NEXT_TRY_GET_SECS, 10, _XPLATSTR("wait next try get seconds"))
 #endif
 
 #ifdef _ERROR_CODE
-DAT(BAD_CONNECT,    12002, U("error code 12002"))
-DAT(MIME_TYPES,     12010, U("error code 12010"))
+DAT(BAD_CONNECT, 12002, _XPLATSTR("error code 12002"))
+DAT(MIME_TYPES, 12010, _XPLATSTR("error code 12010"))
 #endif
