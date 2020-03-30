@@ -27,7 +27,6 @@ static int parse_args(int argc, ACE_TCHAR *argv[]) {
                            ACE_Get_Opt::ARG_REQUIRED) == -1)
     return -1;
   int option;
-  // ACE_OS_String::strcpy(config_file, ACE_TEXT("HAStatus.conf"));
   while ((option = cmd_opts()) != EOF)
     switch (option) {
     case 'f':
@@ -85,13 +84,17 @@ int Service::reshedule_tasks() {
 }
 
 int Service::run(int argc, char *argv[]) {
-  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T Start Service::svc (%t) \n")));
-  DEBUG_LOG(TM("Start Service::svc"));
 
   if (parse_args(argc, argv) == -1 ||
-      PARSER::instance()->init(string_t(config_file)) == -1) {
+      PARSER::instance2nd(string_t(config_file))->make_paths() == -1) {
     raise(SIGINT);
   }
+  // IT_PARSER->options().
+
+  const Options options = PARSER::instance()->options();
+
+  ACE_DEBUG((LM_DEBUG, ACE_TEXT("%T Start Service::svc (%t) \n")));
+  DEBUG_LOG(TM("Start Service::svc"));
 
   reactor()->owner(ACE_Thread::self());
 
@@ -101,8 +104,6 @@ int Service::run(int argc, char *argv[]) {
         (LM_ERROR, "%T %p:\tcannot to register_handler SIGINT\t (%t) \n"));
     reactor()->notify(this, ACE_Event_Handler::EXCEPT_MASK);
   }
-
-  const Options options = PARSER::instance()->options();
 
   this->get_license_task_ = make_unique<Get_License_Task>(
       options.next_try_get_license_mins, options.next_day_waiting_hours);

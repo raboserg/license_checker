@@ -29,7 +29,7 @@ string_t Parser::make_config_file_path() {
   else
     path_ = this->file_name_;
 #else
-  //path_ = this->config_file_path_;
+  // path_ = this->config_file_path_;
   path_ = this->service_path_ + this->file_name_;
   DEBUG_LOG((TM("Current config path: ") + path_).c_str());
 #endif
@@ -59,20 +59,17 @@ void Parser::create_root(const string_t &file_name) {
 Parser::Parser()
     : file_name_(LIC_INI_FILE), service_path_(make_service_path()) {}
 
-// Parser::Parser(const utility::string_t &file_name)
-//    : file_name_(file_name), service_path_(make_service_path()) {}
-
-Parser::Parser(const string_t &file_name)
-    : file_name_(LIC_INI_FILE), service_path_(file_name) {}
+Parser::Parser(const string_t &config_file_path)
+    : file_name_(LIC_INI_FILE), config_file_path_(config_file_path) {}
 
 string_t Parser::get_value(const utility::string_t &key) const {
   string_t value;
   if (!root_.empty()) {
     value = root_.get<string_t>(key);
     if (value.empty())
-      throw std::runtime_error(
-          conversions::to_utf8string(key) + "is empty. Look at the " +
-          conversions::to_utf8string(this->file_name_));
+      throw std::runtime_error(conversions::to_utf8string(key) +
+                               "is empty. Look at the " +
+                               conversions::to_utf8string(this->file_name_));
     else
       DEBUG_LOG((key + TM(" - ") + value).c_str());
   }
@@ -85,13 +82,18 @@ utility::string_t Parser::get_config_file_path() {
 
 string_t Parser::get_config_file_name() { return this->file_name_; }
 
-int Parser::init(const string_t &config_file_path) {
-  this->config_file_path_ = config_file_path;
+string_t Parser::get_log_file_path() { return this->log_file_path_; }
+
+int Parser::make_paths() {
   this->service_path_ =
-      Files::get_path_without_file_name(config_file_path.c_str());
-  this->file_name_ = Files::get_file_name_from_path(config_file_path.c_str());
-  this->init();
-  return 0;
+      Files::split_file_path(this->get_config_file_path().c_str());
+  this->file_name_ =
+      Files::split_file_name(this->get_config_file_path().c_str());
+  this->log_file_path_ = this->get_service_path() + _XPLATSTR("logs");
+  LOGGER::instance2nd(this->get_log_file_path());
+  DEBUG_LOG((TM("Current logs path: ") + this->get_log_file_path()).c_str());
+  DEBUG_LOG((TM("Current service path: ") + this->get_service_path()).c_str());
+  return this->init();
 }
 
 int Parser::init() {
@@ -149,9 +151,9 @@ int Parser::init() {
     options.openvpn_file_path = get_value(lic::config_keys::FILES_OPENVPN_PATH);
 
     options.lic_file_name =
-        Files::get_file_name_from_path(options.lic_file.c_str());
+        Files::split_file_name(options.lic_file.c_str());
 
-    options.log_files_path = get_service_path() + _XPLATSTR("logs");
+       options.log_files_path =get_log_file_path();
     this->set_options(options);
   } catch (const std::exception &ex) {
     ERROR_LOG((TM("Failed to initialize values of config: ") +

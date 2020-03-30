@@ -45,14 +45,15 @@ int Config_Handler::create_file() {
       CreateFile(this->get_directory().c_str(), GENERIC_READ, FILE_SHARE_MODE,
                  NULL, OPEN_EXISTING, DISPOSITION, NULL);
   if (this->handle_ == ACE_INVALID_HANDLE) {
-    char_t buffer[BUFSIZ];
+    // char_t buffer[BUFSIZ];
+    std::array<char_t, BUFSIZ> buffer;
     const size_t len = ACE_OS::sprintf(
-        buffer,
+        buffer.data(),
         _XPLATSTR(
             "%T \tConfig_Handler::svc: could not be setup changes in %s \n"),
         this->get_directory());
-    ERROR_LOG(buffer);
-    ACE_ERROR_RETURN((LM_ERROR, buffer), -1);
+    ERROR_LOG(buffer.data());
+    ACE_ERROR_RETURN((LM_ERROR, buffer.data()), -1);
   }
   return 0;
 }
@@ -121,12 +122,13 @@ int Config_Handler::processing(const BYTE *lpBuffer,
     wcsncpy(szwFileName, pNotify->FileName, ulCount);
     szwFileName[ulCount] = L'\0';
     if (ACE_OS::strcmp(szwFileName, this->get_file_name().c_str()) == 0) {
-      char_t buffer[BUFSIZ];
-      const size_t len = ACE_OS::sprintf(buffer, L"%d. %s was update\n",
+      // char_t buffer[BUFSIZ];
+      std::array<char_t, BUFSIZ> buffer;
+      const size_t len = ACE_OS::sprintf(buffer.data(), L"%d. %s was update\n",
                                          pNotify->Action, szwFileName);
-      ACE_DEBUG(
-          (LM_DEBUG, "%T Config_Handler::processing ", buffer, "(%t) \n"));
-      INFO_LOG(buffer);
+      ACE_DEBUG((LM_DEBUG, "%T Config_Handler::processing ", buffer.data(),
+                 "(%t) \n"));
+      INFO_LOG(buffer.data());
       this->event_->signal();
       this->bStop = true;
       CloseHandle(this->handle_);

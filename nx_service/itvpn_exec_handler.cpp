@@ -10,20 +10,30 @@ namespace itvpnagent {
 Itvpn_Exec_Handler::Itvpn_Exec_Handler(ACE_Reactor *r)
     : ACE_Event_Handler(r), handle_(ACE_INVALID_HANDLE), iterations_(0) {
 
-  const std::string file_name = Files::get_file_name_from_path(
-      PARSER::instance()->options().openvpn_file_path.c_str());
+  // const std::string file_name = Files::split_file_name(
+  //     PARSER::instance()->options().openvpn_file_path.c_str());
+  // this->set_file_name(file_name);
+
+  const std::string openvpn_file_path = CONFIG.openvpn_file_path;
+
+  const std::string file_name =
+      Files::split_file_name(openvpn_file_path.c_str());
   this->set_file_name(file_name);
 
-  const std::string directory = Files::get_path_without_file_name(
-      PARSER::instance()->options().openvpn_file_path.c_str());
+  // const std::string directory = Files::split_file_path(
+  //     PARSER::instance()->options().openvpn_file_path.c_str());
+  // this->set_directory(directory);
+
+  const std::string directory =
+      Files::split_file_path(openvpn_file_path.c_str());
   this->set_directory(directory);
 
-  char_t buffer[BUFSIZ];
-  const size_t len =
-      ACE_OS::sprintf(buffer, "Started monitoring file '%s'...\n",
-                      PARSER::instance()->options().openvpn_file_path.c_str());
-  ACE_DEBUG((LM_DEBUG, "%T Itvpn_Exec_Handler: %s ", buffer, "(%t) \n"));
-  INFO_LOG(buffer);
+  // char_t buffer[BUFSIZ];
+  std::array<char_t, BUFSIZ> buffer;
+  const size_t len = ACE_OS::sprintf(
+      buffer.data(), "Started monitoring file '%s'", openvpn_file_path.c_str());
+  ACE_DEBUG((LM_DEBUG, "%T Itvpn_Exec_Handler: %s ", buffer.data(), "(%t)\n"));
+  INFO_LOG(buffer.data());
 
   this->handle_ = inotify_init();
   if (this->handle_ == ACE_INVALID_HANDLE)
@@ -62,12 +72,13 @@ int Itvpn_Exec_Handler::handle_input(ACE_HANDLE) {
             iterations_ = 0;
             return 0;
           }
-          char_t buffer[BUFSIZ];
-          const size_t len =
-              ACE_OS::sprintf(buffer, "The %s is opening...\n", event->name);
-          ACE_DEBUG((LM_DEBUG, "%T Itvpn_Exec_Handler::processing ", buffer,
-                     "(%t) \n"));
-          INFO_LOG(buffer);
+          // char_t buffer[BUFSIZ];
+          std::array<char_t, BUFSIZ> buffer;
+          const size_t len = ACE_OS::sprintf(
+              buffer.data(), "The %s is opening...\n", event->name);
+          ACE_DEBUG((LM_DEBUG, "%T Itvpn_Exec_Handler::processing ",
+                     buffer.data(), "(%t) \n"));
+          INFO_LOG(buffer.data());
           LICENSE_WORKER_TASK::instance()->open();
         }
       }

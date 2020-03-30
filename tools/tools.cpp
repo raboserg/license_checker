@@ -19,9 +19,15 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
+//#include <experimental/filesystem>
 #include <memory>
 
 namespace itvpnagent {
+
+//namespace fs {
+//namespace stdfs = std::experimental::filesystem;
+//using stdfs::path;
+//}
 
 namespace System {
 
@@ -40,10 +46,16 @@ string__ current_module_path() {
   if (!GetModuleFileName(NULL, szPath, MAX_PATH))
     wprintf(L"Cannot get service file name, error %u\n", GetLastError());
   const string__ module_path(szPath);
-  service_path = module_path.substr(0, module_path.find_last_of(L"\\")).append(L"\\");
+  service_path =
+      module_path.substr(0, module_path.find_last_of(L"\\")).append(L"\\");
 #else
   service_path = string__(getcwd(NULL, 0));
   service_path.append("/");
+//  std::array<char, 1024 * 4> buf;
+//  auto written = readlink("/proc/self/exe", buf.data(), buf.size());
+//  // Checks::check_exit(VCPKG_LINE_INFO, written != -1, "Could not determine
+//  // current executable path.");
+//  service_path = fs::path(buf.data(), buf.data() + written);
 #endif
   return service_path;
 }
@@ -59,7 +71,8 @@ bool terminate_process(const string__ &procName) {
   int hRes = Process32First(hSnapShot, &pEntry);
   while (hRes) {
     if (wcscmp(pEntry.szExeFile, szPath) == 0) {
-      HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
+      HANDLE hProcess =
+          OpenProcess(PROCESS_TERMINATE, 0, (DWORD)pEntry.th32ProcessID);
       if (hProcess != NULL) {
         TerminateProcess(hProcess, 9);
         CloseHandle(hProcess);
@@ -123,7 +136,7 @@ int getProcIdByName(const std::string &procName) {
 
 namespace Files {
 
-string__ get_file_name_from_path(const char__ *buffer) {
+string__ split_file_name(const char__ *buffer) {
   string__ file_path(buffer);
 #ifndef _WIN32
   return file_path.substr(file_path.find_last_of('/') + 1);
@@ -132,7 +145,7 @@ string__ get_file_name_from_path(const char__ *buffer) {
 #endif
 }
 
-string__ get_path_without_file_name(const char__ *buffer) {
+string__ split_file_path(const char__ *buffer) {
   string__ file_path;
   string__ full_file_path(buffer);
 #ifndef _WIN32

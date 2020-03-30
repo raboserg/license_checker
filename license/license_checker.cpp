@@ -1,10 +1,10 @@
 ﻿#include "license_checker.h"
 #include "ace/OS_NS_stdio.h"
 #include "parser_ini.h"
+#include "tools.h"
 #include <constants.h>
 #include <cpprest/asyncrt_utils.h>
 #include <tracer.h>
-#include "tools.h"
 
 //#include "ace/Auto_Ptr.h"
 //#include "ace/Codecs.h"
@@ -47,14 +47,15 @@ bool LicenseChecker::find_file(const path &dir_path, const string_t &file_name,
 bool LicenseChecker::is_license_file() {
   const string_t license_file_path = PARSER::instance()->options().lic_file;
   // path file_path = PARSER::instance()->options().lic_files_path;
-  path file_path = Files::get_path_without_file_name(license_file_path.c_str());
-//  int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
-//  if (pos != string_t::npos)
-//    file_path = license_file_path.substr(0, pos);
-//  else
-//    file_path = _XPLATSTR(".");
+  path file_path = Files::split_file_path(license_file_path.c_str());
+  //  int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
+  //  if (pos != string_t::npos)
+  //    file_path = license_file_path.substr(0, pos);
+  //  else
+  //    file_path = _XPLATSTR(".");
   const string_t file_name = PARSER::instance()->options().lic_file_name;
-  //const string_t file_name = Files::get_file_name_from_path(PARSER::instance()->options().lic_file_name.c_str());
+  // const string_t file_name =
+  // Files::get_file_name_from_path(PARSER::instance()->options().lic_file_name.c_str());
   const bool result = find_file(file_path, file_name, file_path);
   if (!result)
     ERROR_LOG((license_file_path + TM(" not found")).c_str());
@@ -142,16 +143,17 @@ string_t LicenseChecker::make_verify_license_cmd() {
   const string_t license_file_name = options.lic_file;
   const string_t uid_file_name = options.uid_file_name;
   ///@TODO
-  char_t buffer[BUFSIZ];
+  // char_t buffer[BUFSIZ];
+  std::array<char_t, BUFSIZ> buffer;
   const size_t fmt_len = ACE_OS::sprintf(
-      buffer,
+      buffer.data(),
       //_XPLATSTR("%s -v --uid-file %s --lic-file %s --prod %s --pub-file %s"),
       _XPLATSTR("%s -v --uid-file %s --lic-file %s --prod %s"),
       license_process_path.c_str(), uid_file_name.c_str(),
       // license_file_name.c_str(), license_prod.c_str(), key_pub_file.c_str());
       license_file_name.c_str(), license_prod.c_str());
-  INFO_LOG(buffer);
-  return string_t(buffer);
+  INFO_LOG(buffer.data());
+  return string_t(buffer.data());
 }
 
 string_t LicenseChecker::make_machine_uid_cmd() {

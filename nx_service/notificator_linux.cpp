@@ -18,7 +18,8 @@ char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
   /* Try to get program name by PID */
   sprintf(buffer, "/proc/%d/cmdline", pid);
   const int fd = ::open(buffer, O_RDONLY);
-  if (fd < 0) return nullptr;
+  if (fd < 0)
+    return nullptr;
   /* Read file contents into buffer */
   const ssize_t len = read(fd, buffer, buffer_size - 1);
   if (len <= 0) {
@@ -28,7 +29,8 @@ char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
   close(fd);
   buffer[len] = '\0';
   char *aux = strstr(buffer, "^@");
-  if (aux) *aux = '\0';
+  if (aux)
+    *aux = '\0';
   return buffer;
 }
 
@@ -52,10 +54,12 @@ char *LinuxNoficitator::get_program_name_from_pid(const int pid, char *buffer,
 
 int LinuxNoficitator::get_file_path_from_fd(const int fd, char *buffer,
                                             const size_t buffer_size) {
-  if (fd <= 0) return -1;
+  if (fd <= 0)
+    return -1;
   sprintf(buffer, "/proc/self/fd/%d", fd);
   const ssize_t len = readlink(buffer, buffer, buffer_size - 1);
-  if (len < 0) return -1;
+  if (len < 0)
+    return -1;
   buffer[len] = '\0';
   return 0;
 }
@@ -219,7 +223,8 @@ int LinuxNoficitator::handle_input(ACE_HANDLE) {
       metadata = (struct fanotify_event_metadata *)buffer;
       while (FAN_EVENT_OK(metadata, length)) {
         event_process(metadata);
-        if (metadata->fd > 0) close(metadata->fd);
+        if (metadata->fd > 0)
+          close(metadata->fd);
         metadata = FAN_EVENT_NEXT(metadata, length);
       }
     }
@@ -247,7 +252,8 @@ int LinuxNoficitator::svc() {
         metadata = (struct fanotify_event_metadata *)buffer;
         while (FAN_EVENT_OK(metadata, length)) {
           event_process(metadata);
-          if (metadata->fd > 0) close(metadata->fd);
+          if (metadata->fd > 0)
+            close(metadata->fd);
           metadata = FAN_EVENT_NEXT(metadata, length);
         }
       }

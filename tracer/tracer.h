@@ -6,9 +6,6 @@
 #include <cpprest/details/basic_types.h>
 #include <functional>
 
-#define LOGIN_CONNECT                                                          \
-  TM("/P7.Sink=FileTxt /P7.Dir=D:/Logs/ /P7.Format=\" %lv [%tf] %ms\"")
-
 template <typename T>
 using tracer_unique_ptr = std::unique_ptr<T, std::function<void(T *)>>;
 
@@ -20,12 +17,14 @@ public:
               const tUINT16 line, const char *file, const char *fun, ...);
 
   Logger();
+  Logger(const utility::string_t &log_path);
 
 private:
   const tracer_unique_ptr<IP7_Client> client__;
   tracer_unique_ptr<IP7_Trace> tracer__;
 
   utility::string_t make_connect_config();
+  utility::string_t make_connect_config(const utility::string_t &log_path);
 };
 
 extern P7_EXPORT tBOOL __cdecl Send(tUINT16 i_wTrace_ID,

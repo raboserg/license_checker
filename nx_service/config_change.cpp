@@ -13,11 +13,11 @@ Config_Handler::Config_Handler(ACE_Reactor *r)
   const string directory = PARSER::instance()->get_service_path();
   this->set_directory(directory);
 
-  char_t buffer[BUFSIZ];
+  std::array<char_t, BUFSIZ> buffer;
   const size_t len = ACE_OS::sprintf(
-      buffer, "Started monitoring file '%s' ...\n", directory.c_str());
-  ACE_DEBUG((LM_DEBUG, "%T Config_Handler: %s ", buffer, "(%t) \n"));
-  INFO_LOG(buffer);
+      buffer.data(), "Started monitoring file '%s'", directory.c_str());
+  ACE_DEBUG((LM_DEBUG, "%T Config_Handler: %s ", buffer.data(), "(%t) \n"));
+  INFO_LOG(buffer.data());
 
   this->handle_ = inotify_init();
   this->watch_ = inotify_add_watch(this->handle_, this->get_directory().c_str(),
@@ -56,12 +56,13 @@ int Config_Handler::handle_input(ACE_HANDLE) {
             iterations_ = 0;
             return 0;
           }
-          char_t buffer[BUFSIZ];
-          const size_t len =
-              ACE_OS::sprintf(buffer, "The %s was update\n", event->name);
-          ACE_DEBUG(
-              (LM_DEBUG, "%T Config_Handler::processing ", buffer, "(%t) \n"));
-          INFO_LOG(buffer);
+          // char_t buffer[BUFSIZ];
+          std::array<char_t, BUFSIZ> buffer;
+          const size_t len = ACE_OS::sprintf(
+              buffer.data(), "The %s was update\n", event->name);
+          ACE_DEBUG((LM_DEBUG, "%T Config_Handler::processing ", buffer.data(),
+                     "(%t) \n"));
+          INFO_LOG(buffer.data());
           ACE_OS::sleep(1);
           if (PARSER::instance()->init() == -1) {
             ACE_ERROR((LM_ERROR,

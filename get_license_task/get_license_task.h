@@ -17,14 +17,15 @@ struct MyActiveTimer : public Thread_Timer_Queue {
 };
 
 class CB : public ACE_Event_Handler {
- public:
+public:
   CB(int id) : id_(id) {}
 
   virtual int handle_timeout(const ACE_Time_Value &, const void *arg) {
     ACE_TRACE("CB::handle_timeout");
 
     const int *val = static_cast<const int *>(arg);
-    if ((*val) != id_) return -1;
+    if ((*val) != id_)
+      return -1;
     /////////////////////////////////////////////////
     /*  ACE_Message_Block *mblk = 0;
       ACE_Message_Block *log_blk = 0;
@@ -42,14 +43,14 @@ class CB : public ACE_Event_Handler {
     return 0;
   }
 
- private:
+private:
   int id_;
 };
 
 namespace itvpnagent {
 
 class Get_License_Task : public ACE_Task<ACE_MT_SYNCH> {
- public:
+public:
   Get_License_Task(const int &try_get_license_mins, const int &waiting_hours);
   Get_License_Task(ACE_Thread_Manager *thr_mgr, const int &try_get_license_mins,
                    const int &waiting_hours);
@@ -69,7 +70,7 @@ class Get_License_Task : public ACE_Task<ACE_MT_SYNCH> {
     day_waiting_hours_ = waiting_hours;
   }
 
- private:
+private:
   long timerId_;
   int day_counter_;
   int try_get_license_mins_;
@@ -83,13 +84,15 @@ class Get_License_Task : public ACE_Task<ACE_MT_SYNCH> {
   int try_get_license_mins() { return try_get_license_mins_; }
   int day_waiting_hours() { return day_waiting_hours_; }
   void inform_next_try_log() {
-    char_t log[100];
+    // char_t log[100];
+    std::array<char_t, 100> log;
     const size_t fmt_len = ACE_OS::sprintf(
-        log, _XPLATSTR("The next attempt to get a license in %d minutes"),
+        log.data(),
+        _XPLATSTR("The next attempt to get a license in %d minutes"),
         this->try_get_license_mins_);
-    INFO_LOG(log);
+    INFO_LOG(log.data());
   }
 
   virtual int write_license(const shared_ptr<HostLicense> &host_license);
 };
-}  // namespace itvpnagent
+} // namespace itvpnagent

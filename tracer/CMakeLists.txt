@@ -9,10 +9,10 @@ set(LOG_SERVER_CONFIG "/P7.Sink=Baical /P7.Pool=32768 /P7.PSize=65536 /P7.Addr=1
 message("CONFIG_FILECONFIG_FILECONFIG_FILE ${CONFIG_FILE}")
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-	target_compile_definitions(${PROJECT_NAME} PRIVATE is_debug=1)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE is_debug=0)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE log_config="${LOG_SERVER_CONFIG}")
 else()
-	target_compile_definitions(${PROJECT_NAME} PRIVATE is_debug=0)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE is_debug=0)
 	target_compile_definitions(${PROJECT_NAME} PRIVATE log_config="${LOG_FILE_CONFIG}")
 endif()
 

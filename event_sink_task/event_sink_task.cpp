@@ -80,11 +80,13 @@ int EventSink_Task::write_license(const shared_ptr<HostLicense> &host_license) {
                                   "license to file :(%t) \n")));
     return -1;
   } else {
-    char_t log_msg[50];
+    // char_t log_msg[50];
+    std::array<char_t, 50> log_msg;
     size_t fmt_len = ACE_OS::sprintf(
-        log_msg, _XPLATSTR("Save new license to file: month - %d, year - %d"),
+        log_msg.data(),
+        _XPLATSTR("Save new license to file: month - %d, year - %d"),
         host_license->month(), host_license->year());
-    INFO_LOG(log_msg);
+    INFO_LOG(log_msg.data());
   }
   return 0;
 }
