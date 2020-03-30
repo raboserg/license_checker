@@ -8,9 +8,9 @@
 namespace itvpnagent {
 
 #ifdef _WIN32
-const string_t LIC_INI_FILE = U("itvpnagent.ini");
+const string_t LIC_INI_FILE = _XPLATSTR("itvpnagent.ini");
 #else
-const string_t LIC_INI_FILE = U("lic_check_l.ini");
+const string_t LIC_INI_FILE = _XPLATSTR("lic_check_l.ini");
 #endif
 
 string_t Parser::get_service_path() { return service_path_; }
