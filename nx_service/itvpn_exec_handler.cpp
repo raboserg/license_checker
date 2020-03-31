@@ -10,25 +10,14 @@ namespace itvpnagent {
 Itvpn_Exec_Handler::Itvpn_Exec_Handler(ACE_Reactor *r)
     : ACE_Event_Handler(r), handle_(ACE_INVALID_HANDLE), iterations_(0) {
 
-  // const std::string file_name = Files::split_file_name(
-  //     PARSER::instance()->options().openvpn_file_path.c_str());
-  // this->set_file_name(file_name);
+  const string openvpn_file_path = CONFIG.openvpn_file_path;
 
-  const std::string openvpn_file_path = CONFIG.openvpn_file_path;
-
-  const std::string file_name =
-      Files::split_file_name(openvpn_file_path.c_str());
+  const string file_name = Files::split_file_name(openvpn_file_path.c_str());
   this->set_file_name(file_name);
 
-  // const std::string directory = Files::split_file_path(
-  //     PARSER::instance()->options().openvpn_file_path.c_str());
-  // this->set_directory(directory);
-
-  const std::string directory =
-      Files::split_file_path(openvpn_file_path.c_str());
+  const string directory = Files::split_file_path(openvpn_file_path.c_str());
   this->set_directory(directory);
 
-  // char_t buffer[BUFSIZ];
   std::array<char_t, BUFSIZ> buffer;
   const size_t len = ACE_OS::sprintf(
       buffer.data(), "Started monitoring file '%s'", openvpn_file_path.c_str());
@@ -72,7 +61,6 @@ int Itvpn_Exec_Handler::handle_input(ACE_HANDLE) {
             iterations_ = 0;
             return 0;
           }
-          // char_t buffer[BUFSIZ];
           std::array<char_t, BUFSIZ> buffer;
           const size_t len = ACE_OS::sprintf(
               buffer.data(), "The %s is opening...\n", event->name);
@@ -92,19 +80,15 @@ int Itvpn_Exec_Handler::handle_close(ACE_HANDLE, ACE_Reactor_Mask) {
   return 0;
 }
 
-std::string Itvpn_Exec_Handler::get_directory() const {
-  return this->directory_;
-}
+string Itvpn_Exec_Handler::get_directory() const { return this->directory_; }
 
-void Itvpn_Exec_Handler::set_directory(const std::string &directory) {
+void Itvpn_Exec_Handler::set_directory(const string &directory) {
   this->directory_ = directory;
 }
 
-std::string Itvpn_Exec_Handler::get_file_name() const {
-  return this->file_name_;
-}
+string Itvpn_Exec_Handler::get_file_name() const { return this->file_name_; }
 
-void Itvpn_Exec_Handler::set_file_name(const std::string &file_name) {
+void Itvpn_Exec_Handler::set_file_name(const string &file_name) {
   this->file_name_ = file_name;
 }
 

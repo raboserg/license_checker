@@ -179,7 +179,6 @@ int Get_License_Task::write_license(
                                   "license to file :(%t) \n")));
     return -1;
   } else {
-    // char_t log[100];
     std::array<char_t, 100> log;
     const size_t fmt_len = ACE_OS::sprintf(
         log.data(),

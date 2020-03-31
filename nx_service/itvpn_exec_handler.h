@@ -12,6 +12,8 @@
 
 namespace itvpnagent {
 
+using namespace std;
+
 #define EVENT_SIZE (sizeof(struct inotify_event))
 #define EVENT_BUF_LEN (1024 * (EVENT_SIZE + 16))
 
@@ -23,18 +25,18 @@ public:
   int handle_close(ACE_HANDLE handle, ACE_Reactor_Mask close_mask);
   ACE_HANDLE get_handle(void) const;
 
-  std::string get_directory() const;
-  void set_directory(const std::string &directory);
+  string get_directory() const;
+  void set_directory(const string &directory);
 
-  std::string get_file_name() const;
-  void set_file_name(const std::string &file_name);
+  string get_file_name() const;
+  void set_file_name(const string &file_name);
 
 private:
   int watch_;
   int iterations_;
+  string file_name_;
+  string directory_;
   ACE_HANDLE handle_;
-  std::string file_name_;
-  std::string directory_;
 };
 
 } // namespace itvpnagent

@@ -57,7 +57,6 @@ public:
   virtual ~Get_License_Task();
   int close(u_long arg);
   int open(const ACE_Time_Value tv1);
-  // virtual int handle_signal(int, siginfo_t *siginfo, ucontext_t *);
   virtual int handle_exception(ACE_HANDLE h);
   virtual int handle_timeout(const ACE_Time_Value &tv, const void *arg);
   virtual int schedule_handle_timeout(const int &seconds);
@@ -84,7 +83,6 @@ private:
   int try_get_license_mins() { return try_get_license_mins_; }
   int day_waiting_hours() { return day_waiting_hours_; }
   void inform_next_try_log() {
-    // char_t log[100];
     std::array<char_t, 100> log;
     const size_t fmt_len = ACE_OS::sprintf(
         log.data(),
