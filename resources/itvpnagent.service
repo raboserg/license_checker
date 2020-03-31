@@ -3,12 +3,11 @@ Description=itvpnagent
 After=syslog.target network.target
 
 [Service]
+Environment="LD_LIBRARY_PATH=/home/deon/itvpn/bin/itvpnagent/:$LD_LIBRARY_PATH"
 PrivateTmp=true
-#Type=forking
-PIDFile=/home/user/itvpnagent/%i.pid
-#ExecStart=/home/user/itvpnagent/itvpnagent --daemon --writepid /home/user/itvpnagent/%i.pid --cd /home/user/itvpnagent/
-ExecStart=/home/user/itvpnagent/itvpnagent -config=/home/user/itvpnagent/lic_check_l.ini 
-#--daemon --writepid /home/user/itvpnagent/%i.pid --cd /home/user/itvpnagent/
+PIDFile=/home/deon/itvpn/bin/itvpnagent/%i.pid
+ExecStart=/home/deon/itvpn/bin/itvpnagent/itvpnagent -config=/home/deon/itvpn/bin/itvpnagent/lic_check_l.ini 
+#--writepid /home/deon/itvpn/bin/itvpnagent/%i.pid --cd /home/deon/itvpn/bin/itvpnagent/
 
 [Install]
 WantedBy=multi-user.target

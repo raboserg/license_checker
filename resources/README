@@ -1,0 +1,9 @@
+tar -xvf itvpnagent.tar.bz2 -C /home/user/itvpnagent/
+exec ./run.sh i
+
+./itvpnagent -f ~/itvpn/bin/itvpnagent/lic_check_l.ini
+sudo journalctl -u itvpnagent.service -f
+sudo systemctl edit itvpnagent
+export "LD_LIBRARY_PATH=/home/deon/itvpn/bin/itvpnagent/:$LD_LIBRARY_PATH"
+sudo systemctl -l status itvpnagent
+
