@@ -16,9 +16,9 @@ const char_t *module = _XPLATSTR("Get_License_Task");
 
 Get_License_Task::Get_License_Task(const int &license_mins,
                                    const int &waiting_hours)
-    : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()),
-      licenseChecker_(new LicenseChecker()), day_counter_(0),
-      try_get_license_mins_(license_mins), day_waiting_hours_(waiting_hours) {
+    : ACE_Task<ACE_MT_SYNCH>(ACE_Thread_Manager::instance()), day_counter_(0),
+      try_get_license_mins_(license_mins), day_waiting_hours_(waiting_hours),
+      licenseChecker_(new LicenseChecker()) {
   this->reactor(ACE_Reactor::instance());
 }
 
@@ -180,7 +180,7 @@ int Get_License_Task::write_license(
     return -1;
   } else {
     std::array<char_t, 100> log;
-    const size_t fmt_len = ACE_OS::sprintf(
+    ACE_OS::sprintf(
         log.data(),
         _XPLATSTR("Save new license to file: month - %d, year - %d"),
         host_license->month(), host_license->year());
