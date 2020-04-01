@@ -4,6 +4,7 @@ Makefile
 cmake_install.cmake
 compile_commands.json
 build
+build32
 DartConfiguration.tsl
 CTestTestfile.cmake
 CMakeLists.txt.user
