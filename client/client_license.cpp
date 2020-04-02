@@ -9,9 +9,8 @@ using namespace conversions;
 LicenseExtractor::LicenseExtractor(const uri &address,
                                    const Request_License &req_lic,
                                    const int64_t &attempt)
-    : client_(address, make_client_config(attempt)),
-      request_license_(req_lic),
-      attempt_(attempt) {
+    : attempt_(attempt), client_(address, make_client_config(attempt)),
+      request_license_(req_lic) {
   result_ = make_shared<Result>();
   http_request_.set_method(methods::POST);
   http_request_.set_body(make_request_message(req_lic).serialize(),
@@ -102,8 +101,8 @@ void LicenseExtractor::processing_http_errors(const http_response &response) {
   throw runtime_error(to_utf8string(error).c_str());
 }
 
-client::http_client_config LicenseExtractor::make_client_config(
-    const int64_t &attempt) {
+client::http_client_config
+LicenseExtractor::make_client_config(const int64_t &attempt) {
   client::http_client_config config;
   config.set_validate_certificates(false);
   config.set_timeout(std::chrono::seconds(60));
@@ -127,8 +126,8 @@ http_response LicenseExtractor::send_request() {
       break;
     } catch (const http_exception &ex) {
       ucout << _XPLATSTR("Http error code: ") << ex.error_code().value()
-            << std::endl;  // error code win = 12029,
-                           // error code lin = 110 - Request canceled by user.
+            << std::endl; // error code win = 12029,
+                          // error code lin = 110 - Request canceled by user.
       if (chrono::steady_clock::now() > (start + time_try_connection_)) {
         ERROR_LOG(to_string_t(ex.what()).c_str());
         //????? throw_with_nested(runtime_error(ex.what()));

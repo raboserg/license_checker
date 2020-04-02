@@ -1,16 +1,14 @@
 ﻿#include "license_checker.h"
+#include "ace/Log_Msg.h"
 #include "ace/OS_NS_stdio.h"
+#include "ace/OS_NS_stdlib.h"
 #include "parser_ini.h"
 #include "tools.h"
 #include <constants.h>
 #include <cpprest/asyncrt_utils.h>
 #include <tracer.h>
-
 //#include "ace/Auto_Ptr.h"
 //#include "ace/Codecs.h"
-
-#include "ace/Log_Msg.h"
-#include "ace/OS_NS_stdlib.h"
 
 using namespace itvpnagent;
 
@@ -45,14 +43,9 @@ bool LicenseChecker::find_file(const path &dir_path, const string_t &file_name,
 }
 
 bool LicenseChecker::is_license_file() {
-  const string_t license_file_path = PARSER::instance()->options().lic_file;
+  const string_t license_file_path = CONFIG.lic_file;
   // path file_path = PARSER::instance()->options().lic_files_path;
   path file_path = Files::split_file_path(license_file_path.c_str());
-  //  int pos = license_file_path.find_last_of(_XPLATSTR("\\"));
-  //  if (pos != string_t::npos)
-  //    file_path = license_file_path.substr(0, pos);
-  //  else
-  //    file_path = _XPLATSTR(".");
   const string_t file_name = PARSER::instance()->options().lic_file_name;
   // const string_t file_name =
   // Files::get_file_name_from_path(PARSER::instance()->options().lic_file_name.c_str());

@@ -1,13 +1,12 @@
 #include "process_killer_task.h"
+#include "ace/OS_NS_signal.h"
 #include "ace/OS_NS_time.h"
 #include "ace/Process.h"
+#include "ace/Signal.h"
 #include "constants.h"
 #include "message_sender.h"
 #include "tools.h"
 #include "tracer.h"
-
-#include "ace/OS_NS_signal.h"
-#include "ace/Signal.h"
 
 namespace itvpnagent {
 
@@ -75,7 +74,7 @@ int Process_Killer_Task::svc() {
         const string_t messa = _XPLATSTR("{ \"code\": \"1\", \"disc\": \"") +
                                message + _XPLATSTR("\" }");
         Net::send_message(messa);
-        //MESSAGE_SENDER::instance()->send(messa);
+        // MESSAGE_SENDER::instance()->send(messa);
       } else {
         const string_t message = _XPLATSTR("Process ") +
                                  this->process_stopping_name() +
@@ -84,7 +83,7 @@ int Process_Killer_Task::svc() {
                                message + _XPLATSTR("\" }");
         INFO_LOG(message.c_str());
         Net::send_message(messa);
-        //MESSAGE_SENDER::instance()->send(messa);
+        // MESSAGE_SENDER::instance()->send(messa);
       }
     }
     schedule_handle_timeout(next_day_waiting_secs());
@@ -92,7 +91,7 @@ int Process_Killer_Task::svc() {
     std::string str(err.what());
     const string_t message =
         conversions::to_string_t(str.substr(0, str.find_first_of(":")));
-    //MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    // MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
     Net::send_message(_XPLATSTR("0#Critical#") + message);
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Process_Killer_Task: %s :(%t) \n"),
                err.what()));
@@ -101,7 +100,7 @@ int Process_Killer_Task::svc() {
     raise(SIGINT);
   } catch (const std::runtime_error &err) {
     const string_t message = conversions::to_string_t(std::string(err.what()));
-    //MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
+    // MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
     Net::send_message(_XPLATSTR("0#Critical#") + message);
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Process_Killer_Task: kill task :(%t) \n"),
                err.what()));
