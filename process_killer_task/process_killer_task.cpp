@@ -97,7 +97,8 @@ int Process_Killer_Task::svc() {
                err.what()));
     ERROR_LOG(message.c_str());
     // shutdown service
-    raise(SIGINT);
+    //raise(SIGINT);
+	schedule_handle_timeout(next_day_waiting_secs());
   } catch (const std::runtime_error &err) {
     const string_t message = conversions::to_string_t(std::string(err.what()));
     // MESSAGE_SENDER::instance()->send(_XPLATSTR("0#Critical#") + message);
@@ -106,7 +107,8 @@ int Process_Killer_Task::svc() {
                err.what()));
     ERROR_LOG(message.c_str());
     // shutdown service
-    raise(SIGINT);
+    //raise(SIGINT);
+	schedule_handle_timeout(next_day_waiting_secs());
   }
   ACE_DEBUG(
       (LM_INFO, ACE_TEXT("%T Process_Killer_Task: task finished (%t) \n")));

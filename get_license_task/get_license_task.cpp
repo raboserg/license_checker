@@ -98,8 +98,8 @@ int Get_License_Task::svc() {
                 write_license(host_license);
               } else {
                 INFO_LOG(TM("The license obtained is current"));
-              } ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
-              schedule_handle_timeout(next_try_get_license_secs());
+              } ///### schedule_handle_timeout(next_try_get_license_secs());
+			  schedule_handle_timeout(next_day_waiting_secs());
               INFO_LOG(TM("Wait next day"));
             } else { //?????????
               Net::send_message(_XPLATSTR("1#Host License#Error restponse: "
@@ -124,8 +124,8 @@ int Get_License_Task::svc() {
       }
     } else {
       day_counter_++;
-      ///!!!!!schedule_handle_timeout(next_day_waiting_secs());
-      schedule_handle_timeout(next_try_get_license_secs());
+      ///### schedule_handle_timeout(next_try_get_license_secs());
+	  schedule_handle_timeout(next_day_waiting_secs());
       // TODO:save state to file ???
       INFO_LOG(TM("Wait next day"));
     }
@@ -137,16 +137,15 @@ int Get_License_Task::svc() {
     ACE_ERROR(
         (LM_DEBUG, ACE_TEXT("%T Get_License_Task: %s :(%t) \n"), err.what()));
     ERROR_LOG(message.c_str());
-    // shutdown service
-    raise(SIGINT);
+	schedule_handle_timeout(next_try_get_license_secs());
   } catch (const runtime_error &err) {
     const string_t message = conversions::to_string_t(std::string(err.what()));
     Net::send_message(_XPLATSTR("0#Critical#") + message);
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: kill task :(%t) \n"),
                err.what()));
     ERROR_LOG(message.c_str());
-    // shutdown service
-    raise(SIGINT);
+	schedule_handle_timeout(next_try_get_license_secs());
+	inform_next_try_log();
   } catch (const web::http::http_exception &err) {
     const string_t message = conversions::to_string_t(err.what());
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: http error :(%t) \n"),

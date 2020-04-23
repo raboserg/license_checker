@@ -51,7 +51,7 @@ int EventSink_Task::svc() {
     itvpnagent::Net::send_message(_XPLATSTR("0#Critical#") + message);
     ERROR_LOG(message.c_str());
     // stop service
-    raise(SIGINT);
+    //???raise(SIGINT);
   } catch (const runtime_error &err) {
     const string_t message = conversions::to_string_t(std::string(err.what()));
     itvpnagent::Net::send_message(_XPLATSTR("0#Critical#") + message);
@@ -59,7 +59,7 @@ int EventSink_Task::svc() {
                err.what()));
     ERROR_LOG(message.c_str());
     // stop service
-    raise(SIGINT);
+    //???raise(SIGINT);
   } catch (web::http::http_exception &err) {
     const string_t message = conversions::to_string_t(err.what());
     ERROR_LOG(message.c_str());

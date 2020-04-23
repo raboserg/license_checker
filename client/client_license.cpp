@@ -91,7 +91,7 @@ void LicenseExtractor::processing_http_errors(const http_response &response) {
             .append(_XPLATSTR(" "))
             .append(field_error_.message);
       }
-      ERROR_LOG(error.c_str());
+      //ERROR_LOG(error.c_str());
     }
     result_->errors(errors);
   }

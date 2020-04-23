@@ -68,7 +68,7 @@ string_t Parser::get_value(const utility::string_t &key) const {
     value = root_.get<string_t>(key);
     if (value.empty())
       throw std::runtime_error(conversions::to_utf8string(key) +
-                               "is empty. Look at the " +
+                               " is empty. Look at the " +
                                conversions::to_utf8string(this->file_name_));
     else
       DEBUG_LOG((key + TM(" - ") + value).c_str());
@@ -109,51 +109,52 @@ int Parser::init() {
     options.make_uid_cmd = get_value(lic::config_keys::LICENSE_MAKE_UID_CMD);
     options.uid_file_name = get_value(lic::config_keys::FILES_UID_FILE_NAME);
     options.license_manager_uri = get_value(lic::config_keys::LICENSE_SRV_URI);
-    options.day_license_update = ACE_OS::atol(
-        get_value(lic::config_keys::CONFIG_DAY_LICENSE_UPDATE).c_str());
+
+    const std::string file_name_utf8_ =
+        utility::conversions::to_utf8string(this->file_name_);
+
+    const string_t lic_update_day =
+        get_value(lic::config_keys::CONFIG_DAY_LICENSE_UPDATE);
+    options.day_license_update = ACE_OS::atol(lic_update_day.c_str());
     if (options.day_license_update <= 0 || options.day_license_update > 31)
-      throw std::runtime_error(
-          utility::conversions::to_utf8string(
-              lic::config_keys::CONFIG_DAY_LICENSE_UPDATE) +
-          "isn't correct. Look at the " +
-          utility::conversions::to_utf8string(this->file_name_));
+      throw std::runtime_error(utility::conversions::to_utf8string(
+                                   lic::config_keys::CONFIG_DAY_LICENSE_UPDATE +
+                                   _XPLATSTR(" isn't correct: ") +
+                                   lic_update_day +
+                                   _XPLATSTR(". Look at the ")) +
+                               file_name_utf8_);
 
     options.day_license_check = ACE_OS::atol(
         get_value(lic::config_keys::CONFIG_DAY_LICENSE_CHECK).c_str());
     if (options.day_license_check <= 0 || options.day_license_check > 31)
-      throw std::runtime_error(
-          utility::conversions::to_utf8string(
-              lic::config_keys::CONFIG_DAY_LICENSE_CHECK) +
-          "isn't correct. Look at the " +
-          utility::conversions::to_utf8string(this->file_name_));
+      throw std::runtime_error(utility::conversions::to_utf8string(
+                                   lic::config_keys::CONFIG_DAY_LICENSE_CHECK) +
+                               " isn't correct. Look at the " + file_name_utf8_);
 
     options.next_try_get_license_mins = ACE_OS::atoi(
         get_value(lic::config_keys::CONFIG_NEXT_TRY_GET_LIC).c_str());
     if (options.next_try_get_license_mins <= 0 ||
         options.next_try_get_license_mins > 60)
-      throw std::runtime_error(
-          utility::conversions::to_utf8string(
-              lic::config_keys::CONFIG_NEXT_TRY_GET_LIC) +
-          " more than 60 secs. Look at the " +
-          utility::conversions::to_utf8string(this->file_name_));
+      throw std::runtime_error(utility::conversions::to_utf8string(
+                                   lic::config_keys::CONFIG_NEXT_TRY_GET_LIC) +
+                               " more than 60 secs. Look at the " +
+                               file_name_utf8_);
 
     options.next_day_waiting_hours = ACE_OS::atoi(
         get_value(lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET).c_str());
     if (options.next_day_waiting_hours <= 0 ||
         options.next_day_waiting_hours > 24)
-      throw std::runtime_error(
-          utility::conversions::to_utf8string(
-              lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET) +
-          " more than 60 secs. Look at the " +
-          utility::conversions::to_utf8string(this->file_name_));
+      throw std::runtime_error(utility::conversions::to_utf8string(
+                                   lic::config_keys::CONFIG_NEXT_DAY_WAIT_GET) +
+                               " more than 60 secs. Look at the " +
+                               file_name_utf8_);
 
     options.kill_file_name = get_value(lic::config_keys::FILES_KILL_FILE_NAME);
     options.openvpn_file_path = get_value(lic::config_keys::FILES_OPENVPN_PATH);
 
-    options.lic_file_name =
-        Files::split_file_name(options.lic_file.c_str());
+    options.lic_file_name = Files::split_file_name(options.lic_file.c_str());
 
-       options.log_files_path =get_log_file_path();
+    options.log_files_path = get_log_file_path();
     this->set_options(options);
   } catch (const std::exception &ex) {
     ERROR_LOG((TM("Failed to initialize values of config: ") +

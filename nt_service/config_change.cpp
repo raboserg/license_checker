@@ -45,7 +45,6 @@ int Config_Handler::create_file() {
       CreateFile(this->get_directory().c_str(), GENERIC_READ, FILE_SHARE_MODE,
                  NULL, OPEN_EXISTING, DISPOSITION, NULL);
   if (this->handle_ == ACE_INVALID_HANDLE) {
-    // char_t buffer[BUFSIZ];
     std::array<char_t, BUFSIZ> buffer;
     const size_t len = ACE_OS::sprintf(
         buffer.data(),
@@ -91,8 +90,8 @@ int Config_Handler::svc(void) {
 
 int Config_Handler::handle_signal(int, siginfo_t *, ucontext_t *) {
   ACE_DEBUG((LM_DEBUG, "%T Config_Handler::handle_signal (%t) \n"));
-  // ACE_OS::sleep(1);
   active_handler_->wait();
+  ACE_OS::sleep(3);
   if (PARSER::instance()->init() == -1) {
     ACE_ERROR((LM_ERROR, "%T \tConfig_Handler::handle_signal: Cannot to "
                          "initialize constants (%t) \n"));
@@ -122,7 +121,6 @@ int Config_Handler::processing(const BYTE *lpBuffer,
     wcsncpy(szwFileName, pNotify->FileName, ulCount);
     szwFileName[ulCount] = L'\0';
     if (ACE_OS::strcmp(szwFileName, this->get_file_name().c_str()) == 0) {
-      // char_t buffer[BUFSIZ];
       std::array<char_t, BUFSIZ> buffer;
       const size_t len = ACE_OS::sprintf(buffer.data(), L"%d. %s was update\n",
                                          pNotify->Action, szwFileName);
