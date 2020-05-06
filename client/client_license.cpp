@@ -45,12 +45,16 @@ shared_ptr<Result> LicenseExtractor::processing_license() {
       result_->host_status(host_status);
       if (result_->host_status()->id() == lic::lic_host_status::ACTIVE) {
         if (!json_value[_XPLATSTR("hostLicense")].is_null()) {
+          value license_json = json_value[_XPLATSTR("hostLicense")];
           const shared_ptr<HostLicense> host_license =
               make_shared<HostLicense>();
-          value license_json = json_value[_XPLATSTR("hostLicense")];
-          host_license->license(license_json[_XPLATSTR("license")].as_string());
-          host_license->month(license_json[_XPLATSTR("month")].as_integer());
-          host_license->year(license_json[_XPLATSTR("year")].as_integer());
+          if (!license_json[_XPLATSTR("license")].is_null())
+            host_license->license(
+                license_json[_XPLATSTR("license")].as_string());
+          if (!license_json[_XPLATSTR("month")].is_null())
+            host_license->month(license_json[_XPLATSTR("month")].as_integer());
+          if (!license_json[_XPLATSTR("year")].is_null())
+            host_license->year(license_json[_XPLATSTR("year")].as_integer());
           result_->host_license(host_license);
         }
       }
@@ -91,7 +95,7 @@ void LicenseExtractor::processing_http_errors(const http_response &response) {
             .append(_XPLATSTR(" "))
             .append(field_error_.message);
       }
-      //ERROR_LOG(error.c_str());
+      // ERROR_LOG(error.c_str());
     }
     result_->errors(errors);
   }

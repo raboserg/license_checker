@@ -33,10 +33,18 @@ int EventSink_Task::svc() {
                                     result->host_status()->name());
       INFO_LOG((TM("Host Status: ") + result->host_status()->name()).c_str());
       if (result->host_status()->id() == lic::lic_host_status::ACTIVE) {
-        string_t license = result->host_license()->license();
-        if (!license.empty()) {
-          INFO_LOG(TM("Received a license"));
-          write_license(result->host_license());
+        const shared_ptr<HostLicense> host_license = result->host_license();
+        if (host_license != nullptr) {
+          string_t license = result->host_license()->license();
+          if (!license.empty()) {
+            INFO_LOG(TM("Received a license"));
+            write_license(result->host_license());
+          }
+        } else {
+          const string_t message_ =
+              TM("ERROR: Host Status is ") + result->host_status()->name() +
+              TM(", Lisence of Host is NULL. Call to administrator.");
+          ERROR_LOG(message_.c_str());
         }
       } else {
         INFO_LOG(TM("Try to get license arter 5 minutes"));

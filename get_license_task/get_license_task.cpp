@@ -77,45 +77,57 @@ int Get_License_Task::svc() {
       INFO_LOG((TM("Host Status: ") + result->host_status()->name()).c_str());
       const int host_status = result->host_status()->id();
       if (host_status == lic::lic_host_status::ACTIVE) {
-        string_t license = result->host_license()->license();
-        if (license.empty()) {
-          schedule_handle_timeout(next_try_get_license_secs());
-          ACE_DEBUG((
-              LM_INFO,
-              ACE_TEXT("%T Get_License_Task: Retrieved license "
-                       "is empty, try to get after five minutes... :(%t) \n")));
-          ERROR_LOG(TM("The license obtained license is empty"));
-          inform_next_try_log();
-        } else {
-          INFO_LOG(TM("Received a license"));
-          const shared_ptr<HostLicense> host_license = result->host_license();
-          if (licenseChecker_->is_license_file()) {
-            // read and check the date of current license
-            if (host_license != nullptr && host_license->month() != 0) {
-              if (licenseChecker_->is_check_licenses_months(
-                      host_license->month())) {
-                INFO_LOG(TM("The license obtained is new"));
-                write_license(host_license);
-              } else {
-                INFO_LOG(TM("The license obtained is current"));
-              } ///### schedule_handle_timeout(next_try_get_license_secs());
-			  schedule_handle_timeout(next_day_waiting_secs());
+        const shared_ptr<HostLicense> host_license = result->host_license();
+        if (host_license != nullptr) {
+          string_t license = result->host_license()->license();
+          if (license.empty()) {
+            schedule_handle_timeout(next_try_get_license_secs());
+            ACE_DEBUG(
+                (LM_INFO,
+                 ACE_TEXT(
+                     "%T Get_License_Task: Retrieved license "
+                     "is empty, try to get after five minutes... :(%t) \n")));
+            ERROR_LOG(TM("The license obtained license is empty"));
+            inform_next_try_log();
+          } else {
+            INFO_LOG(TM("Received a license"));
+            const shared_ptr<HostLicense> host_license = result->host_license();
+            if (licenseChecker_->is_license_file()) {
+              // read and check the date of current license
+              if (host_license != nullptr && host_license->month() != 0) {
+                if (licenseChecker_->is_check_licenses_months(
+                        host_license->month())) {
+                  INFO_LOG(TM("The license obtained is new"));
+                  write_license(host_license);
+                } else {
+                  INFO_LOG(TM("The license obtained is current"));
+                } ///### schedule_handle_timeout(next_try_get_license_secs());
+                schedule_handle_timeout(next_day_waiting_secs());
+                INFO_LOG(TM("Wait next day"));
+              } else { //?????????
+                Net::send_message(_XPLATSTR("1#Host License#Error restponse: "
+                                            "retrived host license is wrong"));
+                ERROR_LOG(
+                    TM("Error restponse: retrived host license is wrong"));
+                schedule_handle_timeout(next_try_get_license_secs());
+                inform_next_try_log();
+              }
+            } else { // If don't find file of license , save getted license
+              write_license(host_license);
+              schedule_handle_timeout(next_day_waiting_secs());
               INFO_LOG(TM("Wait next day"));
-            } else { //?????????
-              Net::send_message(_XPLATSTR("1#Host License#Error restponse: "
-                                          "retrived host license is wrong"));
-              ERROR_LOG(TM("Error restponse: retrived host license is wrong"));
-              schedule_handle_timeout(next_try_get_license_secs());
-              inform_next_try_log();
             }
-          } else { // If don't find file of license , save getted license
-            write_license(host_license);
-            schedule_handle_timeout(next_day_waiting_secs());
-            INFO_LOG(TM("Wait next day"));
           }
+        } else {
+          const string_t message_ =
+              TM("ERROR: Host Status is ") + result->host_status()->name() +
+              TM(", Lisence of Host is NULL. Call to administrator.");
+          ERROR_LOG(message_.c_str());
+          schedule_handle_timeout(next_try_get_license_secs());
+          inform_next_try_log();
         }
       } else if (host_status == lic::lic_host_status::SUSPENDED) {
-        schedule_handle_timeout(lic::constants::NEXT_DAY_WAITING);
+        schedule_handle_timeout(next_day_waiting_secs());
         INFO_LOG(TM("The status of license is suspended."));
         INFO_LOG(TM("Try to get license next day."));
       } else { // TODO:save state to file ???
@@ -125,7 +137,7 @@ int Get_License_Task::svc() {
     } else {
       day_counter_++;
       ///### schedule_handle_timeout(next_try_get_license_secs());
-	  schedule_handle_timeout(next_day_waiting_secs());
+      schedule_handle_timeout(next_day_waiting_secs());
       // TODO:save state to file ???
       INFO_LOG(TM("Wait next day"));
     }
@@ -137,15 +149,15 @@ int Get_License_Task::svc() {
     ACE_ERROR(
         (LM_DEBUG, ACE_TEXT("%T Get_License_Task: %s :(%t) \n"), err.what()));
     ERROR_LOG(message.c_str());
-	schedule_handle_timeout(next_try_get_license_secs());
+    schedule_handle_timeout(next_try_get_license_secs());
   } catch (const runtime_error &err) {
     const string_t message = conversions::to_string_t(std::string(err.what()));
     Net::send_message(_XPLATSTR("0#Critical#") + message);
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: kill task :(%t) \n"),
                err.what()));
     ERROR_LOG(message.c_str());
-	schedule_handle_timeout(next_try_get_license_secs());
-	inform_next_try_log();
+    schedule_handle_timeout(next_try_get_license_secs());
+    inform_next_try_log();
   } catch (const web::http::http_exception &err) {
     const string_t message = conversions::to_string_t(err.what());
     ACE_ERROR((LM_DEBUG, ACE_TEXT("%T Get_License_Task: http error :(%t) \n"),
